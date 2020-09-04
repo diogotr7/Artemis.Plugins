@@ -2,10 +2,8 @@
 using Artemis.Plugins.Modules.LeagueOfLegends.DataModels;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Threading.Tasks;
 using System.Timers;
 
 namespace Artemis.Plugins.Modules.LeagueOfLegends
@@ -61,7 +59,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
 
         public override void ProfileUpdate(double deltaTime)
         {
-            if (timeSinceLastUpdate < 0.50d)
+            if (timeSinceLastUpdate < 0.1d)
             {
                 timeSinceLastUpdate += deltaTime;
                 return;
