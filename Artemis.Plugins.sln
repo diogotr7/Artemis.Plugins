@@ -5,7 +5,9 @@ VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.LayerBrushes.Gif", "Artemis.Plugins.LayerBrushes.Gif\Artemis.Plugins.LayerBrushes.Gif.csproj", "{DDB60A1E-BA5F-45FA-9FF8-D038B503C1FA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Artemis.Plugins.Modules.LeagueOfLegends", "Artemis.Plugins.Modules.LeagueOfLegends\Artemis.Plugins.Modules.LeagueOfLegends.csproj", "{55A728EE-76D6-492E-A45C-FADAC7FDECEE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.Modules.LeagueOfLegends", "Artemis.Plugins.Modules.LeagueOfLegends\Artemis.Plugins.Modules.LeagueOfLegends.csproj", "{55A728EE-76D6-492E-A45C-FADAC7FDECEE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Artemis.Plugins.DataModelExpansions.HardwareMonitor", "Artemis.Plugins.DataModelExpansions.HardwareMonitor\Artemis.Plugins.DataModelExpansions.HardwareMonitor.csproj", "{17AC4F31-51F2-4FC6-9AB4-1D72B1FE6023}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{55A728EE-76D6-492E-A45C-FADAC7FDECEE}.Debug|x64.Build.0 = Debug|x64
 		{55A728EE-76D6-492E-A45C-FADAC7FDECEE}.Release|x64.ActiveCfg = Release|x64
 		{55A728EE-76D6-492E-A45C-FADAC7FDECEE}.Release|x64.Build.0 = Release|x64
+		{17AC4F31-51F2-4FC6-9AB4-1D72B1FE6023}.Debug|x64.ActiveCfg = Debug|x64
+		{17AC4F31-51F2-4FC6-9AB4-1D72B1FE6023}.Debug|x64.Build.0 = Debug|x64
+		{17AC4F31-51F2-4FC6-9AB4-1D72B1FE6023}.Release|x64.ActiveCfg = Release|x64
+		{17AC4F31-51F2-4FC6-9AB4-1D72B1FE6023}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
