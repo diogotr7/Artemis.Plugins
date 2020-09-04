@@ -1,7 +1,7 @@
 {
   "Guid": "a34dd13c-2d66-47a3-91fc-265749144d01",
-  "Name": "Artemis.Plugins.Modules.LeagueOfLegends",
-  "Description": "League Of Legends Module",
+  "Name": "League Of Legends Module",
+  "Description": "League Of Legends game integration plugin",
   "Version": "1.0.0.0",
   "Main": "Artemis.Plugins.Modules.LeagueOfLegends.dll"
 }
