@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Timers;
 
 namespace Artemis.Plugins.Modules.LeagueOfLegends
@@ -20,11 +21,9 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
 
         public override void EnablePlugin()
         {
-            DefaultPriorityCategory = ModulePriorityCategory.Application;
             DisplayName = "League Of Legends";
             DisplayIcon = "Shaker";
-            ExpandsDataModel = true;
-            ModuleTabs = new List<ModuleTab> { new ModuleTab<ViewModels.CustomViewModel>("Yeet") };
+            DefaultPriorityCategory = ModulePriorityCategory.Application;
             ActivationRequirements.Add(new ProcessActivationRequirement("League Of Legends"));
 
             httpClientHandler = new HttpClientHandler
@@ -62,9 +61,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
 
         public override void ProfileUpdate(double deltaTime)
         {
-            base.Update(deltaTime);
-
-            if (timeSinceLastUpdate < 0.20d)
+            if (timeSinceLastUpdate < 0.50d)
             {
                 timeSinceLastUpdate += deltaTime;
                 return;
@@ -221,7 +218,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
 
         public static TEnum TryParseOr<TEnum>(string value, bool ignoreCase, TEnum defaultValue) where TEnum : struct, Enum
         {
-            if (Enum.TryParse<TEnum>(value, ignoreCase, out TEnum res))
+            if (Enum.TryParse(value, ignoreCase, out TEnum res))
             {
                 return res;
             }
