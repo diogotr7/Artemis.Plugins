@@ -1,0 +1,25 @@
+﻿<UserControl x:Class="Artemis.Plugins.LayerBrushes.Gif.Views.FilePathPropertyDisplayView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:s="https://github.com/canton7/Stylet"
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      xmlns:viewModels="clr-namespace:Artemis.Plugins.LayerBrushes.Gif.ViewModels"
+      mc:Ignorable="d" 
+      d:DataContext="{d:DesignInstance viewModels:FilePathPropertyDisplayViewModel}">
+    
+    <StackPanel Orientation="Horizontal">
+        <!-- This is required because the main UI can't know where to show this -->
+        <TextBlock Width="10" Text="{Binding LayerProperty.PropertyDescription.InputPrefix}" />
+        <!-- Mess with the margins a bit to wrangle it into the tight bounds of the property tree -->
+        <TextBlock Width="132"
+                 Margin="0 -2.5 0 2.5"
+                 materialDesign:ValidationAssist.UsePopup="True"
+                 HorizontalAlignment="Left"
+                 Text="{Binding Path=LayerProperty.BaseValue}"/>
+        <Button Content="BROWSE" Command="{s:Action Browse}" Height="18" FontSize="9"/>
+        <!-- This is required because the main UI can't know where to show this -->
+        <TextBlock Width="10" Text="{Binding LayerProperty.PropertyDescription.InputAffix}" />
+    </StackPanel>
+</UserControl>

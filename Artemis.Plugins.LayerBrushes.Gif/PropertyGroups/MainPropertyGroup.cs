@@ -1,11 +1,13 @@
 ﻿using System.ComponentModel;
 using Artemis.Core;
+using Artemis.Plugins.LayerBrushes.Gif.ViewModels;
+using SkiaSharp;
 
 namespace Artemis.Plugins.LayerBrushes.Gif.PropertyGroups
 {
     public class MainPropertyGroup : LayerPropertyGroup
     {
-        [PropertyDescription]
+        [PropertyDescription(DisableKeyframes = true)]
         public LayerProperty<string> FileName { get; set; }
 
         protected override void PopulateDefaults()
@@ -15,12 +17,10 @@ namespace Artemis.Plugins.LayerBrushes.Gif.PropertyGroups
 
         protected override void EnableProperties()
         {
-            // This is where you do any sort of initialization on your property group
         }
 
         protected override void DisableProperties()
         {
-            // If you subscribed to events or need to clean up, do it here
         }
     }
 }

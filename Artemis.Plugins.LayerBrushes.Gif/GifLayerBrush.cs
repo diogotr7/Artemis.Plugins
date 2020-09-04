@@ -3,51 +3,54 @@ using SkiaSharp;
 using Artemis.Plugins.LayerBrushes.Gif.PropertyGroups;
 using Artemis.Plugins.LayerBrushes.Gif.ViewModels;
 using System.IO;
+using System;
 
 namespace Artemis.Plugins.LayerBrushes.Gif
 {
     public class GifLayerBrush : LayerBrush<MainPropertyGroup>
     {
+        private readonly object myLock = new object();
         private int frameCount;
         private int currentFrame;
         private int[] durations;
         private int elapsed;
         private SKBitmap[] originals;
         private SKBitmap[] bitmaps;
-        private string _fileName;
 
         public override void EnableLayerBrush()
         {
-            ConfigurationDialog = new LayerBrushConfigurationDialog<GifConfigurationViewModel>();
-            _fileName = Properties.FileName.CurrentValue;
+            Properties.LayerPropertyBaseValueChanged += (a, b) => LoadGifData();
             LoadGifData();
         }
 
         private void LoadGifData()
         {
-            if (!File.Exists(Properties.FileName.CurrentValue))
+            if (!File.Exists(Properties.FileName.BaseValue))
                 return;
-            _fileName = Properties.FileName.CurrentValue;
-            using var codec = SKCodec.Create(Properties.FileName.CurrentValue);
-
-            var info = new SKImageInfo(codec.Info.Width, codec.Info.Height, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
-
-            frameCount = codec.FrameCount;
-            originals = new SKBitmap[frameCount];
-            durations = new int[frameCount];
-
-            for (int i = 0; i < frameCount; i++)
+            lock (myLock)
             {
-                durations[i] = codec.FrameInfo[i].Duration;
-                originals[i] = new SKBitmap(new SKImageInfo(codec.Info.Width, codec.Info.Height));
-                codec.GetPixels(info, originals[i].GetPixels(), new SKCodecOptions(i));
+                using var codec = SKCodec.Create(Properties.FileName.BaseValue);
+
+                var info = new SKImageInfo(codec.Info.Width, codec.Info.Height, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
+
+                frameCount = codec.FrameCount;
+                originals = new SKBitmap[frameCount];
+                durations = new int[frameCount];
+
+                for (int i = 0; i < frameCount; i++)
+                {
+                    durations[i] = codec.FrameInfo[i].Duration;
+                    originals[i] = new SKBitmap(new SKImageInfo(codec.Info.Width, codec.Info.Height));
+                    codec.GetPixels(info, originals[i].GetPixels(), new SKCodecOptions(i));
+                }
+
+                bitmaps = new SKBitmap[frameCount];
+                for (int i = 0; i < frameCount; i++)
+                {
+                    bitmaps[i] = originals[i].Copy();
+                }
             }
 
-            bitmaps = new SKBitmap[frameCount];
-            for (int i = 0; i < frameCount; i++)
-            {
-                bitmaps[i] = originals[i].Copy();
-            }
         }
 
         public override void DisableLayerBrush()
@@ -60,17 +63,14 @@ namespace Artemis.Plugins.LayerBrushes.Gif
 
         public override void Update(double deltaTime)
         {
+            if (deltaTime < 0)
+                deltaTime = 0;
+
             if (durations is null)
             {
                 LoadGifData();
                 return;
             }
-            if(Properties.FileName.CurrentValue != _fileName)
-            {
-                LoadGifData();
-                return;
-            }
-
             if (elapsed > durations[currentFrame])
             {
                 currentFrame++;
@@ -97,21 +97,18 @@ namespace Artemis.Plugins.LayerBrushes.Gif
                 LoadGifData();
                 return;
             }
-            if (Properties.FileName.CurrentValue != _fileName)
-            {
-                LoadGifData();
-                return;
-            }
 
             if (canvasInfo.Width == 0 || canvasInfo.Height == 0)
                 return;
 
-            if (bitmaps[currentFrame].Height != canvasInfo.Height || bitmaps[currentFrame].Width != canvasInfo.Width)
+            lock (myLock)
             {
-                bitmaps[currentFrame] = originals[currentFrame].Resize(canvasInfo, SKFilterQuality.High);
+                if (bitmaps[currentFrame].Height != canvasInfo.Height || bitmaps[currentFrame].Width != canvasInfo.Width)
+                {
+                    bitmaps[currentFrame] = originals[currentFrame].Resize(canvasInfo, SKFilterQuality.High);
+                }
+                canvas.DrawBitmap(bitmaps[currentFrame], 0, 0);
             }
-
-            canvas.DrawBitmap(bitmaps[currentFrame], 0, 0);
         }
     }
 }

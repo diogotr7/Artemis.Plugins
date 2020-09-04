@@ -17,14 +17,12 @@ namespace Artemis.Plugins.LayerBrushes.Gif
 
         public override void EnablePlugin()
         {
-            // This is where we can register our effect for use, we can also register multiple effects if we'd like
-            //_profileEditorService.RegisterPropertyInput<FilePathPropertyInputViewModel>(PluginInfo);
+            _profileEditorService.RegisterPropertyInput<FilePathPropertyDisplayViewModel>(PluginInfo);
             RegisterLayerBrushDescriptor<GifLayerBrush>("Gif layer brush", "Gif layer brush", "Gif");
         }
 
         public override void DisablePlugin()
         {
-            // Any registrations we made will be removed automatically, we don't need to do anything here
         }
     }
 }
