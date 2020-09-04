@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.LayerBrushe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.Modules.LeagueOfLegends", "Artemis.Plugins.Modules.LeagueOfLegends\Artemis.Plugins.Modules.LeagueOfLegends.csproj", "{55A728EE-76D6-492E-A45C-FADAC7FDECEE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Artemis.Plugins.DataModelExpansions.HardwareMonitor", "Artemis.Plugins.DataModelExpansions.HardwareMonitor\Artemis.Plugins.DataModelExpansions.HardwareMonitor.csproj", "{17AC4F31-51F2-4FC6-9AB4-1D72B1FE6023}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.DataModelExpansions.HardwareMonitor", "Artemis.Plugins.DataModelExpansions.HardwareMonitor\Artemis.Plugins.DataModelExpansions.HardwareMonitor.csproj", "{17AC4F31-51F2-4FC6-9AB4-1D72B1FE6023}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Artemis.Plugins.Devices.OpenRGB", "Artemis.Plugins.Devices.OpenRGB\Artemis.Plugins.Devices.OpenRGB\Artemis.Plugins.Devices.OpenRGB.csproj", "{8A13B54C-34C9-47BA-B72F-2A4A8C973BFA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{17AC4F31-51F2-4FC6-9AB4-1D72B1FE6023}.Debug|x64.Build.0 = Debug|x64
 		{17AC4F31-51F2-4FC6-9AB4-1D72B1FE6023}.Release|x64.ActiveCfg = Release|x64
 		{17AC4F31-51F2-4FC6-9AB4-1D72B1FE6023}.Release|x64.Build.0 = Release|x64
+		{8A13B54C-34C9-47BA-B72F-2A4A8C973BFA}.Debug|x64.ActiveCfg = Debug|x64
+		{8A13B54C-34C9-47BA-B72F-2A4A8C973BFA}.Debug|x64.Build.0 = Debug|x64
+		{8A13B54C-34C9-47BA-B72F-2A4A8C973BFA}.Release|x64.ActiveCfg = Release|x64
+		{8A13B54C-34C9-47BA-B72F-2A4A8C973BFA}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

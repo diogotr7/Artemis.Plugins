@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="RGB.NET.Core">
+      <HintPath>C:\Users\Diogo\source\repos\Artemis\src\Artemis.UI\bin\x64\Debug\netcoreapp3.1\RGB.NET.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>
