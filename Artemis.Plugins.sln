@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.Modules.Lea
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.DataModelExpansions.HardwareMonitor", "Artemis.Plugins.DataModelExpansions.HardwareMonitor\Artemis.Plugins.DataModelExpansions.HardwareMonitor.csproj", "{17AC4F31-51F2-4FC6-9AB4-1D72B1FE6023}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Artemis.Plugins.Devices.OpenRGB", "Artemis.Plugins.Devices.OpenRGB\Artemis.Plugins.Devices.OpenRGB\Artemis.Plugins.Devices.OpenRGB.csproj", "{8A13B54C-34C9-47BA-B72F-2A4A8C973BFA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.Devices.OpenRGB", "Artemis.Plugins.Devices.OpenRGB\Artemis.Plugins.Devices.OpenRGB\Artemis.Plugins.Devices.OpenRGB.csproj", "{8A13B54C-34C9-47BA-B72F-2A4A8C973BFA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Artemis.Plugins.LayerBrushes.Chroma", "Artemis.Plugins.LayerBrushes.Chroma\Artemis.Plugins.LayerBrushes.Chroma.csproj", "{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{8A13B54C-34C9-47BA-B72F-2A4A8C973BFA}.Debug|x64.Build.0 = Debug|x64
 		{8A13B54C-34C9-47BA-B72F-2A4A8C973BFA}.Release|x64.ActiveCfg = Release|x64
 		{8A13B54C-34C9-47BA-B72F-2A4A8C973BFA}.Release|x64.Build.0 = Release|x64
+		{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61}.Debug|x64.ActiveCfg = Debug|x64
+		{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61}.Debug|x64.Build.0 = Debug|x64
+		{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61}.Release|x64.ActiveCfg = Release|x64
+		{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
