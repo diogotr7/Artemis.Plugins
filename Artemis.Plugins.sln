@@ -13,6 +13,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.Devices.Ope
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Artemis.Plugins.LayerBrushes.Chroma", "Artemis.Plugins.LayerBrushes.Chroma\Artemis.Plugins.LayerBrushes.Chroma.csproj", "{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{4F6A7057-E0EE-4584-9785-87EA6B362429}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "LayerBrushes", "LayerBrushes", "{B28A4ED3-D452-43C6-95A4-DA9D828E1B45}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataModelExpansions", "DataModelExpansions", "{02703C39-EEAE-42DF-BC48-0252E7E08007}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Devices", "Devices", "{422885D2-E059-4558-9961-B77BD9C5DBDC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -42,6 +50,13 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{DDB60A1E-BA5F-45FA-9FF8-D038B503C1FA} = {B28A4ED3-D452-43C6-95A4-DA9D828E1B45}
+		{55A728EE-76D6-492E-A45C-FADAC7FDECEE} = {4F6A7057-E0EE-4584-9785-87EA6B362429}
+		{17AC4F31-51F2-4FC6-9AB4-1D72B1FE6023} = {02703C39-EEAE-42DF-BC48-0252E7E08007}
+		{8A13B54C-34C9-47BA-B72F-2A4A8C973BFA} = {422885D2-E059-4558-9961-B77BD9C5DBDC}
+		{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61} = {B28A4ED3-D452-43C6-95A4-DA9D828E1B45}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D87FE810-F20D-476A-8FE6-41BD3AC75D49}
