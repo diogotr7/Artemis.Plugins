@@ -55,10 +55,16 @@ namespace Artemis.Plugins.LayerBrushes.Gif
 
         public override void DisableLayerBrush()
         {
-            foreach (var bm in bitmaps)
-                bm.Dispose();
-            foreach (var bm in originals)
-                bm.Dispose();
+            if (bitmaps != null)
+            {
+                foreach (var bm in bitmaps)
+                    bm?.Dispose();
+            }
+            if (originals != null)
+            {
+                foreach (var bm in originals)
+                    bm?.Dispose();
+            }
         }
 
         public override void Update(double deltaTime)
