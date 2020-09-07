@@ -1,6 +1,8 @@
-﻿using Artemis.Core.Modules;
+﻿using Artemis.Core;
+using Artemis.Core.Modules;
 using Artemis.Plugins.Modules.LeagueOfLegends.DataModels;
 using Newtonsoft.Json;
+using SkiaSharp;
 using System;
 using System.Linq;
 using System.Net.Http;
@@ -57,7 +59,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             httpClient?.CancelPendingRequests();
         }
 
-        public override void ProfileUpdate(double deltaTime)
+        public override void Update(double deltaTime)
         {
             if (timeSinceLastUpdate < 0.1d)
             {
@@ -171,6 +173,11 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             dm.Player.Inventory.Slot6 = GetItem(p, 5);
             dm.Player.Inventory.Trinket = GetItem(p, 6);
             #endregion
+        }
+
+        public override void Render(double deltaTime, ArtemisSurface surface, SKCanvas canvas, SKImageInfo canvasInfo)
+        {
+            //empty
         }
 
         private async void UpdateData(object sender, ElapsedEventArgs e)
