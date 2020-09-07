@@ -34,6 +34,7 @@ namespace Artemis.Plugins.LayerBrushes.Gif
                 var info = new SKImageInfo(codec.Info.Width, codec.Info.Height, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
 
                 frameCount = codec.FrameCount;
+                currentFrame = 0;
                 originals = new SKBitmap[frameCount];
                 durations = new int[frameCount];
 
@@ -50,7 +51,6 @@ namespace Artemis.Plugins.LayerBrushes.Gif
                     bitmaps[i] = originals[i].Copy();
                 }
             }
-
         }
 
         public override void DisableLayerBrush()
