@@ -13,7 +13,6 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
     public class LeagueOfLegendsModule : ProfileModule<LeagueOfLegendsDataModel>
     {
         private const string URI = "https://127.0.0.1:2999/liveclientdata/allgamedata";
-        private double timeSinceLastUpdate;
         private HttpClientHandler httpClientHandler;
         private HttpClient httpClient;
         private _RootGameData allGameData;
@@ -22,12 +21,13 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         public override void EnablePlugin()
         {
             DisplayName = "League Of Legends";
-            DisplayIcon = "Shaker";
+            DisplayIconPath = "LeagueOfLegendsIcon.png";
             DefaultPriorityCategory = ModulePriorityCategory.Application;
             ActivationRequirements.Add(new ProcessActivationRequirement("League Of Legends"));
 
             httpClientHandler = new HttpClientHandler
             {
+                //we need this to not make the user install Riot's certificate on their computer
                 ServerCertificateCustomValidationCallback = (_, __, ___, ____) => true
             };
             httpClient = new HttpClient(httpClientHandler);
@@ -38,8 +38,11 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
 
         public override void DisablePlugin()
         {
+            httpClient?.CancelPendingRequests();
             httpClient?.Dispose();
+            httpClientHandler?.Dispose();
             updateTimer?.Dispose();
+            allGameData = null;
         }
 
         public override void ModuleActivated(bool isOverride)
@@ -61,16 +64,6 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
 
         public override void Update(double deltaTime)
         {
-            if (timeSinceLastUpdate < 0.1d)
-            {
-                timeSinceLastUpdate += deltaTime;
-                return;
-            }
-            else
-            {
-                timeSinceLastUpdate = 0;
-            }
-
             var dm = DataModel;
 
             if (allGameData == null)
@@ -92,10 +85,10 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             dm.Match.OceanDragonsKilled = drags.Count(d => string.Equals(d.DragonType, "water", StringComparison.OrdinalIgnoreCase));
             dm.Match.CloudDragonsKilled = drags.Count(d => string.Equals(d.DragonType, "air", StringComparison.OrdinalIgnoreCase));
             dm.Match.ElderDragonsKilled = drags.Count(d => string.Equals(d.DragonType, "elder", StringComparison.OrdinalIgnoreCase));
+            dm.Match.DragonsKilled = drags.Count();
 
             dm.Match.BaronsKilled = allGameData.events.Events.Count(ev => ev is _BaronKillEvent);
             dm.Match.HeraldsKilled = allGameData.events.Events.Count(ev => ev is _HeraldKillEvent);
-            dm.Match.DragonsKilled = allGameData.events.Events.Count(ev => ev is _DragonKillEvent);
             dm.Match.TurretsKilled = allGameData.events.Events.Count(ev => ev is _TurretKillEvent);
             dm.Match.InhibsKilled = allGameData.events.Events.Count(ev => ev is _InhibKillEvent);
             dm.Match.MapTerrain = TryParseOr(allGameData.gameData.mapTerrain, true, MapTerrain.Unknown);
