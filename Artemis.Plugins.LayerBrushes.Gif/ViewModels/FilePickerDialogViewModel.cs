@@ -9,5 +9,10 @@ namespace Artemis.Plugins.LayerBrushes.Gif.ViewModels
             if (!Session.IsEnded)
                 Session.Close(file);
         }
+
+        public void Cancel()
+        {
+            Session.Close();
+        }
     }
 }

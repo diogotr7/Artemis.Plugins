@@ -10,6 +10,6 @@
              mc:Ignorable="d" Width="800" Height="600"
              d:DataContext="{d:DesignInstance viewModels:FilePickerDialogViewModel}">
     <Grid>
-        <mde:OpenFileControl FileSelectedCommand="{s:Action FilePicked}" Filters="Gif Files|*.gif|All files|*.*"/>
+        <mde:OpenFileControl FileSelectedCommand="{s:Action FilePicked}" Filters="Gif Files|*.gif|All files|*.*" Cancel="{s:Action Cancel}"/>
     </Grid>
 </UserControl>

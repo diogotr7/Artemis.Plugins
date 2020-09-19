@@ -18,8 +18,11 @@ namespace Artemis.Plugins.LayerBrushes.Gif.ViewModels
 
         public async void Browse()
         {
-            LayerProperty.BaseValue = await _dialogService.ShowDialog<FilePickerDialogViewModel>() as string;
-            NotifyOfPropertyChange(nameof(LayerProperty));
+            if (await _dialogService.ShowDialog<FilePickerDialogViewModel>() is string fileName)
+            {
+                LayerProperty.BaseValue = fileName;
+                NotifyOfPropertyChange(nameof(LayerProperty));
+            }
         }
     }
 }
