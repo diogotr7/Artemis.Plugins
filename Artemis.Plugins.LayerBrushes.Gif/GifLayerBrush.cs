@@ -19,7 +19,7 @@ namespace Artemis.Plugins.LayerBrushes.Gif
 
         public override void EnableLayerBrush()
         {
-            Properties.LayerPropertyBaseValueChanged += (a, b) => LoadGifData();
+            Properties.LayerPropertyOnCurrentValueSet += (a, b) => LoadGifData();
             LoadGifData();
         }
 
@@ -27,6 +27,7 @@ namespace Artemis.Plugins.LayerBrushes.Gif
         {
             if (!File.Exists(Properties.FileName.BaseValue))
                 return;
+
             lock (myLock)
             {
                 using var codec = SKCodec.Create(Properties.FileName.BaseValue);
