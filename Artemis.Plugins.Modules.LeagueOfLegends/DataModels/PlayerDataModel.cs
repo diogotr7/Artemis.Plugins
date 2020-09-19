@@ -1,5 +1,6 @@
 ﻿using Artemis.Core.DataModelExpansions;
-using Newtonsoft.Json;
+using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums;
+using System;
 
 namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
 {
@@ -23,199 +24,27 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
         public Position Position { get; set; }
         public SummonerSpell SpellD { get; set; }
         public SummonerSpell SpellF { get; set; }
-    }
 
-    public enum Champion
-    {
-        Unknown = -1,
-        None = 0,
-        Aatrox,
-        Ahri,
-        Akali,
-        Alistar,
-        Amumu,
-        Anivia,
-        Annie,
-        Aphelios,
-        Ashe,
-        AurelionSol,
-        Azir,
-        Bard,
-        Blitzcrank,
-        Brand,
-        Braum,
-        Caitlyn,
-        Camille,
-        Cassiopeia,
-        Chogath,
-        Corki,
-        Darius,
-        Diana,
-        Draven,
-        DrMundo,
-        Ekko,
-        Elise,
-        Evelynn,
-        Ezreal,
-        Fiddlesticks,
-        Fiora,
-        Fizz,
-        Galio,
-        Gangplank,
-        Garen,
-        Gnar,
-        Gragas,
-        Graves,
-        Hecarim,
-        Heimerdinger,
-        Illaoi,
-        Irelia,
-        Ivern,
-        Janna,
-        JarvanIV,
-        Jax,
-        Jayce,
-        Jhin,
-        Jinx,
-        Kaisa,
-        Kalista,
-        Karma,
-        Karthus,
-        Kassadin,
-        Katarina,
-        Kayle,
-        Kayn,
-        Kennen,
-        Khazix,
-        Kindred,
-        Kled,
-        KogMaw,
-        Leblanc,
-        LeeSin,
-        Leona,
-        Lillia,
-        Lissandra,
-        Lucian,
-        Lulu,
-        Lux,
-        Malphite,
-        Malzahar,
-        Maokai,
-        MasterYi,
-        MissFortune,
-        Mordekaiser,
-        Morgana,
-        Nami,
-        Nasus,
-        Nautilus,
-        Neeko,
-        Nidalee,
-        Nocturne,
-        Nunu,
-        Olaf,
-        Orianna,
-        Ornn,
-        Pantheon,
-        Poppy,
-        Pyke,
-        Qiyana,
-        Quinn,
-        Rakan,
-        Rammus,
-        RekSai,
-        Renekton,
-        Rengar,
-        Riven,
-        Rumble,
-        Ryze,
-        Sejuani,
-        Senna,
-        Sett,
-        Shaco,
-        Shen,
-        Shyvana,
-        Singed,
-        Sion,
-        Sivir,
-        Skarner,
-        Sona,
-        Soraka,
-        Swain,
-        Sylas,
-        Syndra,
-        TahmKench,
-        Taliyah,
-        Talon,
-        Taric,
-        Teemo,
-        Thresh,
-        Tristana,
-        Trundle,
-        Tryndamere,
-        TwistedFate,
-        Twitch,
-        Udyr,
-        Urgot,
-        Varus,
-        Vayne,
-        Veigar,
-        Velkoz,
-        Vi,
-        Viktor,
-        Vladimir,
-        Volibear,
-        Warwick,
-        Xayah,
-        Xerath,
-        XinZhao,
-        Wukong,
-        Yasuo,
-        Yone,
-        Yorick,
-        Yuumi,
-        Zac,
-        Zed,
-        Ziggs,
-        Zilean,
-        Zoe,
-        Zyra
-    }
-
-    public enum Team
-    {
-        Unknown = -1,
-        None = 0,
-        Order,
-        Chaos
-    }
-
-    public enum SummonerSpell
-    {
-        Unknown = -1,
-        None = 0,
-        Cleanse,//210
-        Exhaust,//210
-        Flash,//300
-        Ghost,//180
-        Heal,//240
-        Smite,//oof
-        Teleport,//260
-        Clarity,//240
-        Ignite,//180
-        Barrier,//180
-        Mark,//80
-        Dash//0
-    }
-
-    public enum Position
-    {
-        Unknown = -1,
-        None = 0,
-        Top,
-        Jungle,
-        Middle,
-        Bot,
-        [JsonProperty("UTILITY")]
-        Support
+        internal void Reset()
+        {
+            Abilities.Reset();
+            ChampionStats.Reset();
+            Inventory.Reset();
+            SummonerName = "";
+            Level = -1;
+            Kills = -1;
+            Deaths = -1;
+            Assists = -1;
+            CreepScore = -1;
+            Gold = -1;
+            WardScore = -1;
+            RespawnTimer = -1;
+            IsDead = false;
+            Team = Team.None;
+            Champion = Champion.None;
+            Position = Position.None;
+            SpellD = SummonerSpell.None;
+            SpellF = SummonerSpell.None;
+        }
     }
 }

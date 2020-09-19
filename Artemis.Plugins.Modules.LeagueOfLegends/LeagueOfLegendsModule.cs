@@ -1,12 +1,12 @@
 ﻿using Artemis.Core;
 using Artemis.Core.Modules;
 using Artemis.Plugins.Modules.LeagueOfLegends.DataModels;
+using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums;
 using Newtonsoft.Json;
 using SkiaSharp;
 using System;
 using System.Linq;
 using System.Net.Http;
-using System.Timers;
 
 namespace Artemis.Plugins.Modules.LeagueOfLegends
 {
@@ -16,11 +16,11 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         private HttpClientHandler httpClientHandler;
         private HttpClient httpClient;
         private _RootGameData allGameData;
-        private Timer updateTimer;
 
         public override void EnablePlugin()
         {
             DisplayName = "League Of Legends";
+            DisplayIcon = "Shaker";
             DisplayIconPath = "LeagueOfLegendsIcon.png";
             DefaultPriorityCategory = ModulePriorityCategory.Application;
             ActivationRequirements.Add(new ProcessActivationRequirement("League Of Legends"));
@@ -31,35 +31,25 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
                 ServerCertificateCustomValidationCallback = (_, __, ___, ____) => true
             };
             httpClient = new HttpClient(httpClientHandler);
-
-            updateTimer = new Timer(100);
-            updateTimer.Elapsed += UpdateData;
+            UpdateDuringActivationOverride = false;
+            AddTimedUpdate(TimeSpan.FromMilliseconds(100), UpdateData);
         }
 
         public override void DisablePlugin()
         {
-            httpClient?.CancelPendingRequests();
             httpClient?.Dispose();
             httpClientHandler?.Dispose();
-            updateTimer?.Dispose();
             allGameData = null;
         }
 
         public override void ModuleActivated(bool isOverride)
         {
-            if (isOverride)
-                return;
-
-            updateTimer?.Start();
         }
 
         public override void ModuleDeactivated(bool isOverride)
         {
-            if (isOverride)
-                return;
-
-            updateTimer?.Stop();
-            httpClient?.CancelPendingRequests();
+            if (!isOverride)
+                httpClient?.CancelPendingRequests();
         }
 
         public override void Update(double deltaTime)
@@ -78,14 +68,14 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             dm.Match.GameModeName = allGameData.gameData.gameMode;
             dm.Match.GameTime = allGameData.gameData.gameTime;
 
-            var drags = allGameData.events.Events.OfType<_DragonKillEvent>();
+            var drags = allGameData.events.Events.OfType<_DragonKillEvent>().ToList();
 
-            dm.Match.InfernalDragonsKilled = drags.Count(d => string.Equals(d.DragonType, "fire", StringComparison.OrdinalIgnoreCase));
-            dm.Match.EarthDragonsKilled = drags.Count(d => string.Equals(d.DragonType, "earth", StringComparison.OrdinalIgnoreCase));
-            dm.Match.OceanDragonsKilled = drags.Count(d => string.Equals(d.DragonType, "water", StringComparison.OrdinalIgnoreCase));
-            dm.Match.CloudDragonsKilled = drags.Count(d => string.Equals(d.DragonType, "air", StringComparison.OrdinalIgnoreCase));
-            dm.Match.ElderDragonsKilled = drags.Count(d => string.Equals(d.DragonType, "elder", StringComparison.OrdinalIgnoreCase));
-            dm.Match.DragonsKilled = drags.Count();
+            dm.Match.CloudDragonsKilled = drags.Count(d => d.DragonType == "Air");
+            dm.Match.MountainDragonsKilled = drags.Count(d => d.DragonType == "Earth");
+            dm.Match.InfernalDragonsKilled = drags.Count(d => d.DragonType == "Fire");
+            dm.Match.OceanDragonsKilled = drags.Count(d => d.DragonType == "Water");
+            dm.Match.ElderDragonsKilled = drags.Count(d => d.DragonType == "Elder");
+            dm.Match.DragonsKilled = drags.Count;
 
             dm.Match.BaronsKilled = allGameData.events.Events.Count(ev => ev is _BaronKillEvent);
             dm.Match.HeraldsKilled = allGameData.events.Events.Count(ev => ev is _HeraldKillEvent);
@@ -173,7 +163,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             //empty
         }
 
-        private async void UpdateData(object sender, ElapsedEventArgs e)
+        private async void UpdateData(double deltaTime)
         {
             string jsonData = "";
             try
@@ -204,26 +194,10 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         {
             _Item newItem = p.items.FirstOrDefault(item => item.slot == slot);
 
-            if (newItem == null)
-            {
-                return new ItemSlotDataModel();
-            }
-            else
-            {
-                return new ItemSlotDataModel(newItem);
-            }
+            return newItem == null ? new ItemSlotDataModel() : new ItemSlotDataModel(newItem);
         }
 
-        public static TEnum TryParseOr<TEnum>(string value, bool ignoreCase, TEnum defaultValue) where TEnum : struct, Enum
-        {
-            if (Enum.TryParse(value, ignoreCase, out TEnum res))
-            {
-                return res;
-            }
-            else
-            {
-                return defaultValue;
-            }
-        }
+        private static TEnum TryParseOr<TEnum>(string value, bool ignoreCase, TEnum defaultValue) where TEnum : struct, Enum =>
+            Enum.TryParse(value, ignoreCase, out TEnum res) ? res : defaultValue;
     }
 }

@@ -25,5 +25,13 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
             Count = item.count;
             Name = item.displayName;
         }
+
+        internal void Reset()
+        {
+            Name = "";
+            CanUse = false;
+            Consumable = false;
+            Count = -1;
+        }
     }
 }

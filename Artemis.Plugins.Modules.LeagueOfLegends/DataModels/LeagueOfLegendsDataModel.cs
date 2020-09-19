@@ -9,8 +9,8 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
 
         internal void Reset()
         {
-            Player = new PlayerDataModel();
-            Match = new MatchDataModel();
+            Player.Reset();
+            Match.Reset();
         }
     }
 }

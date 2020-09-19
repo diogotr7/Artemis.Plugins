@@ -1,4 +1,5 @@
 ﻿using Artemis.Core.DataModelExpansions;
+using System;
 
 namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
 {
@@ -8,5 +9,13 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
         public AbilityDataModel W { get; set; } = new AbilityDataModel();
         public AbilityDataModel E { get; set; } = new AbilityDataModel();
         public AbilityDataModel R { get; set; } = new AbilityDataModel();
+
+        internal void Reset()
+        {
+            Q.Reset();
+            W.Reset();
+            E.Reset();
+            R.Reset();
+        }
     }
 }

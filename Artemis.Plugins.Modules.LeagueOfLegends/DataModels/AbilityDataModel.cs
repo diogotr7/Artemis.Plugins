@@ -1,4 +1,5 @@
 ﻿using Artemis.Core.DataModelExpansions;
+using System;
 
 namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
 {
@@ -6,6 +7,12 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
     {
         public string Name { get; set; } = "";
         public int Level { get; set; }
-        public bool Learned => Level != 0;
+        public bool Learned => Level > 0;
+
+        internal void Reset()
+        {
+            Name = "";
+            Level = -1;
+        }
     }
 }

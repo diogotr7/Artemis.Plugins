@@ -1,4 +1,6 @@
 ﻿using Artemis.Core.DataModelExpansions;
+using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums;
+using System;
 
 namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
 {
@@ -32,25 +34,37 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
         public ResourceType ResourceType { get; set; }
         public float SpellVamp { get; set; }
         public float Tenacity { get; set; }
-    }
 
-    public enum ResourceType
-    {
-        Unknown = -1,
-        None = 0,
-        Mana,
-        Energy,
-        Shield,
-        Battlefury,
-        Dragonfury,
-        Rage,
-        Heat,
-        Gnarfury,
-        Ferocity,
-        Bloodwell,
-        Wind,
-        Ammo,
-        Other,
-        Max
+        internal void Reset()
+        {
+            AbilityPower = -1;
+            Armor = -1;
+            ArmorPenetrationFlat = -1;
+            ArmorPenetrationPercent = -1;
+            AttackDamage = -1;
+            AttackRange = -1;
+            AttackSpeed = -1;
+            BonusArmorPenetrationPercent = -1;
+            BonusMagicPenetrationPercent = -1;
+            CooldownReduction = -1;
+            CritChance = -1;
+            CritDamagePercent = -1;
+            HealthCurrent = -1;
+            HealthMax = -1;
+            HealthRegenRate = -1;
+            LifeSteal = -1;
+            MagicLethality = -1;
+            MagicPenetrationFlat = -1;
+            MagicPenetrationPercent = -1;
+            MagicResist = -1;
+            MoveSpeed = -1;
+            PhysicalLethality = -1;
+            ResourceCurrent = -1;
+            ResourceMax = -1;
+            ResourceRegenRate = -1;
+            ResourceType = ResourceType.None;
+            SpellVamp = -1;
+            Tenacity = -1;
+        }
     }
 }
