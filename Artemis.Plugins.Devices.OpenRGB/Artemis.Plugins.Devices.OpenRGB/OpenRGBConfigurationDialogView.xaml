@@ -1,0 +1,64 @@
+﻿<UserControl x:Class="Artemis.Plugins.Devices.OpenRGB.OpenRGBConfigurationDialogView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:s="https://github.com/canton7/Stylet"
+             d:DesignHeight="200" d:DesignWidth="540"
+             mc:Ignorable="d">
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0">
+            Here you can set the IP Address and port to use when connecting to the OpenRGB SDK server. <LineBreak />
+            You need to restart Artemis for these changes to take effect.
+        </TextBlock>
+
+        <Grid Grid.Row="1" Margin="20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+            </Grid.RowDefinitions>
+            
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Port" VerticalAlignment="Center"/>
+            <TextBox Grid.Row="0" Grid.Column="1" PreviewTextInput="ValidateNumberInput" Text="{Binding Port}" Height="20" MaxLength="5" VerticalAlignment="Center"/>
+
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="IP Address" VerticalAlignment="Center"/>
+            <Grid Grid.Row="1" Grid.Column="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0" PreviewTextInput="ValidateNumberInput" Text="{Binding Ip1}" MaxLength="3" VerticalAlignment="Center" Height="20"/>
+                <TextBlock Grid.Column="1" Text="." FontWeight="Bold" FontSize="14" VerticalAlignment="Center" Height="15"/>
+                <TextBox Grid.Column="2" PreviewTextInput="ValidateNumberInput" Text="{Binding Ip2}" MaxLength="3" VerticalAlignment="Center" Height="20"/>
+                <TextBlock Grid.Column="3" Text="." FontWeight="Bold" FontSize="14" VerticalAlignment="Center" Height="15"/>
+                <TextBox Grid.Column="4" PreviewTextInput="ValidateNumberInput" Text="{Binding Ip3}" MaxLength="3" VerticalAlignment="Center" Height="20"/>
+                <TextBlock Grid.Column="5" Text="." FontWeight="Bold" FontSize="14" VerticalAlignment="Center" Height="15"/>
+                <TextBox Grid.Column="6" PreviewTextInput="ValidateNumberInput" Text="{Binding Ip4}" MaxLength="3" VerticalAlignment="Center" Height="20"/>
+            </Grid>
+        </Grid>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Style="{StaticResource MaterialDesignOutlinedButton}" Margin="0 0 5 0" Command="{s:Action Cancel}">
+                CANCEL
+            </Button>
+            <Button Style="{StaticResource MaterialDesignFlatMidBgButton}" Command="{s:Action SaveChanges}">
+                SAVE CHANGES
+            </Button>
+        </StackPanel>
+    </Grid>
+</UserControl>
