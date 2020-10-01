@@ -1,5 +1,6 @@
 ﻿using Artemis.Core.DataModelExpansions;
 using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums;
+using SkiaSharp;
 using System;
 
 namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
@@ -21,6 +22,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
         public bool IsDead { get; set; }
         public Team Team { get; set; }
         public Champion Champion { get; set; }
+        public SKColor ChampionColor { get; set; }
         public Position Position { get; set; }
         public SummonerSpell SpellD { get; set; }
         public SummonerSpell SpellF { get; set; }

@@ -24,6 +24,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             DisplayIconPath = "LeagueOfLegendsIcon.png";
             DefaultPriorityCategory = ModulePriorityCategory.Application;
             ActivationRequirements.Add(new ProcessActivationRequirement("League Of Legends"));
+            DataModel.Reset();
 
             httpClientHandler = new HttpClientHandler
             {
@@ -135,6 +136,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             }
 
             dm.Player.Champion = TryParseOr(p.championName.Replace(" ", "").Replace("'", "").Replace(".", ""), true, Champion.Unknown);
+            dm.Player.ChampionColor = DefaultChampionColors.Colors[dm.Player.Champion];
             dm.Player.SpellD = TryParseOr(p.summonerSpells.summonerSpellOne.displayName, true, SummonerSpell.Unknown);
             dm.Player.SpellF = TryParseOr(p.summonerSpells.summonerSpellTwo.displayName, true, SummonerSpell.Unknown);
             dm.Player.Team = TryParseOr(p.team, true, Team.Unknown);
