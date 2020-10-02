@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-
+﻿
 namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums
 {
     public enum Position
@@ -10,7 +9,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums
         Jungle,
         Middle,
         Bottom,
-        [JsonProperty("UTILITY")]
+        [Name("UTILITY")]
         Support
     }
 }

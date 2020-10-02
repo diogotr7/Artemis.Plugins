@@ -13,6 +13,7 @@
         Annie,
         Aphelios,
         Ashe,
+        [Name("Aurelion Sol")]
         AurelionSol,
         Azir,
         Bard,
@@ -22,11 +23,13 @@
         Caitlyn,
         Camille,
         Cassiopeia,
+        [Name("Cho'Gath")]
         Chogath,
         Corki,
         Darius,
         Diana,
         Draven,
+        [Name("Dr. Mundo")]
         DrMundo,
         Ekko,
         Elise,
@@ -47,12 +50,14 @@
         Irelia,
         Ivern,
         Janna,
+        [Name("Jarvan IV")]
         JarvanIV,
         Jax,
         Jayce,
         Jhin,
         Jinx,
-        Kaisa,
+        [Name("Kai'Sa")]
+        KaiSa,
         Kalista,
         Karma,
         Karthus,
@@ -61,11 +66,14 @@
         Kayle,
         Kayn,
         Kennen,
+        [Name("Kha'Zix")]
         Khazix,
         Kindred,
         Kled,
+        [Name("Kog'Maw")]
         KogMaw,
-        Leblanc,
+        LeBlanc,
+        [Name("Lee Sin")]
         LeeSin,
         Leona,
         Lillia,
@@ -76,7 +84,9 @@
         Malphite,
         Malzahar,
         Maokai,
+        [Name("Master Yi")]
         MasterYi,
+        [Name("Miss Fortune")]
         MissFortune,
         Mordekaiser,
         Morgana,
@@ -97,6 +107,7 @@
         Quinn,
         Rakan,
         Rammus,
+        [Name("Rek'Sai")]
         RekSai,
         Renekton,
         Rengar,
@@ -118,6 +129,7 @@
         Swain,
         Sylas,
         Syndra,
+        [Name("Tahm Kench")]
         TahmKench,
         Taliyah,
         Talon,
@@ -127,6 +139,7 @@
         Tristana,
         Trundle,
         Tryndamere,
+        [Name("Twisted Fate")]
         TwistedFate,
         Twitch,
         Udyr,
@@ -134,6 +147,7 @@
         Varus,
         Vayne,
         Veigar,
+        [Name("Vel'Koz")]
         Velkoz,
         Vi,
         Viktor,
@@ -142,6 +156,7 @@
         Warwick,
         Xayah,
         Xerath,
+        [Name("Xin Zhao")]
         XinZhao,
         Wukong,
         Yasuo,

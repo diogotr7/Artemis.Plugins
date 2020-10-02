@@ -5,8 +5,10 @@ using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums;
 using Newtonsoft.Json;
 using SkiaSharp;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
 
 namespace Artemis.Plugins.Modules.LeagueOfLegends
 {
@@ -135,7 +137,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
                 return;
             }
 
-            dm.Player.Champion = TryParseOr(p.championName.Replace(" ", "").Replace("'", "").Replace(".", ""), true, Champion.Unknown);
+            dm.Player.Champion = TryParseOr(p.championName, true, Champion.Unknown);
             dm.Player.ChampionColor = DefaultChampionColors.Colors[dm.Player.Champion];
             dm.Player.SpellD = TryParseOr(p.summonerSpells.summonerSpellOne.displayName, true, SummonerSpell.Unknown);
             dm.Player.SpellF = TryParseOr(p.summonerSpells.summonerSpellTwo.displayName, true, SummonerSpell.Unknown);
@@ -199,7 +201,48 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             return newItem == null ? new ItemSlotDataModel() : new ItemSlotDataModel(newItem);
         }
 
-        private static TEnum TryParseOr<TEnum>(string value, bool ignoreCase, TEnum defaultValue) where TEnum : struct, Enum =>
-            Enum.TryParse(value, ignoreCase, out TEnum res) ? res : defaultValue;
+        private static TEnum TryParseOr<TEnum>(string value, bool ignoreCase, TEnum defaultValue) where TEnum : struct, Enum
+        {
+            if (Enum.TryParse(value, ignoreCase, out TEnum res))
+                return res;
+            else if(ParseEnum<TEnum>.TryParse(value, out var oof))
+                return oof;
+            else
+                return defaultValue;
+        }
+    }
+
+    //adapted from https://stackoverflow.com/questions/30526757
+    [AttributeUsage(AttributeTargets.All, AllowMultiple = false)]
+    internal class NameAttribute : Attribute
+    {
+        public readonly string[] Names;
+
+        public NameAttribute(params string[] names)
+        {
+            if (names?.Any(x => x == null) ?? false)
+            {
+                throw new ArgumentNullException(nameof(names));
+            }
+
+            Names = names.Distinct().ToArray();
+        }
+    }
+
+    internal static class ParseEnum<TEnum> where TEnum : struct, Enum
+    {
+        internal static readonly Dictionary<string, TEnum> Values = new Dictionary<string, TEnum>();
+
+        static ParseEnum()
+        {
+            Values = typeof(TEnum)
+                .GetFields(BindingFlags.Public | BindingFlags.Static)
+                .Select(a => new { NameAtt = a.GetCustomAttribute<NameAttribute>(), EnumValue = (TEnum)a.GetValue(null) })
+                .Where(a => a.NameAtt != null)
+                .SelectMany(field => field.NameAtt.Names, (field, name) => new { Key = name, Value = field.EnumValue })
+                .ToDictionary(a => a.Key, a => a.Value);
+        }
+
+        internal static bool TryParse(string value, out TEnum result) => Values.TryGetValue(value, out result);
     }
 }
