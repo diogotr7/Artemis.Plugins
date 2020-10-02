@@ -9,7 +9,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums
         Top,
         Jungle,
         Middle,
-        Bot,
+        Bottom,
         [JsonProperty("UTILITY")]
         Support
     }

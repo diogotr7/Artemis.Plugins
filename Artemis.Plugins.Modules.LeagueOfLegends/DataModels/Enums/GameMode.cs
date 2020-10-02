@@ -5,6 +5,7 @@
     {
         Unknown = -1,
         None = 0,
-        PracticeTool
+        PracticeTool,
+        Classic
     }
 }

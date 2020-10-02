@@ -44,6 +44,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
             IsDead = false;
             Team = Team.None;
             Champion = Champion.None;
+            ChampionColor = new SKColor(0, 0, 0);
             Position = Position.None;
             SpellD = SummonerSpell.None;
             SpellF = SummonerSpell.None;
