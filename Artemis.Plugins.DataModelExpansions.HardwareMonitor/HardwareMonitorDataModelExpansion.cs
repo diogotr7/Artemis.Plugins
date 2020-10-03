@@ -2,14 +2,17 @@
 using Artemis.Core.DataModelExpansions;
 using Serilog;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Management;
+using System.Windows.Media.Animation;
 
 namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
 {
     public class HardwareMonitorDataModelExpansion : DataModelExpansion<HardwareMonitorDataModel>
     {
         private readonly ILogger _logger;
+
         public HardwareMonitorDataModelExpansion(ILogger logger)
         {
             _logger = logger;
@@ -23,13 +26,12 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
 
         private double timeSinceLastUpdate;
 
-        private ManagementObjectSearcher SensorSearcher;
         private ManagementScope HardwareMonitorScope;
-        private readonly ObjectQuery SensorQuery
-            = new ObjectQuery("SELECT * FROM Sensor WHERE " +
-                          "(Identifier LIKE \"%cpu%\" " +
-                        "OR Identifier LIKE \"%gpu%\" " +
-                        "OR Identifier LIKE \"%ram%\")");
+        private ManagementObjectSearcher SensorSearcher;
+        private ManagementObjectSearcher HardwareSearcher;
+
+        private readonly ObjectQuery SensorQuery = new ObjectQuery("SELECT * FROM Sensor");
+        private readonly ObjectQuery HardwareQuery = new ObjectQuery("SELECT * FROM Hardware");
 
         public override void EnablePlugin()
         {
@@ -49,11 +51,38 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
                 }
 
                 SensorSearcher = new ManagementObjectSearcher(HardwareMonitorScope, SensorQuery);
-                if (SensorSearcher.Get().Count != 0)
+                HardwareSearcher = new ManagementObjectSearcher(HardwareMonitorScope, HardwareQuery);
+
+                var sensors = Sensor.FromCollection(SensorSearcher.Get());
+                var hardwares = Hardware.FromCollection(HardwareSearcher.Get());
+
+                if (sensors.Count == 0)
+                    break;
+
+                //if we somehow connect to the scope
+                //and it desnt have any sensors / hardwares,
+                //what does this mean? TODO
+
+                foreach (var hw in hardwares)
                 {
-                    _logger.Information($"Successfully connected to WMI scope: {scope}");
-                    return;//success
+                    var children = sensors.Where(s => s.Parent == hw.Identifier);
+                    if (!children.Any())
+                        continue;
+
+                    DataModel.AddDynamicChild(new HardwareDynamicDataModel(), hw.Identifier, hw.Name, hw.HardwareType);
+                    //if AddDynamicChild returned what it just added this would be simpler. 
+                    //I have to fetch the dataModel i just added ¯\_(ツ)_/¯
+                    var hwDataModel = DataModel.DynamicChild<HardwareDynamicDataModel>(hw.Identifier);
+
+                    foreach (var sensor in children)
+                    {
+                        hwDataModel.AddDynamicChild(new SensorDynamicDataModel(), sensor.Identifier, sensor.Name, sensor.SensorType);
+                    }
                 }
+
+                _logger.Information($"Successfully connected to WMI scope: {scope}");
+                return;
+                //success!
             }
             throw new ArtemisPluginException(PluginInfo, "Could not find hardware monitor WMI scope with data");
         }
@@ -61,12 +90,13 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
         public override void DisablePlugin()
         {
             SensorSearcher?.Dispose();
+            HardwareSearcher?.Dispose();
         }
 
         public override void Update(double deltaTime)
         {
-            //update every half a second for now
-            if (timeSinceLastUpdate < 0.50d)
+            //update every second for now
+            if (timeSinceLastUpdate < 1d)
             {
                 timeSinceLastUpdate += deltaTime;
                 return;
@@ -76,39 +106,21 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
                 timeSinceLastUpdate = 0;
             }
 
-            try
+            var sensors = Sensor.FromCollection(SensorSearcher.Get());
+            foreach (var (hwId, hw) in DataModel.DynamicDataModels)
             {
-                var sensors = Sensor.FromCollection(SensorSearcher.Get());
-
-                sensors.Sort();
-
-                var gpuSensors = sensors.Where(s => s.Identifier.Contains("gpu"));
-                var cpuSensors = sensors.Where(s => s.Identifier.Contains("cpu"));
-                var ramSensors = sensors.Where(s => s.Identifier.Contains("ram"));
-
-                var gpuUsage = gpuSensors.FirstOrDefault(sns => sns.SensorType == "Load");
-                var gpuTemp = gpuSensors.FirstOrDefault(sns => sns.SensorType == "Temperature");
-                var gpuPower = gpuSensors.FirstOrDefault(sns => sns.SensorType == "Power");
-
-                var cpuUsage = cpuSensors.FirstOrDefault(sns => sns.SensorType == "Load");
-                var cpuTemp = cpuSensors.FirstOrDefault(sns => sns.SensorType == "Temperature");
-                var cpuPower = cpuSensors.FirstOrDefault(sns => sns.SensorType == "Power");
-
-                var ramUsed = ramSensors.FirstOrDefault(sns => sns.Name.Contains("Used"));
-                var ramTotal = ramSensors.FirstOrDefault(sns => sns.Name == "Memory");
-
-                DataModel.Cpu.Usage = cpuUsage?.Value ?? -1;
-                DataModel.Cpu.Temperature = cpuTemp?.Value ?? -1;
-                DataModel.Cpu.PowerUsage = cpuPower?.Value ?? -1;
-                DataModel.Gpu.Usage = gpuUsage?.Value ?? -1;
-                DataModel.Gpu.Temperature = gpuTemp?.Value ?? -1;
-                DataModel.Gpu.PowerUsage = gpuPower?.Value ?? -1;
-                DataModel.RamUsed = ramUsed?.Value ?? -1;
-                DataModel.RamTotal = ramTotal?.Value ?? -1;
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e.Message);
+                foreach (var (senId, sen) in hw.DynamicDataModels)
+                {
+                    if (sen is SensorDynamicDataModel sensorDynamicDataModel)
+                    {
+                        var sensor = sensors.Find(s => s.Identifier == senId);
+                        sensorDynamicDataModel.SensorValue = sensor?.Value ?? 0;
+                    }
+                    else
+                    {
+                        throw new ArtemisPluginException(PluginInfo);//bad
+                    }
+                }
             }
         }
     }

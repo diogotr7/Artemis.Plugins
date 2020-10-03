@@ -1,4 +1,6 @@
-﻿using System.Management;
+﻿using System;
+using System.Collections.Generic;
+using System.Management;
 
 namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
 {
@@ -19,6 +21,16 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
             Name = (string)obj["Name"];
             Parent = (string)obj["Parent"];
             HardwareType = (string)obj["HardwareType"];
+        }
+
+        public static List<Hardware> FromCollection(ManagementObjectCollection collection)
+        {
+            var list = new List<Hardware>(collection.Count);
+
+            foreach (var obj in collection)
+                list.Add(new Hardware(obj));
+
+            return list;
         }
     }
 }

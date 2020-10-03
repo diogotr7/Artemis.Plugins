@@ -36,15 +36,14 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
             var list = new List<Sensor>(collection.Count);
 
             foreach (var obj in collection)
+            {
                 list.Add(new Sensor(obj));
-
+            }
+                
             return list;
         }
 
-        public override string ToString()
-        {
-            return Identifier;
-        }
+        public override string ToString() => $"{Identifier} : {Value}";
 
         public int CompareTo(object other)
         {
