@@ -2,6 +2,7 @@
 using Artemis.Core.Modules;
 using Artemis.Plugins.Modules.LeagueOfLegends.DataModels;
 using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums;
+using Artemis.Plugins.Modules.LeagueOfLegends.LeagueOfLegendsConfigurationDialog;
 using Newtonsoft.Json;
 using SkiaSharp;
 using System;
@@ -19,8 +20,16 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         private HttpClient httpClient;
         private _RootGameData allGameData;
 
+        private readonly PluginSetting<Dictionary<Champion, SKColor>> _colors;
+
+        public LeagueOfLegendsModule(PluginSettings settings)
+        {
+            _colors = settings.GetSetting("ChampionColors", DefaultChampionColors.Colors);
+        }
+
         public override void EnablePlugin()
         {
+            ConfigurationDialog = new PluginConfigurationDialog<LeagueOfLegendsConfigurationDialogViewModel>();
             DisplayName = "League Of Legends";
             DisplayIcon = "Shaker";
             DisplayIconPath = "LeagueOfLegendsIcon.png";
@@ -34,6 +43,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
                 ServerCertificateCustomValidationCallback = (_, __, ___, ____) => true
             };
             httpClient = new HttpClient(httpClientHandler);
+            httpClient.Timeout = TimeSpan.FromMilliseconds(80);
             UpdateDuringActivationOverride = false;
             AddTimedUpdate(TimeSpan.FromMilliseconds(100), UpdateData);
         }
@@ -138,7 +148,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             }
 
             dm.Player.Champion = TryParseOr(p.championName, true, Champion.Unknown);
-            dm.Player.ChampionColor = DefaultChampionColors.Colors[dm.Player.Champion];
+            dm.Player.ChampionColor = _colors.Value[dm.Player.Champion];
             dm.Player.SpellD = TryParseOr(p.summonerSpells.summonerSpellOne.displayName, true, SummonerSpell.Unknown);
             dm.Player.SpellF = TryParseOr(p.summonerSpells.summonerSpellTwo.displayName, true, SummonerSpell.Unknown);
             dm.Player.Team = TryParseOr(p.team, true, Team.Unknown);
@@ -205,7 +215,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         {
             if (Enum.TryParse(value, ignoreCase, out TEnum res))
                 return res;
-            else if(ParseEnum<TEnum>.TryParse(value, out var oof))
+            else if (ParseEnum<TEnum>.TryParse(value, out var oof))
                 return oof;
             else
                 return defaultValue;
