@@ -15,7 +15,7 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
         public float Value { get; set; }
         public string Name { get; set; }
         public string Parent { get; set; }
-        public string SensorType { get; set; }
+        public SensorType SensorType { get; set; }
 
         public Sensor(ManagementBaseObject obj)
         {
@@ -28,7 +28,7 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
             Value = (float)obj["Value"];
             Name = (string)obj["Name"];
             Parent = (string)obj["Parent"];
-            SensorType = (string)obj["SensorType"];
+            SensorType = Enum.Parse<SensorType>((string)obj["SensorType"]);
         }
 
         public static List<Sensor> FromCollection(ManagementObjectCollection collection)
@@ -37,9 +37,13 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
 
             foreach (var obj in collection)
             {
-                list.Add(new Sensor(obj));
+                var sensor = new Sensor(obj);
+                if(sensor.SensorType != SensorType.Control)
+                {
+                    list.Add(sensor);
+                }
             }
-                
+
             return list;
         }
 
@@ -49,5 +53,39 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
         {
             return Identifier.CompareTo(((Sensor)other).Identifier);
         }
+    }
+
+    public enum SensorType
+    {
+        Temperature,
+        Voltage,
+        Level,
+        SmallData,
+        Load,
+        Data,
+        Power,
+        Fan,
+        Throughput,
+        Factor,
+        Control,
+        Clock
+    }
+
+    public static class SensorTypeExtension
+    {
+        public static string GetAffix(this SensorType type) => type switch
+        {
+            SensorType.Temperature => "°C",
+            SensorType.Voltage => "V",
+            SensorType.Level => "%",
+            SensorType.SmallData => "MB",
+            SensorType.Load => "%",
+            SensorType.Data => "GB",
+            SensorType.Power => "W",
+            SensorType.Fan => "RPM",
+            SensorType.Throughput => "B/s",
+            SensorType.Clock => "MHz",
+            _ => ""
+        };
     }
 }

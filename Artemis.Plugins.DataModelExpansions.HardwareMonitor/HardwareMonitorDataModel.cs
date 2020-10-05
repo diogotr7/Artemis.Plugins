@@ -2,22 +2,24 @@
 
 namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
 {
-    public class HardwareMonitorDataModel : DataModel
-    {
-        public int Dummy { get; set; } = 69;
-    }
+    public class HardwareMonitorDataModel : DataModel { }
 
-    public class HardwareDynamicDataModel : DataModel
-    {
-    }
+    public class HardwareDynamicDataModel : DataModel { }
+
+    public class SensorTypeDynamicDataModel : DataModel { }
 
     public class SensorDynamicDataModel : DataModel
     {
-        public float SensorValue { get; set; }
+        [DataModelProperty(Affix = "ASD")]
+        public float CurrentValue { get; set; }
+
+        public float Minimum { get; set; }
+
+        public float Maximum { get; set; }
 
         public override string ToString()
         {
-            return $"SensorValue: {SensorValue}";
+            return $"SensorValue: {CurrentValue}";
         }
     }
 }

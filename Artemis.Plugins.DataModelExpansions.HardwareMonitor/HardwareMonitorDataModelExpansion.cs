@@ -1,11 +1,8 @@
 ﻿using Artemis.Core;
 using Artemis.Core.DataModelExpansions;
 using Serilog;
-using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Management;
-using System.Windows.Media.Animation;
 
 namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
 {
@@ -26,12 +23,12 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
 
         private double timeSinceLastUpdate;
 
+        private readonly ObjectQuery SensorQuery = new ObjectQuery("SELECT * FROM Sensor");
+        private readonly ObjectQuery HardwareQuery = new ObjectQuery("SELECT * FROM Hardware");
+
         private ManagementScope HardwareMonitorScope;
         private ManagementObjectSearcher SensorSearcher;
         private ManagementObjectSearcher HardwareSearcher;
-
-        private readonly ObjectQuery SensorQuery = new ObjectQuery("SELECT * FROM Sensor");
-        private readonly ObjectQuery HardwareQuery = new ObjectQuery("SELECT * FROM Hardware");
 
         public override void EnablePlugin()
         {
@@ -56,8 +53,11 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
                 var sensors = Sensor.FromCollection(SensorSearcher.Get());
                 var hardwares = Hardware.FromCollection(HardwareSearcher.Get());
 
-                if (sensors.Count == 0)
-                    break;
+                if (sensors.Count == 0 || hardwares.Count == 0)
+                {
+                    _logger.Warning($"Connected to WMI scope \"{scope}\" but it did not contain any data.");
+                    continue;
+                }
 
                 //if we somehow connect to the scope
                 //and it desnt have any sensors / hardwares,
@@ -69,14 +69,19 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
                     if (!children.Any())
                         continue;
 
-                    DataModel.AddDynamicChild(new HardwareDynamicDataModel(), hw.Identifier, hw.Name, hw.HardwareType);
-                    //if AddDynamicChild returned what it just added this would be simpler. 
-                    //I have to fetch the dataModel i just added ¯\_(ツ)_/¯
-                    var hwDataModel = DataModel.DynamicChild<HardwareDynamicDataModel>(hw.Identifier);
+                    var hwDataModel = DataModel.AddDynamicChild(new HardwareDynamicDataModel(), hw.Identifier, hw.Name, hw.HardwareType);
 
-                    foreach (var sensor in children)
+                    foreach (var sensorsOfType in children.GroupBy(s => s.SensorType))
                     {
-                        hwDataModel.AddDynamicChild(new SensorDynamicDataModel(), sensor.Identifier, sensor.Name, sensor.SensorType);
+                        var sensorTypeDataModel = hwDataModel.AddDynamicChild(
+                            new SensorTypeDynamicDataModel(),
+                            $"{hw.Identifier}/{sensorsOfType.Key}",
+                            sensorsOfType.Key.ToString());
+
+                        foreach (var sensorOfType in sensorsOfType)
+                        {
+                            sensorTypeDataModel.AddDynamicChild(new SensorDynamicDataModel(), sensorOfType.Identifier, sensorOfType.Name);
+                        }
                     }
                 }
 
@@ -107,18 +112,19 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
             }
 
             var sensors = Sensor.FromCollection(SensorSearcher.Get());
-            foreach (var (hwId, hw) in DataModel.DynamicDataModels)
+            foreach (var (hardwareId, hardwareDataModel) in DataModel.DynamicDataModels)
             {
-                foreach (var (senId, sen) in hw.DynamicDataModels)
+                foreach (var (sensorTypeId, sensorTypeDataModel) in hardwareDataModel.DynamicDataModels)
                 {
-                    if (sen is SensorDynamicDataModel sensorDynamicDataModel)
+                    foreach (var (sensorId, sensorDataModel) in sensorTypeDataModel.DynamicDataModels)
                     {
-                        var sensor = sensors.Find(s => s.Identifier == senId);
-                        sensorDynamicDataModel.SensorValue = sensor?.Value ?? 0;
-                    }
-                    else
-                    {
-                        throw new ArtemisPluginException(PluginInfo);//bad
+                        if (sensorDataModel is SensorDynamicDataModel s)
+                        {
+                            var sensor = sensors.Find(s => s.Identifier == sensorId);
+                            s.CurrentValue = sensor?.Value ?? -1;
+                            s.Minimum = sensor?.Min ?? -1;
+                            s.Maximum = sensor?.Max ?? -1;
+                        }
                     }
                 }
             }
