@@ -70,22 +70,4 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
         Control,
         Clock
     }
-
-    public static class SensorTypeExtension
-    {
-        public static string GetAffix(this SensorType type) => type switch
-        {
-            SensorType.Temperature => "°C",
-            SensorType.Voltage => "V",
-            SensorType.Level => "%",
-            SensorType.SmallData => "MB",
-            SensorType.Load => "%",
-            SensorType.Data => "GB",
-            SensorType.Power => "W",
-            SensorType.Fan => "RPM",
-            SensorType.Throughput => "B/s",
-            SensorType.Clock => "MHz",
-            _ => ""
-        };
-    }
 }

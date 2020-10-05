@@ -59,18 +59,16 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
                     continue;
                 }
 
-                //if we somehow connect to the scope
-                //and it desnt have any sensors / hardwares,
-                //what does this mean? TODO
-
+                //first we find the availale hardwares
                 foreach (var hw in hardwares)
                 {
-                    var children = sensors.Where(s => s.Parent == hw.Identifier);
-                    if (!children.Any())
+                    var children = sensors.Where(s => s.Parent == hw.Identifier).ToList();
+                    if (children.Count == 0)
                         continue;
-
+                    //we add a hardware data model to the main datamodel if it has sensors
                     var hwDataModel = DataModel.AddDynamicChild(new HardwareDynamicDataModel(), hw.Identifier, hw.Name, hw.HardwareType);
 
+                    //then, for each hardware we add a data model for reach sensor type (temperature, load, etc.)
                     foreach (var sensorsOfType in children.GroupBy(s => s.SensorType))
                     {
                         var sensorTypeDataModel = hwDataModel.AddDynamicChild(
@@ -78,9 +76,25 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
                             $"{hw.Identifier}/{sensorsOfType.Key}",
                             sensorsOfType.Key.ToString());
 
+                        //for each type of sensor, we add all the sensors we found
                         foreach (var sensorOfType in sensorsOfType)
                         {
-                            sensorTypeDataModel.AddDynamicChild(new SensorDynamicDataModel(), sensorOfType.Identifier, sensorOfType.Name);
+                            //this switch is only useful for the unit of each sensor
+                            var dataModel = sensorsOfType.Key switch
+                            {
+                                SensorType.Temperature => new TemperatureDynamicDataModel(),
+                                SensorType.Load => new PercentageDynamicDataModel(),
+                                SensorType.Level => new PercentageDynamicDataModel(),
+                                SensorType.Voltage => new VoltageDynamicDataModel(),
+                                SensorType.SmallData => new SmallDataDynamicDataModel(),
+                                SensorType.Data => new BigDataDynamicDataModel(),
+                                SensorType.Power => new PowerDynamicDataModel(),
+                                SensorType.Fan => new FanDynamicDataModel(),
+                                SensorType.Throughput => new ThroughputDynamicDataModel(),
+                                SensorType.Clock => new ClockDynamicDataModel(),
+                                _ => new SensorDynamicDataModel(),
+                            };
+                            sensorTypeDataModel.AddDynamicChild(dataModel, sensorOfType.Identifier, sensorOfType.Name);
                         }
                     }
                 }
