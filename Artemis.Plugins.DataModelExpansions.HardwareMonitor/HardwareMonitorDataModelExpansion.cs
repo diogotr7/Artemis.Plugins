@@ -77,7 +77,7 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
                             sensorsOfType.Key.ToString());
 
                         //for each type of sensor, we add all the sensors we found
-                        foreach (var sensorOfType in sensorsOfType)
+                        foreach (var sensorOfType in sensorsOfType.OrderBy(s => s.Name))
                         {
                             //this switch is only useful for the unit of each sensor
                             var dataModel = sensorsOfType.Key switch
