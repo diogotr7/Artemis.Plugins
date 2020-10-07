@@ -4,14 +4,14 @@ using System.Management;
 
 namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
 {
-    class Hardware
+    public class Hardware
     {
         public string InstanceId { get; set; }
         public string ProcessId { get; set; }
         public string Identifier { get; set; }
         public string Name { get; set; }
         public string Parent { get; set; }
-        public string HardwareType { get; set; }
+        public HardwareType HardwareType { get; set; }
 
         public Hardware(ManagementBaseObject obj)
         {
@@ -20,7 +20,7 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
             Identifier = (string)obj["Identifier"];
             Name = (string)obj["Name"];
             Parent = (string)obj["Parent"];
-            HardwareType = (string)obj["HardwareType"];
+            HardwareType = GetHardwareType((string)obj["HardwareType"]);
         }
 
         public static List<Hardware> FromCollection(ManagementObjectCollection collection)
@@ -32,5 +32,39 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
 
             return list;
         }
+
+        private HardwareType GetHardwareType(string name)
+        {
+            return name.ToLower() switch
+            {
+                "motherboard" => HardwareType.Motherboard,
+                "mainboard" => HardwareType.Motherboard,
+                "superio" => HardwareType.SuperIO,
+                "cpu" => HardwareType.Cpu,
+                "memory" => HardwareType.Memory,
+                "ram" => HardwareType.Memory,
+                "gpunvidia" => HardwareType.Gpu,
+                "gpuamd" => HardwareType.Gpu,
+                "storage" => HardwareType.Storage,
+                "hdd" => HardwareType.Storage,
+                "network" => HardwareType.Network,
+                "cooler" => HardwareType.Cooler,
+                _ => throw new Exception()
+                //_ => HardwareType.Unknown
+            };
+        }
+    }
+
+    public enum HardwareType
+    {
+        Cpu,
+        Gpu,
+        Memory,
+        Motherboard,
+        SuperIO,
+        Storage,
+        Network,
+        Cooler,
+        Unknown
     }
 }

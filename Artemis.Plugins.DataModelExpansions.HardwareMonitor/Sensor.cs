@@ -47,6 +47,22 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
             return list;
         }
 
+        public static Dictionary<string, Sensor> GetDictionary(ManagementObjectCollection collection)
+        {
+            var dict = new Dictionary<string, Sensor>();
+
+            foreach (var obj in collection)
+            {
+                var sensor = new Sensor(obj);
+                if (sensor.SensorType != SensorType.Control)
+                {
+                    dict.Add(sensor.Identifier, sensor);
+                }
+            }
+
+            return dict;
+        }
+
         public override string ToString() => $"{Identifier} : {Value}";
 
         public int CompareTo(object other)
