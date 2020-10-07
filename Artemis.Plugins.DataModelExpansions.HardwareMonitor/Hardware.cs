@@ -49,8 +49,7 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
                 "hdd" => HardwareType.Storage,
                 "network" => HardwareType.Network,
                 "cooler" => HardwareType.Cooler,
-                _ => throw new Exception()
-                //_ => HardwareType.Unknown
+                _ => HardwareType.Unknown
             };
         }
     }
