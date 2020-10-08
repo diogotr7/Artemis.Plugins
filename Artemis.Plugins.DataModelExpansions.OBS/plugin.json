@@ -1,0 +1,7 @@
+{
+  "Guid": "56b422de-c9d5-4488-b1f3-97064decaab5",
+  "Name": "OBS",
+  "Description": "OBS data model expansion",
+  "Version": "1.0.0.0",
+  "Main": "Artemis.Plugins.DataModelExpansions.OBS.dll"
+}

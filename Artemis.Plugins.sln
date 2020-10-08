@@ -23,6 +23,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Devices", "Devices", "{4228
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Artemis.Plugins.DataModelExpansions.Spotify", "Artemis.Plugins.DataModelExpansions.Spotify\Artemis.Plugins.DataModelExpansions.Spotify.csproj", "{09090D32-10C0-42BD-AE9B-F2CA381C875E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Artemis.Plugins.DataModelExpansions.OBS", "Artemis.Plugins.DataModelExpansions.OBS\Artemis.Plugins.DataModelExpansions.OBS.csproj", "{390B0800-9119-4070-B9B3-CC71DE42BD2F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -53,6 +55,10 @@ Global
 		{09090D32-10C0-42BD-AE9B-F2CA381C875E}.Debug|x64.Build.0 = Debug|x64
 		{09090D32-10C0-42BD-AE9B-F2CA381C875E}.Release|x64.ActiveCfg = Release|x64
 		{09090D32-10C0-42BD-AE9B-F2CA381C875E}.Release|x64.Build.0 = Release|x64
+		{390B0800-9119-4070-B9B3-CC71DE42BD2F}.Debug|x64.ActiveCfg = Debug|x64
+		{390B0800-9119-4070-B9B3-CC71DE42BD2F}.Debug|x64.Build.0 = Debug|x64
+		{390B0800-9119-4070-B9B3-CC71DE42BD2F}.Release|x64.ActiveCfg = Release|x64
+		{390B0800-9119-4070-B9B3-CC71DE42BD2F}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -64,6 +70,7 @@ Global
 		{8A13B54C-34C9-47BA-B72F-2A4A8C973BFA} = {422885D2-E059-4558-9961-B77BD9C5DBDC}
 		{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61} = {B28A4ED3-D452-43C6-95A4-DA9D828E1B45}
 		{09090D32-10C0-42BD-AE9B-F2CA381C875E} = {02703C39-EEAE-42DF-BC48-0252E7E08007}
+		{390B0800-9119-4070-B9B3-CC71DE42BD2F} = {02703C39-EEAE-42DF-BC48-0252E7E08007}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D87FE810-F20D-476A-8FE6-41BD3AC75D49}

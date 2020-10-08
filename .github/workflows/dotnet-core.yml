@@ -85,3 +85,9 @@ jobs:
         with:
           name: Spotify
           path: .\Plugins\Artemis.Plugins.DataModelExpansions.Spotify\bin\x64\Release\netcoreapp3.1\publish
+
+      - name: Upload OBS
+        uses: actions/upload-artifact@v2
+        with:
+          name: OBS
+          path: .\Plugins\Artemis.Plugins.DataModelExpansions.OBS\bin\x64\Release\netcoreapp3.1\publish
