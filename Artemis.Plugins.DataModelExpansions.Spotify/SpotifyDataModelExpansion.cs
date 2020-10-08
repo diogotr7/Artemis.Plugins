@@ -1,30 +1,36 @@
 ﻿using Artemis.Core;
 using Artemis.Core.DataModelExpansions;
 using Artemis.Plugins.DataModelExpansions.Spotify.DataModels;
+using ColorThiefDotNet;
+using SkiaSharp;
 using SpotifyAPI.Web;
 using SpotifyAPI.Web.Auth;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Timers;
-using Timer = System.Timers.Timer;
 
 namespace Artemis.Plugins.DataModelExpansions.Spotify
 {
     public class SpotifyDataModelExpansion : DataModelExpansion<SpotifyDataModel>
     {
-        private readonly PluginSettings _settings;
-        private PluginSetting<PKCETokenResponse> token;
+        #region Auth
         private const string clientId = "78a0fd8e919e4ff58c4ddd7979bf00bf";
-
+        private PluginSetting<PKCETokenResponse> token;
         private static EmbedIOAuthServer _server;
         private static EmbedIOAuthServer Server => _server ??= new EmbedIOAuthServer(new Uri("http://localhost:5000/callback"), 5000);
+        #endregion
+
+        private readonly PluginSettings _settings;
         private SpotifyClient spotify;
         private CurrentlyPlayingContext playing;
-        private Timer updateTimer;
+        private readonly ColorThief _colorThief = new ColorThief();
+        private readonly HttpClient _httpClient = new HttpClient();
+        private string albumArtUrl;
 
         public SpotifyDataModelExpansion(PluginSettings settings)
         {
@@ -41,7 +47,6 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
                 {
                     Thread.Sleep(1000);
                 }
-                //spinlock here?
             }
 
             var authenticator = new PKCEAuthenticator(clientId, token.Value);
@@ -51,14 +56,73 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
                 token.Save();
             };
 
-            var config = SpotifyClientConfig.CreateDefault()
-              .WithAuthenticator(authenticator);
+            var config = SpotifyClientConfig
+                .CreateDefault()
+                .WithAuthenticator(authenticator);
 
             spotify = new SpotifyClient(config);
 
-            updateTimer = new Timer(1000);
-            updateTimer.Elapsed += UpdateData;
-            updateTimer.Start();
+            AddTimedUpdate(TimeSpan.FromSeconds(2), UpdateData);
+        }
+
+        public override void DisablePlugin()
+        { }
+
+        public override void Update(double deltaTime)
+        { }
+
+        private async void UpdateData(double deltaTime)
+        {
+            try
+            {
+                playing = await spotify.Player.GetCurrentPlayback();
+                if (playing is null)
+                    return;
+
+                DataModel.Player.Shuffle = playing.ShuffleState;
+                DataModel.Player.VolumePercent = playing.Device.VolumePercent ?? -1;
+                DataModel.Player.IsPlaying = playing.IsPlaying;
+
+                if (!(playing.Item is FullTrack track))
+                    return;
+
+                if (!playing.IsPlaying)
+                {
+                    DataModel.Track.Reset();
+                    return;
+                }
+
+                DataModel.Track.Title = track.Name;
+                DataModel.Track.Album = track.Album.Name;
+                DataModel.Track.Artist = string.Join(", ", track.Artists.Select(a => a.Name));
+                DataModel.Track.Popularity = track.Popularity;
+
+                var image = track.Album.Images.FirstOrDefault();
+                if (image != null && image.Url != albumArtUrl)
+                {
+                    albumArtUrl = image.Url;
+                    UpdateAlbumArtColors(albumArtUrl);
+                }
+            }
+            catch
+            {
+                //ignore
+            }
+        }
+
+        private async void UpdateAlbumArtColors(string albumArtUrl)
+        {
+            using var response = await _httpClient.GetAsync(albumArtUrl);
+            using var stream = await response.Content.ReadAsStreamAsync();
+            using var bitmap = new Bitmap(stream);
+
+            var palette = _colorThief.GetPalette(bitmap, 10, 100, true);
+            DataModel.Track.Colors = palette
+                .Select(qc => new SKColor(qc.Color.R, qc.Color.G, qc.Color.B))
+                .ToList();
+
+            DataModel.Track.Color1 = DataModel.Track.Colors[0];
+            DataModel.Track.Color2 = DataModel.Track.Colors[1];
         }
 
         private async Task StartAuth()
@@ -66,12 +130,12 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
             var (verifier, challenge) = PKCEUtil.GenerateCodes();
 
             await Server.Start();
-            Server.AuthorizationCodeReceived += async (sender, response) =>
+            Server.AuthorizationCodeReceived += async (_, response) =>
             {
                 await Server.Stop();
 
                 token.Value = await new OAuthClient().RequestToken(
-                  new PKCETokenRequest(clientId!, response.Code, _server.BaseUri, verifier)
+                  new PKCETokenRequest(clientId, response.Code, _server.BaseUri, verifier)
                 );
 
                 token.Save();
@@ -83,38 +147,8 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
                 CodeChallengeMethod = "S256",
                 Scope = new List<string> { Scopes.UserReadCurrentlyPlaying, Scopes.UserReadPlaybackState }
             };
-
-            Process.Start(new ProcessStartInfo("cmd", $"/c start {request.ToUri()}")
-            {
-                CreateNoWindow = true
-            });
-        }
-
-        public override void DisablePlugin()
-        {
-            updateTimer?.Dispose();
-        }
-
-        public override void Update(double deltaTime)
-        {
-            if (playing is null)
-                return;
-
-            if (playing.Item is FullTrack track)
-            {
-                DataModel.Track.Title = track.Name;
-                DataModel.Track.Artist = string.Join(", ", track.Artists.Select(a => a.Name));
-                DataModel.Track.Album = track.Album.Name;
-                DataModel.Track.Info = track.Album.Images.FirstOrDefault()?.Url ?? "";
-                DataModel.Player.ProgressMs = (float)playing.ProgressMs / track.DurationMs;
-            }
-            DataModel.Player.IsPlaying = playing.IsPlaying;
-            DataModel.Player.Shuffle = playing.ShuffleState;
-        }
-
-        private async void UpdateData(object sender, ElapsedEventArgs e)
-        {
-            playing = await spotify.Player.GetCurrentPlayback();
+            var url = request.ToUri();
+            Process.Start(url.ToString());
         }
     }
 }
