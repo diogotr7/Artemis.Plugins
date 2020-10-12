@@ -20,7 +20,7 @@ jobs:
           ref: Development
 
       - name: Build RGB.NET
-        run: dotnet build .\RGB.NET\RGB.NET.sln -f netstandard2.0
+        run: dotnet build .\RGB.NET\RGB.NET.sln
 
       - name: Clone RGB.NET.Devices.OpenRGB
         uses: actions/checkout@v2
