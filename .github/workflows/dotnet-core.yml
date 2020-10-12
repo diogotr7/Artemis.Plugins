@@ -20,7 +20,7 @@ jobs:
         ref: Development
     - name: Build RGB.NET
       working-directory: .\RGB.NET
-      run:  dotnet build .\RGB.NET\RGB.NET.sln  
+      run:  dotnet build
       
     - name: Clone Artemis
       uses: actions/checkout@v2
