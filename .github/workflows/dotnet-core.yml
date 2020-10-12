@@ -1,0 +1,39 @@
+name: Build Plugins
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on:  [windows-latest]
+
+    steps:
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.301
+        
+    - name: Clone RGB.NET
+      uses: actions/checkout@v2
+      with:
+        repository: DarthAffe/RGB.NET
+        ref: Development
+    - name: Build RGB.NET
+      working-directory: .\RGB.NET
+      run:  dotnet build .\RGB.NET\RGB.NET.sln  
+      
+    - name: Clone Artemis
+      uses: actions/checkout@v2
+      with:
+        repository: Artemis-RGB/Artemis
+    - name: Build Artemis
+      working-directory: .\Artemis
+      run:  dotnet build
+      
+    - name: Clone Plugins
+      uses: actions/checkout@v2
+      with:
+        path: Plugins
+    - name: Build Plugins
+      working-directory: .\Plugins
+      run: dotnet publish -c Release
