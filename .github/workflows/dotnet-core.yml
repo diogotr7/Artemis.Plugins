@@ -19,7 +19,7 @@ jobs:
         repository: DarthAffe/RGB.NET
         ref: Development
     - name: Build RGB.NET
-      working-directory: ./RGB.NET
+      working-directory: RGB.NET
       run:  dotnet build
       
     - name: Clone Artemis
@@ -27,7 +27,7 @@ jobs:
       with:
         repository: Artemis-RGB/Artemis
     - name: Build Artemis
-      working-directory: ./Artemis
+      working-directory: Artemis
       run:  dotnet build
       
     - name: Clone Plugins
@@ -35,5 +35,5 @@ jobs:
       with:
         path: Plugins
     - name: Build Plugins
-      working-directory: ./Plugins
+      working-directory: Plugins
       run: dotnet publish -c Release
