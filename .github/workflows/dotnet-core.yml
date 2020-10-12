@@ -22,6 +22,15 @@ jobs:
       - name: Build RGB.NET
         run: dotnet build .\RGB.NET\RGB.NET.sln -f netstandard2.0
 
+      - name: Clone RGB.NET.Devices.OpenRGB
+        uses: actions/checkout@v2
+        with:
+          repository: diogotr7/RGB.NET.Devices.OpenRGB
+          path: RGB.NET.Devices.OpenRGB
+
+      - name: Build RGB.NET.Devices.OpenRGB
+        run: dotnet build .\RGB.NET.Devices.OpenRGB\RGB.NET.Devices.OpenRGB.sln
+
       - name: Clone Artemis
         uses: actions/checkout@v2
         with:
