@@ -46,4 +46,10 @@ jobs:
           path: Plugins
       - name: Build Plugins
         working-directory: .\Plugins
-        run: dotnet publish -c Release
+        run: dotnet publish -c Release -p:PublishDir=.\publish .\Plugins.\Artemis.Plugins.sln
+
+      - name: Upload Plugin
+        uses: actions/upload-artifact@v2
+        with:
+          name: AllPlugins
+          path: .\publish
