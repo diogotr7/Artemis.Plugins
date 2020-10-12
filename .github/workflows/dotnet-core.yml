@@ -1,0 +1,87 @@
+name: Build Plugins
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: [windows-latest]
+
+    steps:
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.301
+
+      - name: Clone RGB.NET
+        uses: actions/checkout@v2
+        with:
+          repository: DarthAffe/RGB.NET
+          path: RGB.NET
+          ref: Development
+
+      - name: Build RGB.NET
+        run: dotnet build .\RGB.NET\RGB.NET.sln
+
+      - name: Clone RGB.NET.Devices.OpenRGB
+        uses: actions/checkout@v2
+        with:
+          repository: diogotr7/RGB.NET.Devices.OpenRGB
+          path: RGB.NET.Devices.OpenRGB
+
+      - name: Build RGB.NET.Devices.OpenRGB
+        run: dotnet build .\RGB.NET.Devices.OpenRGB\RGB.NET.Devices.OpenRGB.sln
+
+      - name: Clone Artemis
+        uses: actions/checkout@v2
+        with:
+          repository: Artemis-RGB/Artemis
+          path: Artemis
+
+      - name: Build Artemis
+        run: dotnet build .\Artemis\src\Artemis.sln
+
+      - name: Clone Plugins
+        uses: actions/checkout@v2
+        with:
+          path: Plugins
+
+      - name: Build Plugins
+        run: dotnet publish -c Release .\Plugins\Artemis.Plugins.sln
+
+        #msbuild is dumb so we have to upload one at a time :)
+        #https://github.com/dotnet/sdk/issues/7238
+      - name: Upload League of Legends
+        uses: actions/upload-artifact@v2
+        with:
+          name: League of Legends
+          path: .\Plugins\Artemis.Plugins.Modules.LeagueOfLegends\bin\x64\Release\netcoreapp3.1\publish
+
+      - name: Upload HardwareMonitor
+        uses: actions/upload-artifact@v2
+        with:
+          name: HardwareMonitor
+          path: .\Plugins\Artemis.Plugins.DataModelExpansions.HardwareMonitor\bin\x64\Release\netcoreapp3.1\publish
+
+      - name: Upload OpenRGB
+        uses: actions/upload-artifact@v2
+        with:
+          name: OpenRGB
+          path: .\Plugins\Artemis.Plugins.Devices.OpenRGB\bin\x64\Release\netcoreapp3.1\publish
+
+      - name: Upload Gif
+        uses: actions/upload-artifact@v2
+        with:
+          name: Gif
+          path: .\Plugins\Artemis.Plugins.LayerBrushes.Gif\bin\x64\Release\netcoreapp3.1\publish
+
+      - name: Upload Chroma
+        uses: actions/upload-artifact@v2
+        with:
+          name: Chroma
+          path: .\Plugins\Artemis.Plugins.LayerBrushes.Chroma\bin\x64\Release\netcoreapp3.1\publish
+
+      - name: Upload Spotify
+        uses: actions/upload-artifact@v2
+        with:
+          name: Spotify
+          path: .\Plugins\Artemis.Plugins.DataModelExpansions.Spotify\bin\x64\Release\netcoreapp3.1\publish
