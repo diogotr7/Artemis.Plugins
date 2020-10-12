@@ -17,23 +17,25 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: DarthAffe/RGB.NET
+        path: RGB.NET
         ref: Development
+
     - name: Build RGB.NET
-      working-directory: RGB.NET
-      run:  dotnet build
+      run:  dotnet build .\RGB.NET\RGB.NET.sln  
       
     - name: Clone Artemis
       uses: actions/checkout@v2
       with:
         repository: Artemis-RGB/Artemis
+        path: Artemis
+
     - name: Build Artemis
-      working-directory: Artemis
-      run:  dotnet build
+      run:  dotnet build .\Artemis\src\Artemis.sln
       
     - name: Clone Plugins
       uses: actions/checkout@v2
       with:
         path: Plugins
     - name: Build Plugins
-      working-directory: Plugins
+      working-directory: .\Plugins
       run: dotnet publish -c Release
