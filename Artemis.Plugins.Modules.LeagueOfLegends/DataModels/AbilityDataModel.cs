@@ -1,5 +1,4 @@
 ﻿using Artemis.Core.DataModelExpansions;
-using System;
 
 namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
 {

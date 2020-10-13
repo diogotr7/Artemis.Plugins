@@ -1,7 +1,6 @@
 ﻿using Artemis.Core;
 using Artemis.Core.DataModelExpansions;
 using Serilog;
-using System.Diagnostics;
 using System.Linq;
 using System.Management;
 
@@ -99,16 +98,16 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
                             var dataModel = sensorsOfType.Key switch
                             {
                                 SensorType.Temperature => new TemperatureDynamicDataModel(sensorOfType.Identifier),
-                                SensorType.Load        => new PercentageDynamicDataModel (sensorOfType.Identifier),
-                                SensorType.Level       => new PercentageDynamicDataModel (sensorOfType.Identifier),
-                                SensorType.Voltage     => new VoltageDynamicDataModel    (sensorOfType.Identifier),
-                                SensorType.SmallData   => new SmallDataDynamicDataModel  (sensorOfType.Identifier),
-                                SensorType.Data        => new BigDataDynamicDataModel    (sensorOfType.Identifier),
-                                SensorType.Power       => new PowerDynamicDataModel      (sensorOfType.Identifier),
-                                SensorType.Fan         => new FanDynamicDataModel        (sensorOfType.Identifier),
-                                SensorType.Throughput  => new ThroughputDynamicDataModel (sensorOfType.Identifier),
-                                SensorType.Clock       => new ClockDynamicDataModel      (sensorOfType.Identifier),
-                                _                      => new SensorDynamicDataModel     (sensorOfType.Identifier),
+                                SensorType.Load => new PercentageDynamicDataModel(sensorOfType.Identifier),
+                                SensorType.Level => new PercentageDynamicDataModel(sensorOfType.Identifier),
+                                SensorType.Voltage => new VoltageDynamicDataModel(sensorOfType.Identifier),
+                                SensorType.SmallData => new SmallDataDynamicDataModel(sensorOfType.Identifier),
+                                SensorType.Data => new BigDataDynamicDataModel(sensorOfType.Identifier),
+                                SensorType.Power => new PowerDynamicDataModel(sensorOfType.Identifier),
+                                SensorType.Fan => new FanDynamicDataModel(sensorOfType.Identifier),
+                                SensorType.Throughput => new ThroughputDynamicDataModel(sensorOfType.Identifier),
+                                SensorType.Clock => new ClockDynamicDataModel(sensorOfType.Identifier),
+                                _ => new SensorDynamicDataModel(sensorOfType.Identifier),
                             };
 
                             sensorTypeDataModel.AddDynamicChild(

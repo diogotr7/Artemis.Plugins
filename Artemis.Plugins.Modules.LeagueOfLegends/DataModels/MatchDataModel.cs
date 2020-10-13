@@ -1,6 +1,5 @@
 ﻿using Artemis.Core.DataModelExpansions;
 using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums;
-using System;
 
 namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
 {

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Management;
 
 namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor

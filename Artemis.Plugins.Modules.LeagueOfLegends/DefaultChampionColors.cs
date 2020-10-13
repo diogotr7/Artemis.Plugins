@@ -1,8 +1,6 @@
 ﻿using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums;
 using SkiaSharp;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Artemis.Plugins.Modules.LeagueOfLegends
 {

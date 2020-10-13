@@ -1,7 +1,4 @@
-﻿using System.ComponentModel;
-using Artemis.Core;
-using Artemis.Plugins.LayerBrushes.Gif.ViewModels;
-using SkiaSharp;
+﻿using Artemis.Core;
 
 namespace Artemis.Plugins.LayerBrushes.Gif.PropertyGroups
 {

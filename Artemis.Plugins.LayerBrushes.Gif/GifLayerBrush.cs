@@ -1,9 +1,7 @@
 ﻿using Artemis.Core.LayerBrushes;
-using SkiaSharp;
 using Artemis.Plugins.LayerBrushes.Gif.PropertyGroups;
-using Artemis.Plugins.LayerBrushes.Gif.ViewModels;
+using SkiaSharp;
 using System.IO;
-using System;
 
 namespace Artemis.Plugins.LayerBrushes.Gif
 {

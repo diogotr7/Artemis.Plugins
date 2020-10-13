@@ -38,7 +38,7 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
             foreach (var obj in collection)
             {
                 var sensor = new Sensor(obj);
-                if(sensor.SensorType != SensorType.Control)
+                if (sensor.SensorType != SensorType.Control)
                 {
                     list.Add(sensor);
                 }

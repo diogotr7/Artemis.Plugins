@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using Artemis.Core;
+﻿using Artemis.Core;
 
 namespace Artemis.Plugins.LayerBrushes.Chroma.PropertyGroups
 {

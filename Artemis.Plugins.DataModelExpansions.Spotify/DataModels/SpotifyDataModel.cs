@@ -1,6 +1,5 @@
 ﻿using Artemis.Core.DataModelExpansions;
 using SkiaSharp;
-using SpotifyAPI.Web;
 using System;
 using System.Collections.Generic;
 

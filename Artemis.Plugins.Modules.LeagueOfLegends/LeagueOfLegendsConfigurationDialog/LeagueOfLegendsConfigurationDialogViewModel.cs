@@ -2,10 +2,8 @@
 using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums;
 using SkiaSharp;
 using Stylet;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Windows.Media;
 
 namespace Artemis.Plugins.Modules.LeagueOfLegends.LeagueOfLegendsConfigurationDialog
