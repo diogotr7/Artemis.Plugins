@@ -29,10 +29,14 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify.DataModels
         public int Popularity { get; set; }
         public TimeSpan Duration { get; set; }
         public TimeSpan Progress { get; set; }
-        public SKColor Color1 { get; set; }
-        public SKColor Color2 { get; set; }
-        public List<SKColor> Colors { get; set; }
         public SpotifyTrackFeaturesDataModel Features { get; set; } = new SpotifyTrackFeaturesDataModel();
+        public List<SKColor> Colors { get; set; }
+        public SKColor Vibrant { get; set; }
+        public SKColor LightVibrant { get; set; }
+        public SKColor DarkVibrant { get; set; }
+        public SKColor Muted { get; set; }
+        public SKColor LightMuted { get; set; }
+        public SKColor DarkMuted { get; set; }
     }
 
     public class SpotifyTrackFeaturesDataModel : DataModel
