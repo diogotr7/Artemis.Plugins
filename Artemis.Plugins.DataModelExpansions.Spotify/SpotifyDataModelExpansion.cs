@@ -1,17 +1,13 @@
 ﻿using Artemis.Core;
 using Artemis.Core.DataModelExpansions;
 using Artemis.Plugins.DataModelExpansions.Spotify.DataModels;
-using ColorThiefDotNet;
+using Serilog;
 using SkiaSharp;
 using SpotifyAPI.Web;
 using System;
-using System.Drawing;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Serilog;
-using System.Runtime.InteropServices.ComTypes;
-using System.Diagnostics;
 
 namespace Artemis.Plugins.DataModelExpansions.Spotify
 {
@@ -28,7 +24,6 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
         }
         #endregion
 
-        private readonly ColorThief _colorThief = new ColorThief();
         private HttpClient _httpClient = new HttpClient();
         private SpotifyClient _spotify;
         private CurrentlyPlayingContext _playing;
@@ -146,17 +141,17 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
 
         private void UpdateTrackFeatures(TrackAudioFeatures features)
         {
-            DataModel.Track.Features.Acousticness = features.Acousticness;
-            DataModel.Track.Features.Danceability = features.Danceability;
-            DataModel.Track.Features.Energy = features.Energy;
-            DataModel.Track.Features.Instrumentalness = features.Instrumentalness;
-            DataModel.Track.Features.Liveness = features.Liveness;
+            DataModel.Track.Features.Acousticness = features.Acousticness * 100;
+            DataModel.Track.Features.Danceability = features.Danceability * 100;
+            DataModel.Track.Features.Energy = features.Energy * 100;
+            DataModel.Track.Features.Instrumentalness = features.Instrumentalness * 100;
+            DataModel.Track.Features.Liveness = features.Liveness * 100;
             DataModel.Track.Features.Loudness = features.Loudness;
-            DataModel.Track.Features.Speechiness = features.Speechiness;
+            DataModel.Track.Features.Speechiness = features.Speechiness * 100;
+            DataModel.Track.Features.Valence = features.Valence * 100;
             DataModel.Track.Features.Tempo = features.Tempo;
-            DataModel.Track.Features.Valence = features.Valence;
-            DataModel.Track.Features.Key = features.Key;
-            DataModel.Track.Features.Mode = features.Mode;
+            DataModel.Track.Features.Key = (Key)features.Key;
+            DataModel.Track.Features.Mode = (Mode)features.Mode;
             DataModel.Track.Features.TimeSignature = features.TimeSignature;
         }
 
@@ -164,37 +159,15 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
         {
             using var response = await _httpClient.GetAsync(albumArtUrl);
             using var stream = await response.Content.ReadAsStreamAsync();
+            using var skbm = SKBitmap.Decode(stream);
 
-            if (true)
-            {
-                #region SKColor method
-                using var skbm = SKBitmap.Decode(stream);
-                var skClrs = ColorQuantizer.GetQuantizedColors(skbm.Pixels.ToList(), 128).ToList();
-                var fixedPop = 128;
-                DataModel.Track.Colors = skClrs;
-                DataModel.Track.Vibrant = Vibrant.FindColorVariation(skClrs, fixedPop, ColorType.Vibrant);
-                DataModel.Track.LightVibrant = Vibrant.FindColorVariation(skClrs, fixedPop, ColorType.LightVibrant);
-                DataModel.Track.DarkVibrant = Vibrant.FindColorVariation(skClrs, fixedPop, ColorType.DarkVibrant);
-                DataModel.Track.Muted = Vibrant.FindColorVariation(skClrs, fixedPop, ColorType.Muted);
-                DataModel.Track.LightMuted = Vibrant.FindColorVariation(skClrs, fixedPop, ColorType.LightMuted);
-                DataModel.Track.DarkMuted = Vibrant.FindColorVariation(skClrs, fixedPop, ColorType.DarkMuted);
-                #endregion
-            }
-            else
-            {
-                #region colorthief method
-                using var bitmap = new Bitmap(stream);
-                var clrs = _colorThief.GetPalette(bitmap, 128, 10, false);
-                var maxPop = clrs.Max(qc => qc.Population);
-                DataModel.Track.Colors = clrs.Select(qc => qc.ToSKColor()).ToList();
-                DataModel.Track.Vibrant = Vibrant.FindColorVariation(clrs, maxPop, ColorType.Vibrant).ToSKColor();
-                DataModel.Track.LightVibrant = Vibrant.FindColorVariation(clrs, maxPop, ColorType.LightVibrant).ToSKColor();
-                DataModel.Track.DarkVibrant = Vibrant.FindColorVariation(clrs, maxPop, ColorType.DarkVibrant).ToSKColor();
-                DataModel.Track.Muted = Vibrant.FindColorVariation(clrs, maxPop, ColorType.Muted).ToSKColor();
-                DataModel.Track.LightMuted = Vibrant.FindColorVariation(clrs, maxPop, ColorType.LightMuted).ToSKColor();
-                DataModel.Track.DarkMuted = Vibrant.FindColorVariation(clrs, maxPop, ColorType.DarkMuted).ToSKColor();
-                #endregion
-            }
+            var skClrs = ColorQuantizer.Quantize(skbm.Pixels.ToList(), 256).ToList();
+            DataModel.Track.Colors.Vibrant = Vibrant.FindColorVariation(skClrs, ColorType.Vibrant);
+            DataModel.Track.Colors.LightVibrant = Vibrant.FindColorVariation(skClrs, ColorType.LightVibrant);
+            DataModel.Track.Colors.DarkVibrant = Vibrant.FindColorVariation(skClrs, ColorType.DarkVibrant);
+            DataModel.Track.Colors.Muted = Vibrant.FindColorVariation(skClrs, ColorType.Muted);
+            DataModel.Track.Colors.LightMuted = Vibrant.FindColorVariation(skClrs, ColorType.LightMuted);
+            DataModel.Track.Colors.DarkMuted = Vibrant.FindColorVariation(skClrs, ColorType.DarkMuted);
         }
         #endregion
 

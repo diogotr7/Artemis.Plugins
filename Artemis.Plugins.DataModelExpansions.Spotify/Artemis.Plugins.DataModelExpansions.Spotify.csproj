@@ -16,8 +16,6 @@
 
   <ItemGroup>
 
-    <PackageReference Include="ksemenenko.ColorThief" Version="1.1.1.4" />
-
     <PackageReference Include="Serilog" Version="2.9.0" />
 
     <PackageReference Include="SkiaSharp" Version="1.68.3">

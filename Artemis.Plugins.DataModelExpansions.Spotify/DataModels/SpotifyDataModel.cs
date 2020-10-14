@@ -1,7 +1,7 @@
 ﻿using Artemis.Core.DataModelExpansions;
 using SkiaSharp;
 using System;
-using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace Artemis.Plugins.DataModelExpansions.Spotify.DataModels
 {
@@ -30,7 +30,48 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify.DataModels
         public TimeSpan Duration { get; set; }
         public TimeSpan Progress { get; set; }
         public SpotifyTrackFeaturesDataModel Features { get; set; } = new SpotifyTrackFeaturesDataModel();
-        public List<SKColor> Colors { get; set; }
+        public TrackColorsDataModel Colors { get; set; } = new TrackColorsDataModel();
+    }
+
+    public class SpotifyTrackFeaturesDataModel : DataModel
+    {
+        [DataModelProperty(Affix = "%", Description = "Level of confidence the track is acoustic")]
+        public float Acousticness { get; set; }
+
+        [DataModelProperty(Affix = "%", Description = "How suitable a track is for dancing")]
+        public float Danceability { get; set; }
+
+        [DataModelProperty(Affix = "%", Description = "How energetic / intense a track feels")]
+        public float Energy { get; set; }
+
+        [DataModelProperty(Affix = "%", Description = "How likely a track is to contain no spoken words")]
+        public float Instrumentalness { get; set; }
+
+        [DataModelProperty(Affix = "%", Description = "How likely a track is to have a live audience")]
+        public float Liveness { get; set; }
+
+        [DataModelProperty(Affix = "dB", Description = "Overall perceived loudness of a track")]
+        public float Loudness { get; set; }
+
+        [DataModelProperty(Affix = "%", Description = "How likely a track is to contain spoken words")]
+        public float Speechiness { get; set; }
+
+        [DataModelProperty(Affix = "%", Description = "How musically positive the track is (happy, cheerful)")]
+        public float Valence { get; set; }
+
+        [DataModelProperty(Affix = "BMP", Description = "Overall estimated tempo of a track in beats per minute")]
+        public float Tempo { get; set; }
+
+        [DataModelProperty(Description = "Estimated overall key of the track.")]
+        public Key Key { get; set; }
+
+        public Mode Mode { get; set; }
+
+        public int TimeSignature { get; set; }
+    }
+
+    public class TrackColorsDataModel : DataModel
+    {
         public SKColor Vibrant { get; set; }
         public SKColor LightVibrant { get; set; }
         public SKColor DarkVibrant { get; set; }
@@ -39,20 +80,32 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify.DataModels
         public SKColor DarkMuted { get; set; }
     }
 
-    public class SpotifyTrackFeaturesDataModel : DataModel
+    public enum Key
     {
-        public float Acousticness { get; set; }
-        public float Danceability { get; set; }
-        public float Energy { get; set; }
-        public float Instrumentalness { get; set; }
-        public float Liveness { get; set; }
-        public float Loudness { get; set; }
-        public float Speechiness { get; set; }
-        public float Tempo { get; set; }
-        public float Valence { get; set; }
-        public int Key { get; set; }
-        public int Mode { get; set; }
-        public int TimeSignature { get; set; }
+        None = -1,
+        C = 0,
+        [Description("C#")]
+        Cs = 1,
+        D = 2,
+        [Description("D#")]
+        Ds = 3,
+        E = 4,
+        F = 5,
+        [Description("F#")]
+        Fs = 6,
+        G = 7,
+        [Description("G#")]
+        Gs = 8,
+        A = 9,
+        [Description("A#")]
+        As = 10,
+        B = 11,
+    }
+
+    public enum Mode
+    {
+        Minor = 0,
+        Major = 1
     }
 
     public enum ContextType

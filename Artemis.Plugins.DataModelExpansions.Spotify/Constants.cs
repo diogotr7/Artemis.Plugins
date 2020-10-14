@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Artemis.Plugins.DataModelExpansions.Spotify
+﻿namespace Artemis.Plugins.DataModelExpansions.Spotify
 {
     internal static class Constants
     {

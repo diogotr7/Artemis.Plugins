@@ -1,9 +1,7 @@
-﻿using ColorThiefDotNet;
-using SkiaSharp;
+﻿using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Artemis.Plugins.DataModelExpansions.Spotify
 {
@@ -31,8 +29,8 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
         private const float targetVibrantSaturation = 1.0f;
         private const float minVibrantSaturation = 0.35f;
         private const float weightSaturation = 3f;
-        private const float weightLuma = 6.5f;
-        private const float weightPopulation = 0.5f;
+        private const float weightLuma = 5f;
+        private const float weightPopulation = 0f;
 
         private static (float targetLuma, float minLuma, float maxLuma, float targetSaturation, float minSaturation, float maxSaturation) GetTargetsForType(ColorType type) => type switch
         {
@@ -45,29 +43,18 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
             _ => throw new NotImplementedException(),
         };
 
-        internal static QuantizedColor FindColorVariation(IEnumerable<QuantizedColor> colors, int maxPopulation, ColorType type)
-        {
-            var (targetLuma, minLuma, maxLuma, targetSaturation, minSaturation, maxSaturation) = GetTargetsForType(type);
-
-            return colors.OrderByDescending(qc =>
-            {
-                qc.ToSKColor().ToHsl(out var _, out var s, out var l);
-                return GetComparisonValue(s / 100f, targetSaturation, l / 100f, targetLuma, qc.Population, maxPopulation);
-            }).FirstOrDefault();
-        }
-
-        internal static SKColor FindColorVariation(IEnumerable<SKColor> colors, int maxPopulation, ColorType type)
+        internal static SKColor FindColorVariation(IEnumerable<SKColor> colors, ColorType type)
         {
             var (targetLuma, minLuma, maxLuma, targetSaturation, minSaturation, maxSaturation) = GetTargetsForType(type);
 
             return colors.OrderByDescending(qc =>
             {
                 qc.ToHsl(out var _, out var s, out var l);
-                return GetComparisonValue(s / 100f, targetSaturation, l / 100f, targetLuma, 1, maxPopulation);
+                return GetComparisonValue(s / 100f, targetSaturation, l / 100f, targetLuma);
             }).FirstOrDefault();
         }
 
-        private static float GetComparisonValue(float s, float targetSaturation, float l, float targetLuma, int population, int maxPopulation)
+        private static float GetComparisonValue(float s, float targetSaturation, float l, float targetLuma)
         {
             static float WeightedMean(params float[] values)
             {
@@ -91,36 +78,29 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
 
             return WeightedMean(
                 InvertDiff(s, targetSaturation), weightSaturation,
-                InvertDiff(l, targetLuma), weightLuma,
-                population / maxPopulation, weightPopulation
+                InvertDiff(l, targetLuma), weightLuma
             );
-        }
-
-        internal static SKColor ToSKColor(this QuantizedColor qc)
-        {
-            if (qc is null) return SKColor.Empty;
-
-            return new SKColor(qc.Color.R, qc.Color.G, qc.Color.B);
         }
     }
 
-    public static class ColorQuantizer
+    internal static class ColorQuantizer
     {
-        public static SKColor[] GetQuantizedColors(List<SKColor> pixels, int colorCount)
+        internal static SKColor[] Quantize(List<SKColor> colors, int size)
         {
-            if ((colorCount & (colorCount - 1)) != 0)
+            if ((size & (size - 1)) != 0)
                 throw new ArgumentException("Must be power of two");
 
-            Queue<Cube> cubes = new Queue<Cube>(colorCount);
-            cubes.Enqueue(new Cube(pixels));
+            Queue<Cube> cubes = new Queue<Cube>(size);
+            cubes.Enqueue(new Cube(colors));
 
-            while (cubes.Count < colorCount)
+            while (cubes.Count < size)
             {
                 var c = cubes.Dequeue();
-                if (c.Split(out var a, out var b))
+                var (cubeA, cubeB) = c.Split();
+                if (cubeA != null && cubeB != null)
                 {
-                    cubes.Enqueue(a);
-                    cubes.Enqueue(b);
+                    cubes.Enqueue(cubeA);
+                    cubes.Enqueue(cubeB);
                 }
             }
 
@@ -128,19 +108,19 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
         }
     }
 
-    public enum ColorComponent
+    internal class Cube
     {
-        Red,
-        Green,
-        Blue
-    }
+        private enum ColorComponent
+        {
+            Red,
+            Green,
+            Blue
+        }
 
-    public class Cube
-    {
         private readonly List<SKColor> _colors;
         private readonly ColorComponent SplitAtComponent;
 
-        public Cube(List<SKColor> colors)
+        internal Cube(List<SKColor> colors)
         {
             _colors = colors;
 
@@ -156,14 +136,10 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
                 SplitAtComponent = ColorComponent.Blue;
         }
 
-        public bool Split(out Cube cubeA, out Cube cubeB)
+        internal (Cube, Cube) Split()
         {
             if (_colors.Count < 2)
-            {
-                cubeA = null;
-                cubeB = null;
-                return false;
-            }
+                return (null, null);
 
             switch (SplitAtComponent)
             {
@@ -179,13 +155,13 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
             }
             int median = _colors.Count / 2;
 
-            cubeA = new Cube(_colors.GetRange(0, median));
-            cubeB = new Cube(_colors.GetRange(median, _colors.Count - median));
+            var cubeA = new Cube(_colors.GetRange(0, median));
+            var cubeB = new Cube(_colors.GetRange(median, _colors.Count - median));
 
-            return true;
+            return (cubeA, cubeB);
         }
 
-        public SKColor GetAverageColor()
+        internal SKColor GetAverageColor()
         {
             int r = 0, g = 0, b = 0;
 
