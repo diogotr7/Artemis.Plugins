@@ -4,18 +4,18 @@
     <ShouldIncludeNativeSkiaSharp>false</ShouldIncludeNativeSkiaSharp>
     <AssemblyName>Artemis.Plugins.Devices.OpenRGB</AssemblyName>
     <RootNamespace>Artemis.Plugins.Devices.OpenRGB</RootNamespace>
-	<UseWPF>true</UseWPF>
-	<Platforms>x64</Platforms>
-	<GenerateDependencyFile>False</GenerateDependencyFile>
+    <UseWPF>true</UseWPF>
+    <Platforms>x64</Platforms>
+    <GenerateDependencyFile>False</GenerateDependencyFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
-  
-  <ItemGroup>    
-	<PackageReference Include="MaterialDesignThemes" Version="3.1.3" />    
-	<PackageReference Include="OpenRGB.NET" Version="1.3.0" />    
-	<PackageReference Include="SkiaSharp" Version="1.68.3">
+
+  <ItemGroup>
+    <PackageReference Include="MaterialDesignThemes" Version="3.1.3" />
+    <PackageReference Include="OpenRGB.NET" Version="1.3.0" />
+    <PackageReference Include="SkiaSharp" Version="1.68.3">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Stylet" Version="1.3.4">
@@ -32,13 +32,13 @@
       <HintPath>..\..\Artemis\src\Artemis.UI\bin\x64\Debug\netcoreapp3.1\Artemis.UI.Shared.dll</HintPath>
       <Private>false</Private>
     </Reference>
-	<Reference Include="RGB.NET.Core">
+    <Reference Include="RGB.NET.Core">
       <HintPath>..\..\Artemis\src\Artemis.UI\bin\x64\Debug\netcoreapp3.1\RGB.NET.Core.dll</HintPath>
       <Private>false</Private>
     </Reference>
-	<Reference Include="RGB.NET.Devices.OpenRGB">
-	  <HintPath>..\..\RGB.NET.Devices.OpenRGB\bin\netstandard2.0\RGB.NET.Devices.OpenRGB.dll</HintPath>
-	</Reference>
+    <Reference Include="RGB.NET.Devices.OpenRGB">
+      <HintPath>..\..\RGB.NET.Devices.OpenRGB\bin\netstandard2.0\RGB.NET.Devices.OpenRGB.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
@@ -48,7 +48,7 @@
     <None Update="plugin.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-	<Content Include="Layouts\**">
+    <Content Include="Layouts\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Images\**">
@@ -57,18 +57,18 @@
   </ItemGroup>
 
   <!-- This may trigger another build (something related to the obj folder) so only run it if building inside VS -->
-	<Target Name="PostBuildPublish" AfterTargets="PostBuildEvent" Condition="'$(BuildingInsideVisualStudio)' == 'true'">
-		<Message Text="------ Artemis plugin publish ------" Importance="High" />
-		<Exec Command="dotnet publish --verbosity q --output &quot;%25ProgramData%25\Artemis\Plugins\$(ProjectName)&quot;" />
-		<Message Text="Published $(ProjectName) at file:\\$(ProgramData)\Artemis\Plugins\$(ProjectName)" Importance="High" />
-		<Message Text="If distributing outside the workshop, share this folder." Importance="High" />
-	</Target>
+  <Target Name="PostBuildPublish" AfterTargets="PostBuildEvent" Condition="'$(BuildingInsideVisualStudio)' == 'true'">
+    <Message Text="------ Artemis plugin publish ------" Importance="High" />
+    <Exec Command="dotnet publish --verbosity q --output &quot;%25ProgramData%25\Artemis\Plugins\$(ProjectName)&quot;" />
+    <Message Text="Published $(ProjectName) at file:\\$(ProgramData)\Artemis\Plugins\$(ProjectName)" Importance="High" />
+    <Message Text="If distributing outside the workshop, share this folder." Importance="High" />
+  </Target>
 
-	<!-- Override the published DLLs with the built DLLs to enable edit & continue -->
-	<Target Name="PostBuildLocalDlls" AfterTargets="PostBuildEvent" Condition="'$(BuildingInsideVisualStudio)' == 'true'">
-		<ItemGroup>
-			<DllFiles Include="$(TargetDir)\**\*.dll" />
-		</ItemGroup>
-		<Copy SourceFiles="@(DllFiles)" DestinationFolder="$(ProgramData)\Artemis\Plugins\$(ProjectName)" />
-	</Target>
+  <!-- Override the published DLLs with the built DLLs to enable edit & continue -->
+  <Target Name="PostBuildLocalDlls" AfterTargets="PostBuildEvent" Condition="'$(BuildingInsideVisualStudio)' == 'true'">
+    <ItemGroup>
+      <DllFiles Include="$(TargetDir)\**\*.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(DllFiles)" DestinationFolder="$(ProgramData)\Artemis\Plugins\$(ProjectName)" />
+  </Target>
 </Project>
