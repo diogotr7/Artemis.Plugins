@@ -39,7 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="LeagueOfLegendsIcon.png">
+    <None Update="LeagueOfLegendsIcon.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="plugin.json">
