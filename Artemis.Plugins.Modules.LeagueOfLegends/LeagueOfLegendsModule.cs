@@ -31,8 +31,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         {
             ConfigurationDialog = new PluginConfigurationDialog<LeagueOfLegendsConfigurationDialogViewModel>();
             DisplayName = "League Of Legends";
-            DisplayIcon = "Shaker";
-            DisplayIconPath = "LeagueOfLegendsIcon.png";
+            DisplayIcon = "LeagueOfLegendsIcon.svg";
             DefaultPriorityCategory = ModulePriorityCategory.Application;
             ActivationRequirements.Add(new ProcessActivationRequirement("League Of Legends"));
             DataModel.Reset();
