@@ -1,6 +1,7 @@
 ﻿using Artemis.Core;
 using Artemis.Core.DataModelExpansions;
 using Serilog;
+using System;
 using System.Linq;
 using System.Management;
 
@@ -20,8 +21,6 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
             @"\\.\root\LibreHardwareMonitor",
             @"\\.\root\OpenHardwareMonitor"
         };
-
-        private double timeSinceLastUpdate;
 
         private readonly ObjectQuery SensorQuery = new ObjectQuery("SELECT * FROM Sensor");
         private readonly ObjectQuery HardwareQuery = new ObjectQuery("SELECT * FROM Hardware");
@@ -118,7 +117,7 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
                         }
                     }
                 }
-
+                AddTimedUpdate(TimeSpan.FromMilliseconds(500), UpdateData);
                 _logger.Information($"Successfully connected to WMI scope: {scope}");
                 return;
                 //success!
@@ -132,19 +131,10 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
             HardwareSearcher?.Dispose();
         }
 
-        public override void Update(double deltaTime)
-        {
-            //update every second for now
-            if (timeSinceLastUpdate < 1d)
-            {
-                timeSinceLastUpdate += deltaTime;
-                return;
-            }
-            else
-            {
-                timeSinceLastUpdate = 0;
-            }
+        public override void Update(double deltaTime) { }
 
+        private void UpdateData(double deltaTime)
+        {
             var sensors = Sensor.GetDictionary(SensorSearcher.Get());
             foreach (var (hardwareId, hardwareDataModel) in DataModel.DynamicDataModels)
             {
