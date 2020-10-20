@@ -1,17 +1,15 @@
 ﻿using Artemis.Core;
-using Artemis.Core.Services.Interfaces;
 using Artemis.Core.DataModelExpansions;
+using Artemis.Core.Services;
 using Artemis.Plugins.DataModelExpansions.Spotify.DataModels;
 using Serilog;
 using SkiaSharp;
 using SpotifyAPI.Web;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Artemis.Core.Services;
-using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace Artemis.Plugins.DataModelExpansions.Spotify
 {
