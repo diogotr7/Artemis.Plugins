@@ -1,4 +1,5 @@
 ﻿using Artemis.Core;
+using Artemis.Core.Services.Interfaces;
 using Artemis.Core.DataModelExpansions;
 using Artemis.Plugins.DataModelExpansions.Spotify.DataModels;
 using Serilog;
@@ -8,6 +9,9 @@ using System;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Artemis.Core.Services;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Artemis.Plugins.DataModelExpansions.Spotify
 {
@@ -16,17 +20,20 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
         #region DI
         private readonly PluginSettings _settings;
         private readonly ILogger _logger;
+        private readonly IColorQuantizerService _colorQuantizer;
 
-        public SpotifyDataModelExpansion(PluginSettings settings, ILogger logger)
+        public SpotifyDataModelExpansion(PluginSettings settings, ILogger logger, IColorQuantizerService colorQuantizer)
         {
             _settings = settings;
             _logger = logger;
+            _colorQuantizer = colorQuantizer;
         }
         #endregion
 
         private HttpClient _httpClient = new HttpClient();
         private SpotifyClient _spotify;
         private CurrentlyPlayingContext _playing;
+        private Dictionary<string, TrackColorsDataModel> albumArtColorCache = new Dictionary<string, TrackColorsDataModel>();
         private string _trackId;
         private string _contextId;
         private string _albumArtUrl;
@@ -157,17 +164,24 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
 
         private async Task UpdateAlbumArtColors(string albumArtUrl)
         {
-            using var response = await _httpClient.GetAsync(albumArtUrl);
-            using var stream = await response.Content.ReadAsStreamAsync();
-            using var skbm = SKBitmap.Decode(stream);
+            if (!albumArtColorCache.ContainsKey(albumArtUrl))
+            {
+                using var response = await _httpClient.GetAsync(albumArtUrl);
+                using var stream = await response.Content.ReadAsStreamAsync();
+                using var skbm = SKBitmap.Decode(stream);
+                var skClrs = _colorQuantizer.Quantize(skbm.Pixels.ToList(), 256).ToList();
+                albumArtColorCache[albumArtUrl] = new TrackColorsDataModel
+                {
+                    Vibrant = _colorQuantizer.FindColorVariation(skClrs, ColorType.Vibrant, true),
+                    LightVibrant = _colorQuantizer.FindColorVariation(skClrs, ColorType.LightVibrant, true),
+                    DarkVibrant = _colorQuantizer.FindColorVariation(skClrs, ColorType.DarkVibrant, true),
+                    Muted = _colorQuantizer.FindColorVariation(skClrs, ColorType.Muted, true),
+                    LightMuted = _colorQuantizer.FindColorVariation(skClrs, ColorType.LightMuted, true),
+                    DarkMuted = _colorQuantizer.FindColorVariation(skClrs, ColorType.DarkMuted, true),
+                };
+            }
 
-            var skClrs = ColorQuantizer.Quantize(skbm.Pixels.ToList(), 256).ToList();
-            DataModel.Track.Colors.Vibrant = Vibrant.FindColorVariation(skClrs, ColorType.Vibrant);
-            DataModel.Track.Colors.LightVibrant = Vibrant.FindColorVariation(skClrs, ColorType.LightVibrant);
-            DataModel.Track.Colors.DarkVibrant = Vibrant.FindColorVariation(skClrs, ColorType.DarkVibrant);
-            DataModel.Track.Colors.Muted = Vibrant.FindColorVariation(skClrs, ColorType.Muted);
-            DataModel.Track.Colors.LightMuted = Vibrant.FindColorVariation(skClrs, ColorType.LightMuted);
-            DataModel.Track.Colors.DarkMuted = Vibrant.FindColorVariation(skClrs, ColorType.DarkMuted);
+            DataModel.Track.Colors = albumArtColorCache[albumArtUrl];
         }
         #endregion
 

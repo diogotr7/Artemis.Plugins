@@ -2,8 +2,6 @@
 using Artemis.Plugins.DataModelExpansions.OBS.DataModels;
 using OBS.WebSocket.NET;
 using OBS.WebSocket.NET.Types;
-using System;
-using System.Linq;
 
 namespace Artemis.Plugins.DataModelExpansions.OBS
 {
@@ -35,8 +33,11 @@ namespace Artemis.Plugins.DataModelExpansions.OBS
 
         public override void DisablePlugin()
         {
-            _obs.Heartbeat -= UpdateHeartbeat;
-            _obs?.Disconnect();
+            if (_obs != null)
+            {
+                _obs.Heartbeat -= UpdateHeartbeat;
+                _obs.Disconnect();
+            }
         }
 
         public override void Update(double deltaTime)
@@ -44,20 +45,20 @@ namespace Artemis.Plugins.DataModelExpansions.OBS
 
         }
 
-        private void UpdateHeartbeat(ObsWebSocket sender, Heartbeat heatbeat)
+        private void UpdateHeartbeat(ObsWebSocket sender, Heartbeat heartbeat)
         {
-            DataModel.CurrentProfile = heatbeat.CurrentProfile;
-            DataModel.CurrentScene = heatbeat.CurrentScene;
-            DataModel.Streaming = heatbeat.Streaming;
-            DataModel.TotalStreamTime = heatbeat.TotalStreamTime;
-            DataModel.TotalStreamBytes = heatbeat.TotalStreamBytes;
-            DataModel.TotalStreamFrames = heatbeat.TotalStreamFrames;
-            DataModel.Recording = heatbeat.Recording;
-            DataModel.Paused = heatbeat.Paused;
-            DataModel.TotalRecordTime = heatbeat.TotalRecordTime;
-            DataModel.TotalTecordBytes = heatbeat.TotalTecordBytes;
-            DataModel.TotalRecordFrames = heatbeat.TotalRecordFrames;
-            DataModel.Stats = heatbeat.Stats;
+            DataModel.CurrentProfile = heartbeat.CurrentProfile;
+            DataModel.CurrentScene = heartbeat.CurrentScene;
+            DataModel.Streaming = heartbeat.Streaming;
+            DataModel.TotalStreamTime = heartbeat.TotalStreamTime;
+            DataModel.TotalStreamBytes = heartbeat.TotalStreamBytes;
+            DataModel.TotalStreamFrames = heartbeat.TotalStreamFrames;
+            DataModel.Recording = heartbeat.Recording;
+            DataModel.Paused = heartbeat.Paused;
+            DataModel.TotalRecordTime = heartbeat.TotalRecordTime;
+            DataModel.TotalTecordBytes = heartbeat.TotalTecordBytes;
+            DataModel.TotalRecordFrames = heartbeat.TotalRecordFrames;
+            DataModel.Stats = heartbeat.Stats;
         }
     }
 }
