@@ -1,43 +1,40 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <ShouldIncludeNativeSkiaSharp>false</ShouldIncludeNativeSkiaSharp>
-
-    <AssemblyName>Artemis.Plugins.DataModelExpansions.Spotify</AssemblyName>
-    <RootNamespace>Artemis.Plugins.DataModelExpansions.Spotify</RootNamespace>
-    <Platforms>x64</Platforms>
-    <GenerateDependencyFile>False</GenerateDependencyFile>
-    <UseWPF>true</UseWPF>
+    
+    <AssemblyName>Artemis.Plugins.DataModelExpansions.HardwareMonitor</AssemblyName>
+    <RootNamespace>Artemis.Plugins.DataModelExpansions.HardwareMonitor</RootNamespace>
+	<Platforms>x64</Platforms>
+	<GenerateDependencyFile>False</GenerateDependencyFile>
   </PropertyGroup>
-
+  
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
-
-    <PackageReference Include="Serilog" Version="2.9.0" />
-
-    <PackageReference Include="SkiaSharp" Version="1.68.3">
+    
+	<PackageReference Include="Serilog" Version="2.9.0" />
+    
+	<PackageReference Include="SkiaSharp" Version="1.68.3">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-
-    <PackageReference Include="SpotifyAPI.Web" Version="6.0.0-beta.12" />
-
-    <PackageReference Include="SpotifyAPI.Web.Auth" Version="6.0.0-beta.12" />
     <PackageReference Include="Stylet" Version="1.3.4">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="System.Management" Version="4.7.0" />
   </ItemGroup>
 
+  
 
   <ItemGroup>
     <Reference Include="Artemis.Core">
-      <HintPath>..\..\Artemis\src\Artemis.UI\bin\x64\Debug\netcoreapp3.1\Artemis.Core.dll</HintPath>
+      <HintPath>..\..\..\Artemis\src\Artemis.UI\bin\x64\Debug\netcoreapp3.1\Artemis.Core.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Artemis.UI.Shared">
-      <HintPath>..\..\Artemis\src\Artemis.UI\bin\x64\Debug\netcoreapp3.1\Artemis.UI.Shared.dll</HintPath>
+      <HintPath>..\..\..\Artemis\src\Artemis.UI\bin\x64\Debug\netcoreapp3.1\Artemis.UI.Shared.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
@@ -51,9 +48,9 @@
   <!-- This may trigger another build (something related to the obj folder) so only run it if building inside VS -->
   <Target Name="PostBuildPublish" AfterTargets="PostBuildEvent" Condition="'$(BuildingInsideVisualStudio)' == 'true'">
     <Message Text="------ Artemis plugin publish ------" Importance="High" />
-    <Exec Command="dotnet publish --verbosity q --output &quot;%25ProgramData%25\Artemis\Plugins\$(ProjectName)&quot;" />
-    <Message Text="Published $(ProjectName) at file:\\$(ProgramData)\Artemis\Plugins\$(ProjectName)" Importance="High" />
-    <Message Text="If distributing outside the workshop, share this folder." Importance="High" />
+      <Exec Command="dotnet publish --verbosity q --output &quot;%25ProgramData%25\Artemis\Plugins\$(ProjectName)&quot;" />
+      <Message Text="Published $(ProjectName) at file:\\$(ProgramData)\Artemis\Plugins\$(ProjectName)" Importance="High" />
+      <Message Text="If distributing outside the workshop, share this folder." Importance="High" />
   </Target>
 
   <!-- Override the published DLLs with the built DLLs to enable edit & continue -->

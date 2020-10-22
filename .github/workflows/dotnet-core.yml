@@ -46,7 +46,7 @@ jobs:
           path: Plugins
 
       - name: Build Plugins
-        run: dotnet publish -c Release .\Plugins\Artemis.Plugins.sln
+        run: dotnet publish -c Release .\Plugins\src\Artemis.Plugins.sln
 
         #msbuild is dumb so we have to upload one at a time :)
         #https://github.com/dotnet/sdk/issues/7238
@@ -54,40 +54,40 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: League of Legends
-          path: .\Plugins\Artemis.Plugins.Modules.LeagueOfLegends\bin\x64\Release\netcoreapp3.1\publish
+          path: .\Plugins\src\Artemis.Plugins.Modules.LeagueOfLegends\bin\x64\Release\netcoreapp3.1\publish
 
       - name: Upload HardwareMonitor
         uses: actions/upload-artifact@v2
         with:
           name: HardwareMonitor
-          path: .\Plugins\Artemis.Plugins.DataModelExpansions.HardwareMonitor\bin\x64\Release\netcoreapp3.1\publish
+          path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.HardwareMonitor\bin\x64\Release\netcoreapp3.1\publish
 
       - name: Upload OpenRGB
         uses: actions/upload-artifact@v2
         with:
           name: OpenRGB
-          path: .\Plugins\Artemis.Plugins.Devices.OpenRGB\bin\x64\Release\netcoreapp3.1\publish
+          path: .\Plugins\src\Artemis.Plugins.Devices.OpenRGB\bin\x64\Release\netcoreapp3.1\publish
 
       - name: Upload Gif
         uses: actions/upload-artifact@v2
         with:
           name: Gif
-          path: .\Plugins\Artemis.Plugins.LayerBrushes.Gif\bin\x64\Release\netcoreapp3.1\publish
+          path: .\Plugins\src\Artemis.Plugins.LayerBrushes.Gif\bin\x64\Release\netcoreapp3.1\publish
 
       - name: Upload Chroma
         uses: actions/upload-artifact@v2
         with:
           name: Chroma
-          path: .\Plugins\Artemis.Plugins.LayerBrushes.Chroma\bin\x64\Release\netcoreapp3.1\publish
+          path: .\Plugins\src\Artemis.Plugins.LayerBrushes.Chroma\bin\x64\Release\netcoreapp3.1\publish
 
       - name: Upload Spotify
         uses: actions/upload-artifact@v2
         with:
           name: Spotify
-          path: .\Plugins\Artemis.Plugins.DataModelExpansions.Spotify\bin\x64\Release\netcoreapp3.1\publish
+          path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.Spotify\bin\x64\Release\netcoreapp3.1\publish
 
       - name: Upload OBS
         uses: actions/upload-artifact@v2
         with:
           name: OBS
-          path: .\Plugins\Artemis.Plugins.DataModelExpansions.OBS\bin\x64\Release\netcoreapp3.1\publish
+          path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.OBS\bin\x64\Release\netcoreapp3.1\publish

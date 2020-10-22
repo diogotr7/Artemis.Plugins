@@ -2,58 +2,50 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <ShouldIncludeNativeSkiaSharp>false</ShouldIncludeNativeSkiaSharp>
-    <AssemblyName>Artemis.Plugins.Devices.OpenRGB</AssemblyName>
-    <RootNamespace>Artemis.Plugins.Devices.OpenRGB</RootNamespace>
-    <UseWPF>true</UseWPF>
+
+    <AssemblyName>Artemis.Plugins.DataModelExpansions.Spotify</AssemblyName>
+    <RootNamespace>Artemis.Plugins.DataModelExpansions.Spotify</RootNamespace>
     <Platforms>x64</Platforms>
     <GenerateDependencyFile>False</GenerateDependencyFile>
+    <UseWPF>true</UseWPF>
   </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MaterialDesignThemes" Version="3.1.3" />
-    <PackageReference Include="OpenRGB.NET" Version="1.3.0" />
+
+    <PackageReference Include="Serilog" Version="2.9.0" />
+
     <PackageReference Include="SkiaSharp" Version="1.68.3">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+
+    <PackageReference Include="SpotifyAPI.Web" Version="6.0.0-beta.12" />
+
+    <PackageReference Include="SpotifyAPI.Web.Auth" Version="6.0.0-beta.12" />
     <PackageReference Include="Stylet" Version="1.3.4">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
 
+
   <ItemGroup>
     <Reference Include="Artemis.Core">
-      <HintPath>..\..\Artemis\src\Artemis.UI\bin\x64\Debug\netcoreapp3.1\Artemis.Core.dll</HintPath>
+      <HintPath>..\..\..\Artemis\src\Artemis.UI\bin\x64\Debug\netcoreapp3.1\Artemis.Core.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Artemis.UI.Shared">
-      <HintPath>..\..\Artemis\src\Artemis.UI\bin\x64\Debug\netcoreapp3.1\Artemis.UI.Shared.dll</HintPath>
+      <HintPath>..\..\..\Artemis\src\Artemis.UI\bin\x64\Debug\netcoreapp3.1\Artemis.UI.Shared.dll</HintPath>
       <Private>false</Private>
-    </Reference>
-    <Reference Include="RGB.NET.Core">
-      <HintPath>..\..\Artemis\src\Artemis.UI\bin\x64\Debug\netcoreapp3.1\RGB.NET.Core.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="RGB.NET.Devices.OpenRGB">
-      <HintPath>..\..\RGB.NET.Devices.OpenRGB\bin\netstandard2.0\RGB.NET.Devices.OpenRGB.dll</HintPath>
     </Reference>
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="OpenRGBConfigurationDialogView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </None>
     <None Update="plugin.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <Content Include="Layouts\**">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Images\**">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
   <!-- This may trigger another build (something related to the obj folder) so only run it if building inside VS -->
