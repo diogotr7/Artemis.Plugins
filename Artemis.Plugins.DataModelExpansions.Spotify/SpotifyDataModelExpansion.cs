@@ -64,7 +64,10 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
         }
 
         //unused
-        public override void Update(double deltaTime) { }
+        public override void Update(double deltaTime)
+        {
+            DataModel.Track.Progress += TimeSpan.FromSeconds(deltaTime);
+        }
         #endregion
 
         #region DataModel update methods
@@ -129,9 +132,9 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
                     }
                 }
             }
-            catch
+            catch (APIException e)
             {
-                //ignore
+                _logger.Error(e.ToString());
             }
         }
 
