@@ -30,7 +30,7 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
             await Server.Start();
             Server.AuthorizationCodeReceived += OnAuthorizationCodeReceived;
 
-            var request = new LoginRequest(_server.BaseUri, Constants.SPOTIFY_CLIENT_ID, LoginRequest.ResponseType.Code)
+            LoginRequest request = new LoginRequest(_server.BaseUri, Constants.SPOTIFY_CLIENT_ID, LoginRequest.ResponseType.Code)
             {
                 CodeChallenge = _challenge,
                 CodeChallengeMethod = "S256",
@@ -45,7 +45,7 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
             Server.AuthorizationCodeReceived -= OnAuthorizationCodeReceived;
             await Server.Stop();
 
-            var tokenRequest = new PKCETokenRequest(Constants.SPOTIFY_CLIENT_ID, response.Code, _server.BaseUri, _verifier);
+            PKCETokenRequest tokenRequest = new PKCETokenRequest(Constants.SPOTIFY_CLIENT_ID, response.Code, _server.BaseUri, _verifier);
 
             _token.Value = await new OAuthClient().RequestToken(tokenRequest);
             _token.Save();

@@ -6,6 +6,7 @@ using Serilog;
 using SkiaSharp;
 using SpotifyAPI.Web;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -31,10 +32,10 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
         private HttpClient _httpClient = new HttpClient();
         private SpotifyClient _spotify;
         private CurrentlyPlayingContext _playing;
-        private Dictionary<string, TrackColorsDataModel> albumArtColorCache = new Dictionary<string, TrackColorsDataModel>();
-        private string _trackId;
-        private string _contextId;
-        private string _albumArtUrl;
+        private readonly ConcurrentDictionary<string, TrackColorsDataModel> albumArtColorCache = new ConcurrentDictionary<string, TrackColorsDataModel>();
+        private string _trackId = "";
+        private string _contextId = "";
+        private string _albumArtUrl = "";
 
         #region Plugin Methods
         public override void EnablePlugin()
@@ -89,10 +90,10 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
                 DataModel.Player.IsPlaying = _playing.IsPlaying;
                 DataModel.Track.Progress = TimeSpan.FromMilliseconds(_playing.ProgressMs);
 
-                if (_playing.Context != null && Enum.TryParse<ContextType>(_playing.Context.Type, true, out var t))
+                if (_playing.Context != null && Enum.TryParse<ContextType>(_playing.Context.Type, true, out ContextType t))
                 {
                     DataModel.Player.ContextType = t;
-                    var contextId = _playing.Context.Uri.Split(':').Last();
+                    string contextId = _playing.Context.Uri.Split(':').Last();
                     if (contextId != _contextId)
                     {
                         DataModel.Player.ContextName = t switch
@@ -113,15 +114,15 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
 
                 if (_playing.Item is FullTrack track)
                 {
-                    var trackId = track.Uri.Split(':').Last();
+                    string trackId = track.Uri.Split(':').Last();
                     if (trackId != _trackId)
                     {
                         UpdateBasicTrackInfo(track);
 
-                        var features = await _spotify.Tracks.GetAudioFeatures(trackId);
+                        TrackAudioFeatures features = await _spotify.Tracks.GetAudioFeatures(trackId);
                         UpdateTrackFeatures(features);
 
-                        var image = track.Album.Images.Last();
+                        Image image = track.Album.Images.Last();
                         if (image.Url != _albumArtUrl)
                         {
                             await UpdateAlbumArtColors(image.Url);
@@ -167,10 +168,10 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
         {
             if (!albumArtColorCache.ContainsKey(albumArtUrl))
             {
-                using var response = await _httpClient.GetAsync(albumArtUrl);
-                using var stream = await response.Content.ReadAsStreamAsync();
-                using var skbm = SKBitmap.Decode(stream);
-                var skClrs = _colorQuantizer.Quantize(skbm.Pixels.ToList(), 256).ToList();
+                using HttpResponseMessage response = await _httpClient.GetAsync(albumArtUrl);
+                using System.IO.Stream stream = await response.Content.ReadAsStreamAsync();
+                using SKBitmap skbm = SKBitmap.Decode(stream);
+                List<SKColor> skClrs = _colorQuantizer.Quantize(skbm.Pixels.ToList(), 256).ToList();
                 albumArtColorCache[albumArtUrl] = new TrackColorsDataModel
                 {
                     Vibrant = _colorQuantizer.FindColorVariation(skClrs, ColorType.Vibrant, true),
@@ -194,7 +195,7 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
         {
             token = _settings.GetSetting<PKCETokenResponse>(Constants.SPOTIFY_AUTH_SETTING);
 
-            var authenticator = new PKCEAuthenticator(Constants.SPOTIFY_CLIENT_ID, token.Value);
+            PKCEAuthenticator authenticator = new PKCEAuthenticator(Constants.SPOTIFY_CLIENT_ID, token.Value);
             authenticator.TokenRefreshed += (_, t) =>
             {
                 token.Value = t;
@@ -202,7 +203,7 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
                 _logger.Information("Refreshed spotify token!");
             };
 
-            var config = SpotifyClientConfig.CreateDefault()
+            SpotifyClientConfig config = SpotifyClientConfig.CreateDefault()
                 .WithAuthenticator(authenticator);
 
             _spotify = new SpotifyClient(config);

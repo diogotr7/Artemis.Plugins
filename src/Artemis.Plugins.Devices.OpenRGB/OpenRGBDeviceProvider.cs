@@ -21,11 +21,11 @@ namespace Artemis.Plugins.Devices.OpenRGB
         {
             ConfigurationDialog = new PluginConfigurationDialog<OpenRGBConfigurationDialogViewModel>();
 
-            var definitions = _settings.GetSetting<List<OpenRGBServerDefinition>>("DeviceDefinitions");
+            PluginSetting<List<OpenRGBServerDefinition>> definitions = _settings.GetSetting<List<OpenRGBServerDefinition>>("DeviceDefinitions");
             if (definitions.Value is null)
             {
                 definitions.Value = new List<OpenRGBServerDefinition>();
-                var definition = new OpenRGBServerDefinition
+                OpenRGBServerDefinition definition = new OpenRGBServerDefinition
                 {
                     ClientName = "Artemis",
                     Ip = "127.0.0.1",
@@ -35,7 +35,7 @@ namespace Artemis.Plugins.Devices.OpenRGB
                 definitions.Save();
             }
 
-            foreach (var def in definitions.Value)
+            foreach (OpenRGBServerDefinition def in definitions.Value)
             {
                 RGB.NET.Devices.OpenRGB.OpenRGBDeviceProvider.Instance.DeviceDefinitions.Add(def);
             }

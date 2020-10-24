@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using Artemis.Core.DataModelExpansions;
-using OBS.WebSocket.NET;
+﻿using Artemis.Core.DataModelExpansions;
 using OBS.WebSocket.NET.Types;
 
 namespace Artemis.Plugins.DataModelExpansions.OBS.DataModels

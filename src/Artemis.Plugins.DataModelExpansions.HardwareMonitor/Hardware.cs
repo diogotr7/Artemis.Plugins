@@ -24,9 +24,9 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
 
         public static List<Hardware> FromCollection(ManagementObjectCollection collection)
         {
-            var list = new List<Hardware>(collection.Count);
+            List<Hardware> list = new List<Hardware>(collection.Count);
 
-            foreach (var obj in collection)
+            foreach (ManagementBaseObject obj in collection)
                 list.Add(new Hardware(obj));
 
             return list;

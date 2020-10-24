@@ -66,7 +66,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
 
         public override void Update(double deltaTime)
         {
-            var dm = DataModel;
+            LeagueOfLegendsDataModel dm = DataModel;
 
             if (allGameData == null)
             {
@@ -80,7 +80,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             dm.Match.GameModeName = allGameData.gameData.gameMode;
             dm.Match.GameTime = allGameData.gameData.gameTime;
 
-            var drags = allGameData.events.Events.OfType<_DragonKillEvent>().ToList();
+            List<_DragonKillEvent> drags = allGameData.events.Events.OfType<_DragonKillEvent>().ToList();
 
             dm.Match.CloudDragonsKilled = drags.Count(d => d.DragonType == "Air");
             dm.Match.MountainDragonsKilled = drags.Count(d => d.DragonType == "Earth");
@@ -97,7 +97,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             #endregion
 
             #region Player
-            var ap = allGameData.activePlayer;
+            _ActivePlayer ap = allGameData.activePlayer;
             dm.Player.Level = ap.level;
             dm.Player.Gold = ap.currentGold;
             dm.Player.SummonerName = ap.summonerName;
@@ -140,7 +140,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             dm.Player.ChampionStats.SpellVamp = ap.championStats.spellVamp;
             dm.Player.ChampionStats.Tenacity = ap.championStats.tenacity;
 
-            var p = allGameData.allPlayers.FirstOrDefault(a => a.summonerName == ap.summonerName);
+            _AllPlayer p = allGameData.allPlayers.FirstOrDefault(a => a.summonerName == ap.summonerName);
             if (p == null)
             {
                 return;
@@ -181,10 +181,10 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             string jsonData = "";
             try
             {
-                using var response = await httpClient.GetAsync(URI);
+                using HttpResponseMessage response = await httpClient.GetAsync(URI);
                 if (response.IsSuccessStatusCode)
                 {
-                    using var content = response.Content;
+                    using HttpContent content = response.Content;
                     jsonData = await content.ReadAsStringAsync();
                 }
             }
@@ -214,7 +214,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         {
             if (Enum.TryParse(value, ignoreCase, out TEnum res))
                 return res;
-            else if (ParseEnum<TEnum>.TryParse(value, out var oof))
+            else if (ParseEnum<TEnum>.TryParse(value, out TEnum oof))
                 return oof;
             else
                 return defaultValue;

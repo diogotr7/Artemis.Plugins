@@ -31,7 +31,7 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
 
         public override void EnablePlugin()
         {
-            foreach (var scope in Scopes)
+            foreach (string scope in Scopes)
             {
                 try
                 {
@@ -52,8 +52,8 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
                 SensorSearcher = new ManagementObjectSearcher(HardwareMonitorScope, SensorQuery);
                 HardwareSearcher = new ManagementObjectSearcher(HardwareMonitorScope, HardwareQuery);
 
-                var sensors = Sensor.FromCollection(SensorSearcher.Get());
-                var hardwares = Hardware.FromCollection(HardwareSearcher.Get());
+                System.Collections.Generic.List<Sensor> sensors = Sensor.FromCollection(SensorSearcher.Get());
+                System.Collections.Generic.List<Hardware> hardwares = Hardware.FromCollection(HardwareSearcher.Get());
 
                 if (sensors.Count == 0 || hardwares.Count == 0)
                 {
@@ -62,17 +62,17 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
                 }
 
                 int hardwareIdCounter = 0;
-                foreach (var hw in hardwares.OrderBy(hw => hw.HardwareType))
+                foreach (Hardware hw in hardwares.OrderBy(hw => hw.HardwareType))
                 {
                     //loop through the hardware,
                     //and find all the sensors that hardware has
-                    var children = sensors.Where(s => s.Parent == hw.Identifier);
+                    System.Collections.Generic.IEnumerable<Sensor> children = sensors.Where(s => s.Parent == hw.Identifier);
 
                     //if we don't find any sensors, skip and do the next hardware
                     if (!children.Any())
                         continue;
 
-                    var hwDataModel = DataModel.AddDynamicChild(
+                    HardwareDynamicDataModel hwDataModel = DataModel.AddDynamicChild(
                         new HardwareDynamicDataModel(),
                         $"{hw.HardwareType}{hardwareIdCounter++}",
                         hw.Name,
@@ -82,19 +82,19 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
                     //group sensors by type for easier UI navigation.
                     //this is also the way the UI of the HardwareMonitor
                     //programs displays the sensors, so let's keep that consistent
-                    foreach (var sensorsOfType in children.GroupBy(s => s.SensorType))
+                    foreach (IGrouping<SensorType, Sensor> sensorsOfType in children.GroupBy(s => s.SensorType))
                     {
-                        var sensorTypeDataModel = hwDataModel.AddDynamicChild(
+                        SensorTypeDynamicDataModel sensorTypeDataModel = hwDataModel.AddDynamicChild(
                             new SensorTypeDynamicDataModel(),
                             sensorsOfType.Key.ToString()
                         );
 
                         int sensorIdCounter = 0;
                         //for each type of sensor, we add all the sensors we found
-                        foreach (var sensorOfType in sensorsOfType.OrderBy(s => s.Name))
+                        foreach (Sensor sensorOfType in sensorsOfType.OrderBy(s => s.Name))
                         {
                             //this switch is only useful for the unit of each sensor
-                            var dataModel = sensorsOfType.Key switch
+                            SensorDynamicDataModel dataModel = sensorsOfType.Key switch
                             {
                                 SensorType.Temperature => new TemperatureDynamicDataModel(sensorOfType.Identifier),
                                 SensorType.Load => new PercentageDynamicDataModel(sensorOfType.Identifier),
@@ -135,16 +135,16 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
 
         private void UpdateData(double deltaTime)
         {
-            var sensors = Sensor.GetDictionary(SensorSearcher.Get());
-            foreach (var (hardwareId, hardwareDataModel) in DataModel.DynamicDataModels)
+            System.Collections.Generic.Dictionary<string, Sensor> sensors = Sensor.GetDictionary(SensorSearcher.Get());
+            foreach ((string hardwareId, DataModel hardwareDataModel) in DataModel.DynamicDataModels)
             {
-                foreach (var (sensorTypeId, sensorTypeDataModel) in hardwareDataModel.DynamicDataModels)
+                foreach ((string sensorTypeId, DataModel sensorTypeDataModel) in hardwareDataModel.DynamicDataModels)
                 {
-                    foreach (var (sensorId, sensorDataModel) in sensorTypeDataModel.DynamicDataModels)
+                    foreach ((string sensorId, DataModel sensorDataModel) in sensorTypeDataModel.DynamicDataModels)
                     {
                         if (sensorDataModel is SensorDynamicDataModel s)
                         {
-                            if (sensors.TryGetValue(s.Identifier, out var sensor))
+                            if (sensors.TryGetValue(s.Identifier, out Sensor sensor))
                             {
                                 s.CurrentValue = sensor?.Value ?? -1;
                                 s.Minimum = sensor?.Min ?? -1;

@@ -33,11 +33,11 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
 
         public static List<Sensor> FromCollection(ManagementObjectCollection collection)
         {
-            var list = new List<Sensor>(collection.Count);
+            List<Sensor> list = new List<Sensor>(collection.Count);
 
-            foreach (var obj in collection)
+            foreach (ManagementBaseObject obj in collection)
             {
-                var sensor = new Sensor(obj);
+                Sensor sensor = new Sensor(obj);
                 if (sensor.SensorType != SensorType.Control)
                 {
                     list.Add(sensor);
@@ -49,11 +49,11 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
 
         public static Dictionary<string, Sensor> GetDictionary(ManagementObjectCollection collection)
         {
-            var dict = new Dictionary<string, Sensor>();
+            Dictionary<string, Sensor> dict = new Dictionary<string, Sensor>();
 
-            foreach (var obj in collection)
+            foreach (ManagementBaseObject obj in collection)
             {
-                var sensor = new Sensor(obj);
+                Sensor sensor = new Sensor(obj);
                 if (sensor.SensorType != SensorType.Control)
                 {
                     dict.Add(sensor.Identifier, sensor);

@@ -28,9 +28,9 @@ namespace Artemis.Plugins.LayerBrushes.Gif
 
             lock (myLock)
             {
-                using var codec = SKCodec.Create(Properties.FileName.BaseValue);
+                using SKCodec codec = SKCodec.Create(Properties.FileName.BaseValue);
 
-                var info = new SKImageInfo(codec.Info.Width, codec.Info.Height, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
+                SKImageInfo info = new SKImageInfo(codec.Info.Width, codec.Info.Height, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
 
                 frameCount = codec.FrameCount;
                 currentFrame = 0;
@@ -56,12 +56,12 @@ namespace Artemis.Plugins.LayerBrushes.Gif
         {
             if (bitmaps != null)
             {
-                foreach (var bm in bitmaps)
+                foreach (SKBitmap bm in bitmaps)
                     bm?.Dispose();
             }
             if (originals != null)
             {
-                foreach (var bm in originals)
+                foreach (SKBitmap bm in originals)
                     bm?.Dispose();
             }
         }
