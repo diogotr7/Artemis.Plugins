@@ -7,6 +7,7 @@ using RGB.NET.Core;
 using SkiaSharp;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Artemis.Plugins.LayerBrushes.Chroma
 {
@@ -14,6 +15,7 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
     {
         private RzSdkManager manager;
         private string currentApp;
+        private bool keyboardEmpty;
         private readonly List<string> apps = new List<string>();
         private readonly List<int> pids = new List<int>();
         private readonly ConcurrentDictionary<LedId, SKColor> _colors = new ConcurrentDictionary<LedId, SKColor>();
@@ -33,6 +35,7 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
             manager.DataUpdated += OnDataUpdated;
 
             RzAppListDataProvider app = manager.GetDataProvider<RzAppListDataProvider>();
+
             UpdateAppListData(app);
         }
 
@@ -46,6 +49,9 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
 
         public override SKColor GetColor(ArtemisLed led, SKPoint renderPoint)
         {
+            if (currentApp == "Artemis.UI.exe" || keyboardEmpty)
+                return SKColor.Empty;
+
             if (_colors.TryGetValue(led.RgbLed.Id, out SKColor clr))
                 return clr;
 
@@ -81,6 +87,8 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
                     }
                 }
             }
+
+            keyboardEmpty = _colors.Values.All(c => c.Red == 0 && c.Green == 0 && c.Blue == 0);
         }
 
         private void UpdateAppListData(RzAppListDataProvider app)

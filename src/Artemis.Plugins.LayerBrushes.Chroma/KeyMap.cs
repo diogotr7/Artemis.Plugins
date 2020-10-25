@@ -231,7 +231,7 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
             [typeof(RzMousepadDataProvider)] = Mousepad,
             [typeof(RzHeadsetDataProvider)] = Headset,
             [typeof(RzKeypadDataProvider)] = Keypad,
-            //[typeof(RzChromaLinkDataProvider)] = ChromaLink
+            [typeof(RzChromaLinkDataProvider)] = ChromaLink
         };
     }
 }
