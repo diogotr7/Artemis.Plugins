@@ -15,7 +15,6 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
     {
         private RzSdkManager manager;
         private string currentApp;
-        private bool keyboardEmpty;
         private readonly List<string> apps = new List<string>();
         private readonly List<int> pids = new List<int>();
         private readonly ConcurrentDictionary<LedId, SKColor> _colors = new ConcurrentDictionary<LedId, SKColor>();
@@ -49,7 +48,7 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
 
         public override SKColor GetColor(ArtemisLed led, SKPoint renderPoint)
         {
-            if (currentApp == "Artemis.UI.exe" || keyboardEmpty)
+            if (currentApp is null)
                 return SKColor.Empty;
 
             if (_colors.TryGetValue(led.RgbLed.Id, out SKColor clr))
@@ -87,8 +86,6 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
                     }
                 }
             }
-
-            keyboardEmpty = _colors.Values.All(c => c.Red == 0 && c.Green == 0 && c.Blue == 0);
         }
 
         private void UpdateAppListData(RzAppListDataProvider app)
