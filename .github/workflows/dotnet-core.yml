@@ -53,41 +53,41 @@ jobs:
       - name: Upload League of Legends
         uses: actions/upload-artifact@v2
         with:
-          name: League of Legends
+          name: Artemis.Plugins.Modules.LeagueOfLegends
           path: .\Plugins\src\Artemis.Plugins.Modules.LeagueOfLegends\bin\x64\Release\netcoreapp3.1\publish
 
       - name: Upload HardwareMonitor
         uses: actions/upload-artifact@v2
         with:
-          name: HardwareMonitor
+          name: Artemis.Plugins.DataModelExpansions.HardwareMonitor
           path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.HardwareMonitor\bin\x64\Release\netcoreapp3.1\publish
 
       - name: Upload OpenRGB
         uses: actions/upload-artifact@v2
         with:
-          name: OpenRGB
+          name: Artemis.Plugins.Devices.OpenRGB
           path: .\Plugins\src\Artemis.Plugins.Devices.OpenRGB\bin\x64\Release\netcoreapp3.1\publish
 
       - name: Upload Gif
         uses: actions/upload-artifact@v2
         with:
-          name: Gif
+          name: Artemis.Plugins.LayerBrushes.Gif
           path: .\Plugins\src\Artemis.Plugins.LayerBrushes.Gif\bin\x64\Release\netcoreapp3.1\publish
 
       - name: Upload Chroma
         uses: actions/upload-artifact@v2
         with:
-          name: Chroma
+          name: Artemis.Plugins.LayerBrushes.Chroma
           path: .\Plugins\src\Artemis.Plugins.LayerBrushes.Chroma\bin\x64\Release\netcoreapp3.1\publish
 
       - name: Upload Spotify
         uses: actions/upload-artifact@v2
         with:
-          name: Spotify
+          name: Artemis.Plugins.DataModelExpansions.Spotify
           path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.Spotify\bin\x64\Release\netcoreapp3.1\publish
 
       - name: Upload OBS
         uses: actions/upload-artifact@v2
         with:
-          name: OBS
+          name: Artemis.Plugins.DataModelExpansions.OB
           path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.OBS\bin\x64\Release\netcoreapp3.1\publish
