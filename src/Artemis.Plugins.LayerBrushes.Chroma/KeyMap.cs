@@ -185,7 +185,10 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
         private static readonly Dictionary<(int Row, int Column), LedId> Headset = new Dictionary<(int Row, int Column), LedId>
         {
             [(0, 0)] = LedId.Headset1,
-            [(0, 1)] = LedId.Headset2
+            [(0, 1)] = LedId.Headset2,
+            [(0, 2)] = LedId.Headset3,
+            [(0, 3)] = LedId.Headset4,
+            [(0, 4)] = LedId.Headset5
         };
 
         private static readonly Dictionary<(int Row, int Column), LedId> Keypad = new Dictionary<(int Row, int Column), LedId>

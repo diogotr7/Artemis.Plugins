@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Artemis.Plugins.Modules.LeagueOfLegends
 {
@@ -176,7 +177,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             //empty
         }
 
-        private async void UpdateData(double deltaTime)
+        private async Task UpdateData(double deltaTime)
         {
             string jsonData = "";
             try
