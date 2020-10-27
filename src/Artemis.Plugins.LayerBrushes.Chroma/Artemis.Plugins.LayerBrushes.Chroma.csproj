@@ -37,7 +37,7 @@
       <HintPath>RazerSdkWrapper.dll</HintPath>
     </Reference>
     <Reference Include="RGB.NET.Core">
-      <HintPath>..\..\..\RGB.NET.Devices.OpenRGB\bin\netstandard2.0\RGB.NET.Core.dll</HintPath>
+      <HintPath>..\..\..\RGB.NET\bin\netstandard2.0\RGB.NET.Core.dll</HintPath>
     </Reference>
 	<!-- TODO: Replace with PackageReferences when moving to Nuget -->
 	
