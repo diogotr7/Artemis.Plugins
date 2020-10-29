@@ -18,12 +18,12 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
             Name = null;
         }
 
-        public ItemSlotDataModel(_Item item)
+        internal ItemSlotDataModel(Item item)
         {
-            CanUse = item.canUse;
-            Consumable = item.consumable;
-            Count = item.count;
-            Name = item.displayName;
+            CanUse = item.CanUse;
+            Consumable = item.Consumable;
+            Count = item.Count;
+            Name = item.DisplayName;
         }
 
         internal void Reset()

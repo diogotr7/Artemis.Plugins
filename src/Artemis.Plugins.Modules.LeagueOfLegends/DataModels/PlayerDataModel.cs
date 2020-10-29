@@ -23,8 +23,8 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
         public Champion Champion { get; set; }
         public SKColor ChampionColor { get; set; }
         public Position Position { get; set; }
-        public SummonerSpell SpellD { get; set; }
-        public SummonerSpell SpellF { get; set; }
+        public Enums.SummonerSpell SpellD { get; set; }
+        public Enums.SummonerSpell SpellF { get; set; }
 
         internal void Reset()
         {
@@ -45,8 +45,8 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
             Champion = Champion.None;
             ChampionColor = new SKColor(0, 0, 0);
             Position = Position.None;
-            SpellD = SummonerSpell.None;
-            SpellF = SummonerSpell.None;
+            SpellD = Enums.SummonerSpell.None;
+            SpellF = Enums.SummonerSpell.None;
         }
     }
 }

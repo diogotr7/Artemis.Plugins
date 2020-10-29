@@ -19,7 +19,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         private const string URI = "https://127.0.0.1:2999/liveclientdata/allgamedata";
         private HttpClientHandler httpClientHandler;
         private HttpClient httpClient;
-        private _RootGameData allGameData;
+        private RootGameData allGameData;
 
         private readonly PluginSetting<Dictionary<Champion, SKColor>> _colors;
 
@@ -77,11 +77,11 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
 
             #region Match
             dm.Match.InGame = true;
-            dm.Match.GameMode = TryParseOr(allGameData.gameData.gameMode, true, GameMode.Unknown);
-            dm.Match.GameModeName = allGameData.gameData.gameMode;
-            dm.Match.GameTime = allGameData.gameData.gameTime;
+            dm.Match.GameMode = TryParseOr(allGameData.GameData.GameMode, true, GameMode.Unknown);
+            dm.Match.GameModeName = allGameData.GameData.GameMode;
+            dm.Match.GameTime = allGameData.GameData.GameTime;
 
-            List<_DragonKillEvent> drags = allGameData.events.Events.OfType<_DragonKillEvent>().ToList();
+            List<DragonKillEvent> drags = allGameData.Events.Events.OfType<DragonKillEvent>().ToList();
 
             dm.Match.CloudDragonsKilled = drags.Count(d => d.DragonType == "Air");
             dm.Match.MountainDragonsKilled = drags.Count(d => d.DragonType == "Earth");
@@ -90,77 +90,77 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             dm.Match.ElderDragonsKilled = drags.Count(d => d.DragonType == "Elder");
             dm.Match.DragonsKilled = drags.Count;
 
-            dm.Match.BaronsKilled = allGameData.events.Events.Count(ev => ev is _BaronKillEvent);
-            dm.Match.HeraldsKilled = allGameData.events.Events.Count(ev => ev is _HeraldKillEvent);
-            dm.Match.TurretsKilled = allGameData.events.Events.Count(ev => ev is _TurretKillEvent);
-            dm.Match.InhibsKilled = allGameData.events.Events.Count(ev => ev is _InhibKillEvent);
-            dm.Match.MapTerrain = TryParseOr(allGameData.gameData.mapTerrain, true, MapTerrain.Unknown);
+            dm.Match.BaronsKilled = allGameData.Events.Events.Count(ev => ev is BaronKillEvent);
+            dm.Match.HeraldsKilled = allGameData.Events.Events.Count(ev => ev is HeraldKillEvent);
+            dm.Match.TurretsKilled = allGameData.Events.Events.Count(ev => ev is TurretKillEvent);
+            dm.Match.InhibsKilled = allGameData.Events.Events.Count(ev => ev is InhibKillEvent);
+            dm.Match.MapTerrain = TryParseOr(allGameData.GameData.MapTerrain, true, MapTerrain.Unknown);
             #endregion
 
             #region Player
-            _ActivePlayer ap = allGameData.activePlayer;
-            dm.Player.Level = ap.level;
-            dm.Player.Gold = ap.currentGold;
-            dm.Player.SummonerName = ap.summonerName;
+            ActivePlayer ap = allGameData.ActivePlayer;
+            dm.Player.Level = ap.Level;
+            dm.Player.Gold = ap.CurrentGold;
+            dm.Player.SummonerName = ap.SummonerName;
 
-            dm.Player.Abilities.Q.Level = ap.abilities.Q.abilityLevel;
-            dm.Player.Abilities.Q.Name = ap.abilities.Q.displayName;
-            dm.Player.Abilities.W.Level = ap.abilities.W.abilityLevel;
-            dm.Player.Abilities.W.Name = ap.abilities.W.displayName;
-            dm.Player.Abilities.E.Level = ap.abilities.E.abilityLevel;
-            dm.Player.Abilities.E.Name = ap.abilities.E.displayName;
-            dm.Player.Abilities.R.Level = ap.abilities.R.abilityLevel;
-            dm.Player.Abilities.R.Name = ap.abilities.R.displayName;
+            dm.Player.Abilities.Q.Level = ap.Abilities.Q.AbilityLevel;
+            dm.Player.Abilities.Q.Name = ap.Abilities.Q.DisplayName;
+            dm.Player.Abilities.W.Level = ap.Abilities.W.AbilityLevel;
+            dm.Player.Abilities.W.Name = ap.Abilities.W.DisplayName;
+            dm.Player.Abilities.E.Level = ap.Abilities.E.AbilityLevel;
+            dm.Player.Abilities.E.Name = ap.Abilities.E.DisplayName;
+            dm.Player.Abilities.R.Level = ap.Abilities.R.AbilityLevel;
+            dm.Player.Abilities.R.Name = ap.Abilities.R.DisplayName;
 
-            dm.Player.ChampionStats.AbilityPower = ap.championStats.abilityPower;
-            dm.Player.ChampionStats.Armor = ap.championStats.armor;
-            dm.Player.ChampionStats.ArmorPenetrationFlat = ap.championStats.armorPenetrationFlat;
-            dm.Player.ChampionStats.ArmorPenetrationPercent = ap.championStats.armorPenetrationPercent;
-            dm.Player.ChampionStats.AttackDamage = ap.championStats.attackDamage;
-            dm.Player.ChampionStats.AttackRange = ap.championStats.attackRange;
-            dm.Player.ChampionStats.AttackSpeed = ap.championStats.attackSpeed;
-            dm.Player.ChampionStats.BonusArmorPenetrationPercent = ap.championStats.bonusArmorPenetrationPercent;
-            dm.Player.ChampionStats.BonusMagicPenetrationPercent = ap.championStats.bonusMagicPenetrationPercent;
-            dm.Player.ChampionStats.CooldownReduction = ap.championStats.cooldownReduction;
-            dm.Player.ChampionStats.CritChance = ap.championStats.critChance;
-            dm.Player.ChampionStats.CritDamagePercent = ap.championStats.critDamage;
-            dm.Player.ChampionStats.HealthCurrent = ap.championStats.currentHealth;
-            dm.Player.ChampionStats.HealthRegenRate = ap.championStats.healthRegenRate;
-            dm.Player.ChampionStats.LifeSteal = ap.championStats.lifeSteal;
-            dm.Player.ChampionStats.MagicLethality = ap.championStats.magicLethality;
-            dm.Player.ChampionStats.MagicPenetrationFlat = ap.championStats.magicPenetrationFlat;
-            dm.Player.ChampionStats.MagicPenetrationPercent = ap.championStats.magicPenetrationPercent;
-            dm.Player.ChampionStats.MagicResist = ap.championStats.magicResist;
-            dm.Player.ChampionStats.HealthMax = ap.championStats.maxHealth;
-            dm.Player.ChampionStats.MoveSpeed = ap.championStats.moveSpeed;
-            dm.Player.ChampionStats.PhysicalLethality = ap.championStats.physicalLethality;
-            dm.Player.ChampionStats.ResourceMax = ap.championStats.resourceMax;
-            dm.Player.ChampionStats.ResourceRegenRate = ap.championStats.resourceRegenRate;
-            dm.Player.ChampionStats.ResourceType = TryParseOr(ap.championStats.resourceType, true, ResourceType.Unknown);
-            dm.Player.ChampionStats.ResourceCurrent = ap.championStats.resourceValue;
-            dm.Player.ChampionStats.SpellVamp = ap.championStats.spellVamp;
-            dm.Player.ChampionStats.Tenacity = ap.championStats.tenacity;
+            dm.Player.ChampionStats.AbilityPower = ap.ChampionStats.AbilityPower;
+            dm.Player.ChampionStats.Armor = ap.ChampionStats.Armor;
+            dm.Player.ChampionStats.ArmorPenetrationFlat = ap.ChampionStats.ArmorPenetrationFlat;
+            dm.Player.ChampionStats.ArmorPenetrationPercent = ap.ChampionStats.ArmorPenetrationPercent;
+            dm.Player.ChampionStats.AttackDamage = ap.ChampionStats.AttackDamage;
+            dm.Player.ChampionStats.AttackRange = ap.ChampionStats.AttackRange;
+            dm.Player.ChampionStats.AttackSpeed = ap.ChampionStats.AttackSpeed;
+            dm.Player.ChampionStats.BonusArmorPenetrationPercent = ap.ChampionStats.BonusArmorPenetrationPercent;
+            dm.Player.ChampionStats.BonusMagicPenetrationPercent = ap.ChampionStats.BonusMagicPenetrationPercent;
+            dm.Player.ChampionStats.CooldownReduction = ap.ChampionStats.CooldownReduction;
+            dm.Player.ChampionStats.CritChance = ap.ChampionStats.CritChance;
+            dm.Player.ChampionStats.CritDamagePercent = ap.ChampionStats.CritDamage;
+            dm.Player.ChampionStats.HealthCurrent = ap.ChampionStats.CurrentHealth;
+            dm.Player.ChampionStats.HealthRegenRate = ap.ChampionStats.HealthRegenRate;
+            dm.Player.ChampionStats.LifeSteal = ap.ChampionStats.LifeSteal;
+            dm.Player.ChampionStats.MagicLethality = ap.ChampionStats.MagicLethality;
+            dm.Player.ChampionStats.MagicPenetrationFlat = ap.ChampionStats.MagicPenetrationFlat;
+            dm.Player.ChampionStats.MagicPenetrationPercent = ap.ChampionStats.BonusMagicPenetrationPercent;
+            dm.Player.ChampionStats.MagicResist = ap.ChampionStats.MagicResist;
+            dm.Player.ChampionStats.HealthMax = ap.ChampionStats.MaxHealth;
+            dm.Player.ChampionStats.MoveSpeed = ap.ChampionStats.MoveSpeed;
+            dm.Player.ChampionStats.PhysicalLethality = ap.ChampionStats.PhysicalLethality;
+            dm.Player.ChampionStats.ResourceMax = ap.ChampionStats.ResourceMax;
+            dm.Player.ChampionStats.ResourceRegenRate = ap.ChampionStats.ResourceRegenRate;
+            dm.Player.ChampionStats.ResourceType = TryParseOr(ap.ChampionStats.ResourceType, true, ResourceType.Unknown);
+            dm.Player.ChampionStats.ResourceCurrent = ap.ChampionStats.ResourceValue;
+            dm.Player.ChampionStats.SpellVamp = ap.ChampionStats.SpellVamp;
+            dm.Player.ChampionStats.Tenacity = ap.ChampionStats.Tenacity;
 
-            _AllPlayer p = allGameData.allPlayers.FirstOrDefault(a => a.summonerName == ap.summonerName);
+            AllPlayer p = allGameData.AllPlayers.FirstOrDefault(a => a.SummonerName == ap.SummonerName);
             if (p == null)
             {
                 return;
             }
 
-            dm.Player.Champion = TryParseOr(p.championName, true, Champion.Unknown);
+            dm.Player.Champion = TryParseOr(p.ChampionName, true, Champion.Unknown);
             dm.Player.ChampionColor = _colors.Value[dm.Player.Champion];
-            dm.Player.SpellD = TryParseOr(p.summonerSpells.summonerSpellOne.displayName, true, SummonerSpell.Unknown);
-            dm.Player.SpellF = TryParseOr(p.summonerSpells.summonerSpellTwo.displayName, true, SummonerSpell.Unknown);
-            dm.Player.Team = TryParseOr(p.team, true, Team.Unknown);
-            dm.Player.Position = TryParseOr(p.position, true, Position.Unknown);
+            dm.Player.SpellD = TryParseOr(p.SummonerSpells.SummonerSpellOne.DisplayName, true, DataModels.Enums.SummonerSpell.Unknown);
+            dm.Player.SpellF = TryParseOr(p.SummonerSpells.SummonerSpellTwo.DisplayName, true, DataModels.Enums.SummonerSpell.Unknown);
+            dm.Player.Team = TryParseOr(p.Team, true, Team.Unknown);
+            dm.Player.Position = TryParseOr(p.Position, true, Position.Unknown);
 
-            dm.Player.IsDead = p.isDead;
-            dm.Player.RespawnTimer = p.respawnTimer;
-            dm.Player.Kills = p.scores.kills;
-            dm.Player.Deaths = p.scores.deaths;
-            dm.Player.Assists = p.scores.assists;
-            dm.Player.CreepScore = p.scores.creepScore;
-            dm.Player.WardScore = p.scores.wardScore;
+            dm.Player.IsDead = p.IsDead;
+            dm.Player.RespawnTimer = p.RespawnTimer;
+            dm.Player.Kills = p.Scores.Kills;
+            dm.Player.Deaths = p.Scores.Deaths;
+            dm.Player.Assists = p.Scores.Assists;
+            dm.Player.CreepScore = p.Scores.CreepScore;
+            dm.Player.WardScore = p.Scores.WardScore;
 
             dm.Player.Inventory.Slot1 = GetItem(p, 0);
             dm.Player.Inventory.Slot2 = GetItem(p, 1);
@@ -201,22 +201,22 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
                 return;
             }
 
-            allGameData = JsonConvert.DeserializeObject<_RootGameData>(jsonData);
+            allGameData = JsonConvert.DeserializeObject<RootGameData>(jsonData);
         }
 
-        private static ItemSlotDataModel GetItem(_AllPlayer p, int slot)
+        private static ItemSlotDataModel GetItem(AllPlayer p, int slot)
         {
-            _Item newItem = p.items.FirstOrDefault(item => item.slot == slot);
+            Item newItem = Array.Find(p.Items, item => item.Slot == slot);
 
             return newItem == null ? new ItemSlotDataModel() : new ItemSlotDataModel(newItem);
         }
 
         private static TEnum TryParseOr<TEnum>(string value, bool ignoreCase, TEnum defaultValue) where TEnum : struct, Enum
         {
-            if (Enum.TryParse(value, ignoreCase, out TEnum res))
-                return res;
-            else if (ParseEnum<TEnum>.TryParse(value, out TEnum oof))
-                return oof;
+            if (Enum.TryParse(value, ignoreCase, out TEnum parseResult))
+                return parseResult;
+            else if (ParseEnum<TEnum>.TryParse(value, out TEnum customResult))
+                return customResult;
             else
                 return defaultValue;
         }

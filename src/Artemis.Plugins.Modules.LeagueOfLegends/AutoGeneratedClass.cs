@@ -1,197 +1,216 @@
 ﻿using JsonSubTypes;
 using Newtonsoft.Json;
-using System.Collections.Generic;
 
 namespace Artemis.Plugins.Modules.LeagueOfLegends
 {
-    public class _Passive
+    public class Passive
     {
-        public string displayName { get; set; }
-        public string rawDescription { get; set; }
-        public string rawDisplayName { get; set; }
+        public string DisplayName { get; set; }
+        public string RawDescription { get; set; }
+        public string RawDisplayName { get; set; }
     }
 
-    public class _Ability
+    public class Ability
     {
-        public int abilityLevel { get; set; }
-        public string displayName { get; set; }
-        public string id { get; set; }
-        public string rawDescription { get; set; }
-        public string rawDisplayName { get; set; }
+        public int AbilityLevel { get; set; }
+        public string DisplayName { get; set; }
+        public string Id { get; set; }
+        public string RawDescription { get; set; }
+        public string RawDisplayName { get; set; }
     }
 
-    public class _Abilities
+    public class Abilities
     {
-        public _Passive Passive { get; set; }
-        public _Ability Q { get; set; }
-        public _Ability W { get; set; }
-        public _Ability E { get; set; }
-        public _Ability R { get; set; }
+        public Passive Passive { get; set; }
+        public Ability Q { get; set; }
+        public Ability W { get; set; }
+        public Ability E { get; set; }
+        public Ability R { get; set; }
     }
 
-    public class _ChampionStats
+    public class ChampionStats
     {
-        public float abilityPower { get; set; }
-        public float armor { get; set; }
-        public float armorPenetrationFlat { get; set; }
-        public float armorPenetrationPercent { get; set; }
-        public float attackDamage { get; set; }
-        public float attackRange { get; set; }
-        public float attackSpeed { get; set; }
-        public float bonusArmorPenetrationPercent { get; set; }
-        public float bonusMagicPenetrationPercent { get; set; }
-        public float cooldownReduction { get; set; }
-        public float critChance { get; set; }
-        public float critDamage { get; set; }
-        public float currentHealth { get; set; }
-        public float healthRegenRate { get; set; }
-        public float lifeSteal { get; set; }
-        public float magicLethality { get; set; }
-        public float magicPenetrationFlat { get; set; }
-        public float magicPenetrationPercent { get; set; }
-        public float magicResist { get; set; }
-        public float maxHealth { get; set; }
-        public float moveSpeed { get; set; }
-        public float physicalLethality { get; set; }
-        public float resourceMax { get; set; }
-        public float resourceRegenRate { get; set; }
-        public string resourceType { get; set; }
-        public float resourceValue { get; set; }
-        public float spellVamp { get; set; }
-        public float tenacity { get; set; }
+        public float AbilityPower { get; set; }
+        public float Armor { get; set; }
+        public float ArmorPenetrationFlat { get; set; }
+        public float ArmorPenetrationPercent { get; set; }
+        public float AttackDamage { get; set; }
+        public float AttackRange { get; set; }
+        public float AttackSpeed { get; set; }
+        public float BonusArmorPenetrationPercent { get; set; }
+        public float BonusMagicPenetrationPercent { get; set; }
+        public float CooldownReduction { get; set; }
+        public float CritChance { get; set; }
+        public float CritDamage { get; set; }
+        public float CurrentHealth { get; set; }
+        public float HealthRegenRate { get; set; }
+        public float LifeSteal { get; set; }
+        public float MagicLethality { get; set; }
+        public float MagicPenetrationFlat { get; set; }
+        public float MagicPenetrationPercent { get; set; }
+        public float MagicResist { get; set; }
+        public float MaxHealth { get; set; }
+        public float MoveSpeed { get; set; }
+        public float PhysicalLethality { get; set; }
+        public float ResourceMax { get; set; }
+        public float ResourceRegenRate { get; set; }
+        public string ResourceType { get; set; }
+        public float ResourceValue { get; set; }
+        public float SpellVamp { get; set; }
+        public float Tenacity { get; set; }
     }
 
-    public class _Rune
+    public class Rune
     {
-        public string displayName { get; set; }
-        public int id { get; set; }
-        public string rawDescription { get; set; }
-        public string rawDisplayName { get; set; }
+        public string DisplayName { get; set; }
+        public int Id { get; set; }
+        public string RawDescription { get; set; }
+        public string RawDisplayName { get; set; }
     }
 
-    public class _StatRune
+    public class StatRune
     {
-        public int id { get; set; }
-        public string rawDescription { get; set; }
+        public int Id { get; set; }
+        public string RawDescription { get; set; }
     }
 
-    public class _FullRunes
+    public class FullRunes
     {
-        public IList<_Rune> generalRunes { get; set; }
-        public _Rune keystone { get; set; }
-        public _Rune primaryRuneTree { get; set; }
-        public _Rune secondaryRuneTree { get; set; }
-        public IList<_StatRune> statRunes { get; set; }
+        public Rune[] GeneralRunes { get; set; }
+        public Rune Keystone { get; set; }
+        public Rune PrimaryRuneTree { get; set; }
+        public Rune SecondaryRuneTree { get; set; }
+        public StatRune[] StatRunes { get; set; }
     }
 
-    public class _ActivePlayer
+    public class ActivePlayer
     {
-        public _Abilities abilities { get; set; }
-        public _ChampionStats championStats { get; set; }
-        public float currentGold { get; set; }
-        public _FullRunes fullRunes { get; set; }
-        public int level { get; set; }
-        public string summonerName { get; set; }
+        public Abilities Abilities { get; set; }
+        public ChampionStats ChampionStats { get; set; }
+        public float CurrentGold { get; set; }
+        public FullRunes FullRunes { get; set; }
+        public int Level { get; set; }
+        public string SummonerName { get; set; }
     }
 
-    public class _Item
+    public class Item
     {
-        public bool canUse { get; set; }
-        public bool consumable { get; set; }
-        public int count { get; set; }
-        public string displayName { get; set; }
-        public int itemID { get; set; }
-        public int price { get; set; }
-        public string rawDescription { get; set; }
-        public string rawDisplayName { get; set; }
-        public int slot { get; set; }
+        public bool CanUse { get; set; }
+        public bool Consumable { get; set; }
+        public int Count { get; set; }
+        public string DisplayName { get; set; }
+        public int ItemID { get; set; }
+        public int Price { get; set; }
+        public string RawDescription { get; set; }
+        public string RawDisplayName { get; set; }
+        public int Slot { get; set; }
     }
 
-    public class _Runes
+    public class Runes
     {
-        public _Rune keystone { get; set; }
-        public _Rune primaryRuneTree { get; set; }
-        public _Rune secondaryRuneTree { get; set; }
+        public Rune Keystone { get; set; }
+        public Rune PrimaryRuneTree { get; set; }
+        public Rune SecondaryRuneTree { get; set; }
     }
 
-    public class _Scores
+    public class Scores
     {
-        public int assists { get; set; }
-        public int creepScore { get; set; }
-        public int deaths { get; set; }
-        public int kills { get; set; }
-        public float wardScore { get; set; }
+        public int Assists { get; set; }
+        public int CreepScore { get; set; }
+        public int Deaths { get; set; }
+        public int Kills { get; set; }
+        public float WardScore { get; set; }
     }
 
-    public class _SummonerSpellOne
+    public class SummonerSpell
     {
-        public string displayName { get; set; }
-        public string rawDescription { get; set; }
-        public string rawDisplayName { get; set; }
+        public string DisplayName { get; set; }
+        public string RawDescription { get; set; }
+        public string RawDisplayName { get; set; }
     }
 
-    public class _SummonerSpellTwo
+    public class SummonerSpells
     {
-        public string displayName { get; set; }
-        public string rawDescription { get; set; }
-        public string rawDisplayName { get; set; }
+        public SummonerSpell SummonerSpellOne { get; set; }
+        public SummonerSpell SummonerSpellTwo { get; set; }
     }
 
-    public class _SummonerSpells
+    public class AllPlayer
     {
-        public _SummonerSpellOne summonerSpellOne { get; set; }
-        public _SummonerSpellTwo summonerSpellTwo { get; set; }
-    }
-
-    public class _AllPlayer
-    {
-        public string championName { get; set; }
-        public bool isBot { get; set; }
-        public bool isDead { get; set; }
-        public IList<_Item> items { get; set; }
-        public int level { get; set; }
-        public string position { get; set; }
-        public string rawChampionName { get; set; }
-        public float respawnTimer { get; set; }
-        public _Runes runes { get; set; }
-        public _Scores scores { get; set; }
-        public int skinID { get; set; }
-        public string summonerName { get; set; }
-        public _SummonerSpells summonerSpells { get; set; }
-        public string team { get; set; }
+        public string ChampionName { get; set; }
+        public bool IsBot { get; set; }
+        public bool IsDead { get; set; }
+        public Item[] Items { get; set; }
+        public int Level { get; set; }
+        public string Position { get; set; }
+        public string RawChampionName { get; set; }
+        public float RespawnTimer { get; set; }
+        public Runes Runes { get; set; }
+        public Scores Scores { get; set; }
+        public int SkinID { get; set; }
+        public string SummonerName { get; set; }
+        public SummonerSpells SummonerSpells { get; set; }
+        public string Team { get; set; }
     }
 
     [JsonConverter(typeof(JsonSubtypes), "EventName")]
-    [JsonSubtypes.KnownSubType(typeof(_BaronKillEvent), "BaronKill")]
-    [JsonSubtypes.KnownSubType(typeof(_HeraldKillEvent), "HeraldKill")]
-    [JsonSubtypes.KnownSubType(typeof(_DragonKillEvent), "DragonKill")]
-    [JsonSubtypes.KnownSubType(typeof(_ChampionKillEvent), "ChampionKill")]
-    [JsonSubtypes.KnownSubType(typeof(_MultikillEvent), "Multikill")]
-    [JsonSubtypes.KnownSubType(typeof(_AceEvent), "Ace")]
-    [JsonSubtypes.KnownSubType(typeof(_InhibKillEvent), "InhibKilled")]
-    [JsonSubtypes.KnownSubType(typeof(_TurretKillEvent), "TurretKilled")]
-    public class _Event
+    [JsonSubtypes.KnownSubType(typeof(BaronKillEvent), "BaronKill")]
+    [JsonSubtypes.KnownSubType(typeof(HeraldKillEvent), "HeraldKill")]
+    [JsonSubtypes.KnownSubType(typeof(DragonKillEvent), "DragonKill")]
+    [JsonSubtypes.KnownSubType(typeof(ChampionKillEvent), "ChampionKill")]
+    [JsonSubtypes.KnownSubType(typeof(MultikillEvent), "Multikill")]
+    [JsonSubtypes.KnownSubType(typeof(FirstBloodEvent), "FirstBlood")]
+    [JsonSubtypes.KnownSubType(typeof(AceEvent), "Ace")]
+    [JsonSubtypes.KnownSubType(typeof(InhibKillEvent), "InhibKilled")]
+    [JsonSubtypes.KnownSubType(typeof(TurretKillEvent), "TurretKilled")]
+    [JsonSubtypes.KnownSubType(typeof(GameStartEvent), "GameStart")]
+    [JsonSubtypes.KnownSubType(typeof(GameEndEvent), "GameEnd")]
+    [JsonSubtypes.KnownSubType(typeof(MinionsSpawningEvent), "MinionsSpawning")]
+    [JsonSubtypes.KnownSubType(typeof(FirstBrickEvent), "FirstBrick")]
+    [JsonSubtypes.KnownSubType(typeof(InhibRespawningSoonEvent), "InhibRespawningSoon")]
+    [JsonSubtypes.KnownSubType(typeof(InhibRespawnedEvent), "InhibRespawned")]
+    public class Event
     {
         public int EventID { get; set; }
         public string EventName { get; set; }
         public float EventTime { get; set; }
     }
 
-    public class _BaronKillEvent : _Event
+    public class GameStartEvent : Event { }
+
+    public class GameEndEvent : Event
+    {
+        public string Result { get; set; }
+    }
+
+    public class InhibRespawningSoonEvent : Event
+    {
+        public string InhibRespawningSoon { get; set; }
+    }
+
+    public class InhibRespawnedEvent : Event {
+        public string InhibRespawned { get; set; }
+    }
+
+    public class MinionsSpawningEvent : Event { }
+
+    public class FirstBrickEvent : Event { }
+
+    public class BaronKillEvent : Event
     {
         public bool Stolen { get; set; }
         public string KillerName { get; set; }
         public string[] Assisters { get; set; }
     }
 
-    public class _HeraldKillEvent : _Event
+    public class HeraldKillEvent : Event
     {
         public bool Stolen { get; set; }
         public string KillerName { get; set; }
         public string[] Assisters { get; set; }
     }
 
-    public class _DragonKillEvent : _Event
+    public class DragonKillEvent : Event
     {
         public string DragonType { get; set; }
         public bool Stolen { get; set; }
@@ -199,58 +218,62 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         public string[] Assisters { get; set; }
     }
 
-    public class _ChampionKillEvent : _Event
+    public class ChampionKillEvent : Event
     {
         public string KillerName { get; set; }
         public string VictimName { get; set; }
         public string[] Assisters { get; set; }
     }
+    public class FirstBloodEvent : Event
+    {
+        public string Recipient { get; set; }
+    }
 
-    public class _MultikillEvent : _Event
+    public class MultikillEvent : Event
     {
         public string KillerName { get; set; }
         public int KillStreak { get; set; }
     }
 
-    public class _AceEvent : _Event
+    public class AceEvent : Event
     {
         public string Acer { get; set; }
         public string AcingTeam { get; set; }
     }
 
-    public class _InhibKillEvent : _Event
+    public class InhibKillEvent : Event
     {
         public string KillerName { get; set; }
         public string InhibKilled { get; set; }
         public string[] Assisters { get; set; }
     }
 
-    public class _TurretKillEvent : _Event
+    public class TurretKillEvent : Event
     {
         public string KillerName { get; set; }
         public string TurretKilled { get; set; }
         public string[] Assisters { get; set; }
     }
 
-    public class _EventList
+    public class EventList
     {
-        public IList<_Event> Events { get; set; }
+        public Event[] Events { get; set; }
     }
 
-    public class _GameData
+    public class GameData
     {
-        public string gameMode { get; set; }
-        public float gameTime { get; set; }
-        public string mapName { get; set; }
-        public int mapNumber { get; set; }
-        public string mapTerrain { get; set; }
+        public string GameMode { get; set; }
+        public float GameTime { get; set; }
+        public string MapName { get; set; }
+        public int MapNumber { get; set; }
+        public string MapTerrain { get; set; }
     }
 
-    public class _RootGameData
+    public class RootGameData
     {
-        public _ActivePlayer activePlayer { get; set; }
-        public IList<_AllPlayer> allPlayers { get; set; }
-        public _EventList events { get; set; }
-        public _GameData gameData { get; set; }
+        public ActivePlayer ActivePlayer { get; set; }
+        public AllPlayer[] AllPlayers { get; set; }
+        public EventList Events { get; set; }
+        public GameData GameData { get; set; }
     }
 }
