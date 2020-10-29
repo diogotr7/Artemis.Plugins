@@ -1,7 +1,7 @@
 ﻿using JsonSubTypes;
 using Newtonsoft.Json;
 
-namespace Artemis.Plugins.Modules.LeagueOfLegends
+namespace Artemis.Plugins.Modules.LeagueOfLegends.GameData
 {
     public class Passive
     {
@@ -151,108 +151,6 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         public string SummonerName { get; set; }
         public SummonerSpells SummonerSpells { get; set; }
         public string Team { get; set; }
-    }
-
-    [JsonConverter(typeof(JsonSubtypes), "EventName")]
-    [JsonSubtypes.KnownSubType(typeof(BaronKillEvent), "BaronKill")]
-    [JsonSubtypes.KnownSubType(typeof(HeraldKillEvent), "HeraldKill")]
-    [JsonSubtypes.KnownSubType(typeof(DragonKillEvent), "DragonKill")]
-    [JsonSubtypes.KnownSubType(typeof(ChampionKillEvent), "ChampionKill")]
-    [JsonSubtypes.KnownSubType(typeof(MultikillEvent), "Multikill")]
-    [JsonSubtypes.KnownSubType(typeof(FirstBloodEvent), "FirstBlood")]
-    [JsonSubtypes.KnownSubType(typeof(AceEvent), "Ace")]
-    [JsonSubtypes.KnownSubType(typeof(InhibKillEvent), "InhibKilled")]
-    [JsonSubtypes.KnownSubType(typeof(TurretKillEvent), "TurretKilled")]
-    [JsonSubtypes.KnownSubType(typeof(GameStartEvent), "GameStart")]
-    [JsonSubtypes.KnownSubType(typeof(GameEndEvent), "GameEnd")]
-    [JsonSubtypes.KnownSubType(typeof(MinionsSpawningEvent), "MinionsSpawning")]
-    [JsonSubtypes.KnownSubType(typeof(FirstBrickEvent), "FirstBrick")]
-    [JsonSubtypes.KnownSubType(typeof(InhibRespawningSoonEvent), "InhibRespawningSoon")]
-    [JsonSubtypes.KnownSubType(typeof(InhibRespawnedEvent), "InhibRespawned")]
-    public class Event
-    {
-        public int EventID { get; set; }
-        public string EventName { get; set; }
-        public float EventTime { get; set; }
-    }
-
-    public class GameStartEvent : Event { }
-
-    public class GameEndEvent : Event
-    {
-        public string Result { get; set; }
-    }
-
-    public class InhibRespawningSoonEvent : Event
-    {
-        public string InhibRespawningSoon { get; set; }
-    }
-
-    public class InhibRespawnedEvent : Event {
-        public string InhibRespawned { get; set; }
-    }
-
-    public class MinionsSpawningEvent : Event { }
-
-    public class FirstBrickEvent : Event { }
-
-    public class BaronKillEvent : Event
-    {
-        public bool Stolen { get; set; }
-        public string KillerName { get; set; }
-        public string[] Assisters { get; set; }
-    }
-
-    public class HeraldKillEvent : Event
-    {
-        public bool Stolen { get; set; }
-        public string KillerName { get; set; }
-        public string[] Assisters { get; set; }
-    }
-
-    public class DragonKillEvent : Event
-    {
-        public string DragonType { get; set; }
-        public bool Stolen { get; set; }
-        public string KillerName { get; set; }
-        public string[] Assisters { get; set; }
-    }
-
-    public class ChampionKillEvent : Event
-    {
-        public string KillerName { get; set; }
-        public string VictimName { get; set; }
-        public string[] Assisters { get; set; }
-    }
-    public class FirstBloodEvent : Event
-    {
-        public string Recipient { get; set; }
-    }
-
-    public class MultikillEvent : Event
-    {
-        public string KillerName { get; set; }
-        public int KillStreak { get; set; }
-    }
-
-    public class AceEvent : Event
-    {
-        public string Acer { get; set; }
-        public string AcingTeam { get; set; }
-    }
-
-    public class InhibKillEvent : Event
-    {
-        public string KillerName { get; set; }
-        public string InhibKilled { get; set; }
-        public string[] Assisters { get; set; }
-    }
-
-    public class TurretKillEvent : Event
-    {
-        public string KillerName { get; set; }
-        public string TurretKilled { get; set; }
-        public string[] Assisters { get; set; }
     }
 
     public class EventList
