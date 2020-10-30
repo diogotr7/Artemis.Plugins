@@ -20,6 +20,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         private HttpClientHandler httpClientHandler;
         private HttpClient httpClient;
         private RootGameData allGameData;
+        private float _lastEventTime;
 
         private readonly PluginSetting<Dictionary<Champion, SKColor>> _colors;
 
@@ -65,36 +66,90 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
                 httpClient?.CancelPendingRequests();
         }
 
-        public override void Update(double deltaTime)
-        {
-            LeagueOfLegendsDataModel dm = DataModel;
+        public override void Update(double deltaTime) { }
 
-            if (allGameData == null)
+        public override void Render(double deltaTime, ArtemisSurface surface, SKCanvas canvas, SKImageInfo canvasInfo) {  }
+
+        private async Task UpdateData(double deltaTime)
+        {
+            string jsonData = "";
+
+            try
             {
+                using HttpResponseMessage response = await httpClient.GetAsync(URI);
+                if (response.IsSuccessStatusCode)
+                {
+                    using HttpContent content = response.Content;
+                    jsonData = await content.ReadAsStringAsync();
+                }
+            }
+            catch
+            {
+                allGameData = null;
                 DataModel.Reset();
                 return;
             }
 
+            if (string.IsNullOrWhiteSpace(jsonData) || jsonData.Contains("error"))
+            {
+                allGameData = null;
+                DataModel.Reset();
+                return;
+            }
+
+            allGameData = JsonConvert.DeserializeObject<RootGameData>(jsonData);
+
+            #region events
+            foreach(var e in allGameData.Events.Events.Where(ev => ev.EventTime > _lastEventTime))
+            {
+                switch (e)
+                {
+                    //invoke events here with specific eventargs
+                    case AceEvent ae:
+                        break;
+                    case BaronKillEvent bke:
+                        break;
+                    case ChampionKillEvent cke:
+                        break;
+                    case DragonKillEvent dke:
+                        break;
+                    case FirstBloodEvent fbe:
+                        break;
+                    case FirstBrickEvent fbre:
+                        break;
+                    case GameEndEvent gee:
+                        break;
+                    case GameStartEvent gse:
+                        break;
+                    case HeraldKillEvent hke:
+                        break;
+                    case InhibKillEvent ike:
+                        break;
+                    case InhibRespawnedEvent ire:
+                        break;
+                    case InhibRespawningSoonEvent irse:
+                        break;
+                    case MinionsSpawningEvent mse:
+                        break;
+                    case MultikillEvent mke:
+                        break;
+                    case TurretKillEvent tke:
+                        break;
+                }
+            }
+            if (allGameData.Events.Events.Any())
+                _lastEventTime = allGameData.Events.Events.Max(ev => ev.EventTime);
+            else
+                _lastEventTime = 0f;
+            #endregion
+
+            LeagueOfLegendsDataModel dm = DataModel;
+
             #region Match
             dm.Match.InGame = true;
-            dm.Match.GameMode = TryParseOr(allGameData.GameData.GameMode, true, GameMode.Unknown);
-            dm.Match.GameModeName = allGameData.GameData.GameMode;
+            dm.Match.GameMode = TryParseOr(allGameData.GameData.GameMode, GameMode.Unknown);
             dm.Match.GameTime = allGameData.GameData.GameTime;
-
-            List<DragonKillEvent> drags = allGameData.Events.Events.OfType<DragonKillEvent>().ToList();
-
-            dm.Match.CloudDragonsKilled = drags.Count(d => d.DragonType == "Air");
-            dm.Match.MountainDragonsKilled = drags.Count(d => d.DragonType == "Earth");
-            dm.Match.InfernalDragonsKilled = drags.Count(d => d.DragonType == "Fire");
-            dm.Match.OceanDragonsKilled = drags.Count(d => d.DragonType == "Water");
-            dm.Match.ElderDragonsKilled = drags.Count(d => d.DragonType == "Elder");
-            dm.Match.DragonsKilled = drags.Count;
-
-            dm.Match.BaronsKilled = allGameData.Events.Events.Count(ev => ev is BaronKillEvent);
-            dm.Match.HeraldsKilled = allGameData.Events.Events.Count(ev => ev is HeraldKillEvent);
-            dm.Match.TurretsKilled = allGameData.Events.Events.Count(ev => ev is TurretKillEvent);
-            dm.Match.InhibsKilled = allGameData.Events.Events.Count(ev => ev is InhibKillEvent);
-            dm.Match.MapTerrain = TryParseOr(allGameData.GameData.MapTerrain, true, MapTerrain.Unknown);
+            dm.Match.MapTerrain = TryParseOr(allGameData.GameData.MapTerrain, MapTerrain.Unknown);
             #endregion
 
             #region Player
@@ -136,23 +191,23 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             dm.Player.ChampionStats.PhysicalLethality = ap.ChampionStats.PhysicalLethality;
             dm.Player.ChampionStats.ResourceMax = ap.ChampionStats.ResourceMax;
             dm.Player.ChampionStats.ResourceRegenRate = ap.ChampionStats.ResourceRegenRate;
-            dm.Player.ChampionStats.ResourceType = TryParseOr(ap.ChampionStats.ResourceType, true, ResourceType.Unknown);
+            dm.Player.ChampionStats.ResourceType = TryParseOr(ap.ChampionStats.ResourceType, ResourceType.Unknown);
             dm.Player.ChampionStats.ResourceCurrent = ap.ChampionStats.ResourceValue;
             dm.Player.ChampionStats.SpellVamp = ap.ChampionStats.SpellVamp;
             dm.Player.ChampionStats.Tenacity = ap.ChampionStats.Tenacity;
 
-            AllPlayer p = allGameData.AllPlayers.FirstOrDefault(a => a.SummonerName == ap.SummonerName);
+            AllPlayer p = Array.Find(allGameData.AllPlayers, a => a.SummonerName == ap.SummonerName);
             if (p == null)
             {
                 return;
             }
 
-            dm.Player.Champion = TryParseOr(p.ChampionName, true, Champion.Unknown);
+            dm.Player.Champion = TryParseOr(p.ChampionName, Champion.Unknown);
             dm.Player.ChampionColor = _colors.Value[dm.Player.Champion];
-            dm.Player.SpellD = TryParseOr(p.SummonerSpells.SummonerSpellOne.DisplayName, true, DataModels.Enums.SummonerSpell.Unknown);
-            dm.Player.SpellF = TryParseOr(p.SummonerSpells.SummonerSpellTwo.DisplayName, true, DataModels.Enums.SummonerSpell.Unknown);
-            dm.Player.Team = TryParseOr(p.Team, true, Team.Unknown);
-            dm.Player.Position = TryParseOr(p.Position, true, Position.Unknown);
+            dm.Player.SpellD = TryParseOr(p.SummonerSpells.SummonerSpellOne.DisplayName, DataModels.Enums.SummonerSpell.Unknown);
+            dm.Player.SpellF = TryParseOr(p.SummonerSpells.SummonerSpellTwo.DisplayName, DataModels.Enums.SummonerSpell.Unknown);
+            dm.Player.Team = TryParseOr(p.Team, Team.Unknown);
+            dm.Player.Position = TryParseOr(p.Position, Position.Unknown);
 
             dm.Player.IsDead = p.IsDead;
             dm.Player.RespawnTimer = p.RespawnTimer;
@@ -172,38 +227,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             #endregion
         }
 
-        public override void Render(double deltaTime, ArtemisSurface surface, SKCanvas canvas, SKImageInfo canvasInfo)
-        {
-            //empty
-        }
-
-        private async Task UpdateData(double deltaTime)
-        {
-            string jsonData = "";
-            try
-            {
-                using HttpResponseMessage response = await httpClient.GetAsync(URI);
-                if (response.IsSuccessStatusCode)
-                {
-                    using HttpContent content = response.Content;
-                    jsonData = await content.ReadAsStringAsync();
-                }
-            }
-            catch
-            {
-                allGameData = null;
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(jsonData) || jsonData.Contains("error"))
-            {
-                allGameData = null;
-                return;
-            }
-
-            allGameData = JsonConvert.DeserializeObject<RootGameData>(jsonData);
-        }
-
+        #region helper methods
         private static ItemSlotDataModel GetItem(AllPlayer p, int slot)
         {
             Item newItem = Array.Find(p.Items, item => item.Slot == slot);
@@ -211,7 +235,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             return newItem == null ? new ItemSlotDataModel() : new ItemSlotDataModel(newItem);
         }
 
-        private static TEnum TryParseOr<TEnum>(string value, bool ignoreCase, TEnum defaultValue) where TEnum : struct, Enum
+        private static TEnum TryParseOr<TEnum>(string value, TEnum defaultValue, bool ignoreCase = true) where TEnum : struct, Enum
         {
             if (Enum.TryParse(value, ignoreCase, out TEnum parseResult))
                 return parseResult;
@@ -220,5 +244,6 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             else
                 return defaultValue;
         }
+        #endregion
     }
 }
