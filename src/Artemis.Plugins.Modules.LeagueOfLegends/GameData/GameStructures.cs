@@ -152,7 +152,7 @@
 
     public struct EventList
     {
-        public Event[] Events { get; set; }
+        public LolEvent[] Events { get; set; }
     }
 
     public struct GameData
