@@ -1,16 +1,7 @@
-﻿using Artemis.Core;
-using Artemis.Core.Modules;
-using Artemis.Plugins.Modules.LeagueOfLegends.DataModels;
-using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums;
-using Artemis.Plugins.Modules.LeagueOfLegends.LeagueOfLegendsConfigurationDialog;
-using Newtonsoft.Json;
-using SkiaSharp;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace Artemis.Plugins.Modules.LeagueOfLegends
 {
@@ -32,18 +23,34 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
     }
     internal static class ParseEnum<TEnum> where TEnum : struct, Enum
     {
-        internal static readonly Dictionary<string, TEnum> Values = new Dictionary<string, TEnum>();
+        private static readonly Dictionary<string, TEnum> Values = new Dictionary<string, TEnum>();
 
         static ParseEnum()
         {
+            //add custom values first.
+            //defined with NameAttribute on each enum value
             Values = typeof(TEnum)
                 .GetFields(BindingFlags.Public | BindingFlags.Static)
                 .Select(a => new { NameAtt = a.GetCustomAttribute<NameAttribute>(), EnumValue = (TEnum)a.GetValue(null) })
                 .Where(a => a.NameAtt != null)
                 .SelectMany(field => field.NameAtt.Names, (field, name) => new { Key = name, Value = field.EnumValue })
                 .ToDictionary(a => a.Key, a => a.Value);
+
+            //then we cache every possible enum value so we don't have to call TryParse
+            foreach (TEnum e in Enum.GetValues(typeof(TEnum)))
+                Values.Add(Enum.GetName(typeof(TEnum), e), e);
         }
 
-        internal static bool TryParse(string value, out TEnum result) => Values.TryGetValue(value, out result);
+        internal static TEnum TryParseOr(string value, TEnum defaultValue)
+        {
+            //this should be None for all enums in this plugin
+            if (value is null)
+                return default;
+
+            if (Values.TryGetValue(value, out TEnum result))
+                return result;
+
+            return defaultValue;
+        }
     }
 }

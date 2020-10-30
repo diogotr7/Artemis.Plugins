@@ -4,7 +4,9 @@
     {
         Unknown = -1,
         None = 0,
+        [Name("ORDER")]
         Order,
+        [Name("CHAOS")]
         Chaos
     }
 }

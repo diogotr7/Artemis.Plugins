@@ -1,17 +1,16 @@
-﻿using Artemis.Core.DataModelExpansions;
+﻿using Artemis.Plugins.Modules.LeagueOfLegends.GameData;
+using System;
 
 namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
 {
-    public class AbilityDataModel : DataModel
+    public class AbilityDataModel
     {
-        public string Name { get; set; } = "";
-        public int Level { get; set; }
-        public bool Learned => Level > 0;
+        private readonly Func<Ability> ability;
 
-        internal void Reset()
-        {
-            Name = "";
-            Level = -1;
-        }
+        public AbilityDataModel(Func<Ability> accessor) => ability = accessor;
+
+        public string Name => ability().DisplayName;
+        public int Level => ability().AbilityLevel;
+        public bool Learned => Level > 0;
     }
 }

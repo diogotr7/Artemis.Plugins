@@ -1,20 +1,18 @@
-﻿using Artemis.Core.DataModelExpansions;
-
-namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
+﻿namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
 {
-    public class AbilityGroupDataModel : DataModel
+    public class AbilityGroupDataModel : ChildDataModel
     {
-        public AbilityDataModel Q { get; set; } = new AbilityDataModel();
-        public AbilityDataModel W { get; set; } = new AbilityDataModel();
-        public AbilityDataModel E { get; set; } = new AbilityDataModel();
-        public AbilityDataModel R { get; set; } = new AbilityDataModel();
-
-        internal void Reset()
+        public AbilityGroupDataModel(LeagueOfLegendsDataModel root) : base(root)
         {
-            Q.Reset();
-            W.Reset();
-            E.Reset();
-            R.Reset();
+            Q = new AbilityDataModel(() => RootGameData.ActivePlayer.Abilities.Q);
+            E = new AbilityDataModel(() => RootGameData.ActivePlayer.Abilities.W);
+            W = new AbilityDataModel(() => RootGameData.ActivePlayer.Abilities.E);
+            R = new AbilityDataModel(() => RootGameData.ActivePlayer.Abilities.R);
         }
+
+        public AbilityDataModel Q { get; set; }
+        public AbilityDataModel W { get; set; }
+        public AbilityDataModel E { get; set; }
+        public AbilityDataModel R { get; set; }
     }
 }

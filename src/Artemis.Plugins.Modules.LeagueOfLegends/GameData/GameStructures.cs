@@ -1,16 +1,13 @@
-﻿using JsonSubTypes;
-using Newtonsoft.Json;
-
-namespace Artemis.Plugins.Modules.LeagueOfLegends.GameData
+﻿namespace Artemis.Plugins.Modules.LeagueOfLegends.GameData
 {
-    public class Passive
+    public struct Passive
     {
         public string DisplayName { get; set; }
         public string RawDescription { get; set; }
         public string RawDisplayName { get; set; }
     }
 
-    public class Ability
+    public struct Ability
     {
         public int AbilityLevel { get; set; }
         public string DisplayName { get; set; }
@@ -19,7 +16,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.GameData
         public string RawDisplayName { get; set; }
     }
 
-    public class Abilities
+    public struct Abilities
     {
         public Passive Passive { get; set; }
         public Ability Q { get; set; }
@@ -28,7 +25,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.GameData
         public Ability R { get; set; }
     }
 
-    public class ChampionStats
+    public struct ChampionStats
     {
         public float AbilityPower { get; set; }
         public float Armor { get; set; }
@@ -60,7 +57,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.GameData
         public float Tenacity { get; set; }
     }
 
-    public class Rune
+    public struct Rune
     {
         public string DisplayName { get; set; }
         public int Id { get; set; }
@@ -68,13 +65,13 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.GameData
         public string RawDisplayName { get; set; }
     }
 
-    public class StatRune
+    public struct StatRune
     {
         public int Id { get; set; }
         public string RawDescription { get; set; }
     }
 
-    public class FullRunes
+    public struct FullRunes
     {
         public Rune[] GeneralRunes { get; set; }
         public Rune Keystone { get; set; }
@@ -83,7 +80,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.GameData
         public StatRune[] StatRunes { get; set; }
     }
 
-    public class ActivePlayer
+    public struct ActivePlayer
     {
         public Abilities Abilities { get; set; }
         public ChampionStats ChampionStats { get; set; }
@@ -93,7 +90,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.GameData
         public string SummonerName { get; set; }
     }
 
-    public class Item
+    public struct Item
     {
         public bool CanUse { get; set; }
         public bool Consumable { get; set; }
@@ -106,14 +103,14 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.GameData
         public int Slot { get; set; }
     }
 
-    public class Runes
+    public struct Runes
     {
         public Rune Keystone { get; set; }
         public Rune PrimaryRuneTree { get; set; }
         public Rune SecondaryRuneTree { get; set; }
     }
 
-    public class Scores
+    public struct Scores
     {
         public int Assists { get; set; }
         public int CreepScore { get; set; }
@@ -122,20 +119,20 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.GameData
         public float WardScore { get; set; }
     }
 
-    public class SummonerSpell
+    public struct SummonerSpell
     {
         public string DisplayName { get; set; }
         public string RawDescription { get; set; }
         public string RawDisplayName { get; set; }
     }
 
-    public class SummonerSpells
+    public struct SummonerSpells
     {
         public SummonerSpell SummonerSpellOne { get; set; }
         public SummonerSpell SummonerSpellTwo { get; set; }
     }
 
-    public class AllPlayer
+    public struct AllPlayer
     {
         public string ChampionName { get; set; }
         public bool IsBot { get; set; }
@@ -153,12 +150,12 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.GameData
         public string Team { get; set; }
     }
 
-    public class EventList
+    public struct EventList
     {
         public Event[] Events { get; set; }
     }
 
-    public class GameData
+    public struct GameData
     {
         public string GameMode { get; set; }
         public float GameTime { get; set; }
@@ -167,7 +164,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.GameData
         public string MapTerrain { get; set; }
     }
 
-    public class RootGameData
+    public struct RootGameData
     {
         public ActivePlayer ActivePlayer { get; set; }
         public AllPlayer[] AllPlayers { get; set; }

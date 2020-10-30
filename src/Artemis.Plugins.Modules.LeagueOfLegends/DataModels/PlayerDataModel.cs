@@ -1,52 +1,43 @@
-﻿using Artemis.Core.DataModelExpansions;
-using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums;
+﻿using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums;
+using Artemis.Plugins.Modules.LeagueOfLegends.GameData;
 using SkiaSharp;
+using System;
+using SummonerSpell = Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums.SummonerSpell;
 
 namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
 {
-    public class PlayerDataModel : DataModel
+    public class PlayerDataModel : ChildDataModel
     {
-        public AbilityGroupDataModel Abilities { get; set; } = new AbilityGroupDataModel();
-        public PlayerStatsDataModel ChampionStats { get; set; } = new PlayerStatsDataModel();
-        public InventoryDataModel Inventory { get; set; } = new InventoryDataModel();
-        public string SummonerName { get; set; } = "";
-        public int Level { get; set; }
-        public int Kills { get; set; }
-        public int Deaths { get; set; }
-        public int Assists { get; set; }
-        public int CreepScore { get; set; }
-        public float Gold { get; set; }
-        public float WardScore { get; set; }
-        public float RespawnTimer { get; set; }
-        public bool IsDead { get; set; }
-        public Team Team { get; set; }
-        public Champion Champion { get; set; }
-        public SKColor ChampionColor { get; set; }
-        public Position Position { get; set; }
-        public Enums.SummonerSpell SpellD { get; set; }
-        public Enums.SummonerSpell SpellF { get; set; }
+        private readonly Func<AllPlayer> allPlayer;
 
-        internal void Reset()
+        public PlayerDataModel(LeagueOfLegendsDataModel root) : base(root)
         {
-            Abilities.Reset();
-            ChampionStats.Reset();
-            Inventory.Reset();
-            SummonerName = "";
-            Level = -1;
-            Kills = -1;
-            Deaths = -1;
-            Assists = -1;
-            CreepScore = -1;
-            Gold = -1;
-            WardScore = -1;
-            RespawnTimer = -1;
-            IsDead = false;
-            Team = Team.None;
-            Champion = Champion.None;
-            ChampionColor = new SKColor(0, 0, 0);
-            Position = Position.None;
-            SpellD = Enums.SummonerSpell.None;
-            SpellF = Enums.SummonerSpell.None;
+            allPlayer = () => RootGameData.AllPlayers == null
+                ? default
+                : Array.Find(RootGameData.AllPlayers, p => p.SummonerName == RootGameData.ActivePlayer.SummonerName);
+            Abilities = new AbilityGroupDataModel(root);
+            ChampionStats = new PlayerStatsDataModel(root);
+            Inventory = new InventoryDataModel(allPlayer);
         }
+
+        public AbilityGroupDataModel Abilities { get; set; }
+        public PlayerStatsDataModel ChampionStats { get; set; }
+        public InventoryDataModel Inventory { get; set; }
+        public string SummonerName => RootGameData.ActivePlayer.SummonerName;
+        public int Level => RootGameData.ActivePlayer.Level;
+        public float Gold => RootGameData.ActivePlayer.CurrentGold;
+        public int Kills => allPlayer().Scores.Kills;
+        public int Deaths => allPlayer().Scores.Deaths;
+        public int Assists => allPlayer().Scores.Assists;
+        public int CreepScore => allPlayer().Scores.CreepScore;
+        public float WardScore => allPlayer().Scores.WardScore;
+        public float RespawnTimer => allPlayer().RespawnTimer;
+        public bool IsDead => allPlayer().IsDead;
+        public Team Team => ParseEnum<Team>.TryParseOr(allPlayer().Team, Team.Unknown);
+        public Champion Champion => ParseEnum<Champion>.TryParseOr(allPlayer().ChampionName, Champion.Unknown);
+        public Position Position => ParseEnum<Position>.TryParseOr(allPlayer().Position, Position.Unknown);
+        public SummonerSpell SpellD => ParseEnum<SummonerSpell>.TryParseOr(allPlayer().SummonerSpells.SummonerSpellOne.DisplayName, SummonerSpell.Unknown);
+        public SummonerSpell SpellF => ParseEnum<SummonerSpell>.TryParseOr(allPlayer().SummonerSpells.SummonerSpellTwo.DisplayName, SummonerSpell.Unknown);
+        public SKColor ChampionColor { get; set; }
     }
 }

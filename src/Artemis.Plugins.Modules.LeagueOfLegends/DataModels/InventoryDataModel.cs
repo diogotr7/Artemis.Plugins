@@ -1,26 +1,27 @@
-﻿using Artemis.Core.DataModelExpansions;
+﻿using Artemis.Plugins.Modules.LeagueOfLegends.GameData;
+using System;
 
 namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
 {
-    public class InventoryDataModel : DataModel
+    public class InventoryDataModel
     {
-        public ItemSlotDataModel Slot1 { get; set; } = new ItemSlotDataModel();
-        public ItemSlotDataModel Slot2 { get; set; } = new ItemSlotDataModel();
-        public ItemSlotDataModel Slot3 { get; set; } = new ItemSlotDataModel();
-        public ItemSlotDataModel Slot4 { get; set; } = new ItemSlotDataModel();
-        public ItemSlotDataModel Slot5 { get; set; } = new ItemSlotDataModel();
-        public ItemSlotDataModel Slot6 { get; set; } = new ItemSlotDataModel();
-        public ItemSlotDataModel Trinket { get; set; } = new ItemSlotDataModel();
-
-        internal void Reset()
+        public InventoryDataModel(Func<AllPlayer> allPlayer)
         {
-            Slot1.Reset();
-            Slot2.Reset();
-            Slot3.Reset();
-            Slot4.Reset();
-            Slot5.Reset();
-            Slot6.Reset();
-            Trinket.Reset();
+            Slot1 = new ItemSlotDataModel(allPlayer, 0);
+            Slot2 = new ItemSlotDataModel(allPlayer, 1);
+            Slot3 = new ItemSlotDataModel(allPlayer, 2);
+            Slot4 = new ItemSlotDataModel(allPlayer, 3);
+            Slot5 = new ItemSlotDataModel(allPlayer, 4);
+            Slot6 = new ItemSlotDataModel(allPlayer, 5);
+            Trinket = new ItemSlotDataModel(allPlayer, 6);
         }
+
+        public ItemSlotDataModel Slot1 { get; }
+        public ItemSlotDataModel Slot2 { get; }
+        public ItemSlotDataModel Slot3 { get; }
+        public ItemSlotDataModel Slot4 { get; }
+        public ItemSlotDataModel Slot5 { get; }
+        public ItemSlotDataModel Slot6 { get; }
+        public ItemSlotDataModel Trinket { get; }
     }
 }
