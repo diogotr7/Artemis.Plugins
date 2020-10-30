@@ -107,49 +107,49 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
                 switch (e)
                 {
                     case AceEvent ae:
-                        DataModel.Match.Ace.Trigger();
+                        DataModel.Match.Ace.Trigger(new AceEventArgs { Acer = ae.Acer, AcingTeam = ae.AcingTeam });
                         break;
                     case BaronKillEvent bke:
-                        DataModel.Match.BaronKill.Trigger();
+                        DataModel.Match.BaronKill.Trigger(new EpicCreatureKillEventArgs { Assisters = bke.Assisters, KillerName = bke.KillerName, Stolen = bke.Stolen });
                         break;
                     case ChampionKillEvent cke:
-                        DataModel.Match.ChampionKill.Trigger();
+                        DataModel.Match.ChampionKill.Trigger(new ChampionKillEventArgs { KillerName = cke.KillerName, Assisters = cke.Assisters, VictimName = cke.VictimName});
                         break;
                     case DragonKillEvent dke:
-                        DataModel.Match.DragonKill.Trigger();
+                        DataModel.Match.DragonKill.Trigger(new DragonKillEventArgs { Assisters = dke.Assisters, DragonType = dke.DragonType, KillerName = dke.KillerName, Stolen = dke.Stolen });
                         break;
                     case FirstBloodEvent fbe:
-                        DataModel.Match.FirstBlood.Trigger();
+                        DataModel.Match.FirstBlood.Trigger(new FirstBloodEventArgs { Recipient = fbe.Recipient });
                         break;
                     case FirstBrickEvent fbre:
                         DataModel.Match.FirstBrick.Trigger();
                         break;
                     case GameEndEvent gee:
-                        DataModel.Match.GameEnd.Trigger();
+                        DataModel.Match.GameEnd.Trigger(new GameEndEventArgs { Result = gee.Result });
                         break;
                     case GameStartEvent gse:
                         DataModel.Match.GameStart.Trigger();
                         break;
                     case HeraldKillEvent hke:
-                        DataModel.Match.HeraldKill.Trigger();
+                        DataModel.Match.HeraldKill.Trigger(new EpicCreatureKillEventArgs { Stolen = hke.Stolen, KillerName = hke.KillerName, Assisters = hke.Assisters });
                         break;
                     case InhibKillEvent ike:
-                        DataModel.Match.InhibKill.Trigger();
+                        DataModel.Match.InhibKill.Trigger(new InhibKillEventArgs { Assisters = ike.Assisters, KillerName = ike.KillerName, InhibKilled = ike.InhibKilled });
                         break;
                     case InhibRespawnedEvent ire:
-                        DataModel.Match.InhibRespawned.Trigger();
+                        DataModel.Match.InhibRespawned.Trigger(new InhibRespawnedEventArgs { InhibRespawned = ire.InhibRespawned });
                         break;
                     case InhibRespawningSoonEvent irse:
-                        DataModel.Match.InhibRespawningSoon.Trigger();
+                        DataModel.Match.InhibRespawningSoon.Trigger(new InhibRespawningSoonEventArgs { InhibRespawningSoon = irse.InhibRespawningSoon });
                         break;
                     case MinionsSpawningEvent mse:
                         DataModel.Match.MinionsSpawning.Trigger();
                         break;
                     case MultikillEvent mke:
-                        DataModel.Match.Multikill.Trigger();
+                        DataModel.Match.Multikill.Trigger(new MultikillEventArgs { KillerName = mke.KillerName, KillStreak =  mke.KillStreak});
                         break;
                     case TurretKillEvent tke:
-                        DataModel.Match.TurretKill.Trigger();
+                        DataModel.Match.TurretKill.Trigger(new TurretKillEventArgs { KillerName = tke.KillerName, Assisters = tke.Assisters, TurretKilled = tke.TurretKilled });
                         break;
                 }
             }
