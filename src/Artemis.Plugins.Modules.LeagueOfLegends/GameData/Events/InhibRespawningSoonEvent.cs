@@ -1,4 +1,5 @@
 ﻿using Artemis.Core;
+using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums;
 
 namespace Artemis.Plugins.Modules.LeagueOfLegends.GameData
 {
@@ -9,6 +10,6 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.GameData
 
     public class InhibRespawningSoonEventArgs : DataModelEventArgs
     {
-        public string InhibRespawningSoon { get; set; }
+        public Inhibitor InhibRespawningSoon { get; set; }
     }
 }

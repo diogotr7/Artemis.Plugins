@@ -5,8 +5,8 @@
         Unknown = -1,
         None = 0,
         [Name("ORDER")]
-        Order,
+        Blue,
         [Name("CHAOS")]
-        Chaos
+        Red
     }
 }

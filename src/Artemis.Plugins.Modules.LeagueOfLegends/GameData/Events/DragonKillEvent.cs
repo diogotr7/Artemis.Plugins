@@ -1,4 +1,5 @@
 ﻿using Artemis.Core;
+using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums;
 
 namespace Artemis.Plugins.Modules.LeagueOfLegends.GameData
 {
@@ -9,9 +10,10 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.GameData
         public string KillerName { get; set; }
         public string[] Assisters { get; set; }
     }
+
     public class DragonKillEventArgs : DataModelEventArgs
     {
-        public string DragonType { get; set; }
+        public DragonType DragonType { get; set; }
         public bool Stolen { get; set; }
         public string KillerName { get; set; }
         public string[] Assisters { get; set; }

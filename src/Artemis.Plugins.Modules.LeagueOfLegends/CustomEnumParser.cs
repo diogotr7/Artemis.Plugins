@@ -44,7 +44,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         internal static TEnum TryParseOr(string value, TEnum defaultValue)
         {
             //this should be None for all enums in this plugin
-            if (value is null)
+            if (string.IsNullOrWhiteSpace(value))
                 return default;
 
             if (Values.TryGetValue(value, out TEnum result))

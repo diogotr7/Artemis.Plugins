@@ -43,6 +43,8 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             httpClient = new HttpClient(httpClientHandler);
             httpClient.Timeout = TimeSpan.FromMilliseconds(80);
             UpdateDuringActivationOverride = false;
+            //we have to do this at least once to start with
+            DataModel.Player.ChampionColor = _colors.Value[DataModel.Player.Champion];
             AddTimedUpdate(TimeSpan.FromMilliseconds(100), UpdateData);
         }
 
@@ -106,52 +108,105 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             {
                 switch (e)
                 {
-                    case AceEvent ae:
-                        DataModel.Match.Ace.Trigger(new AceEventArgs { Acer = ae.Acer, AcingTeam = ae.AcingTeam });
+                    case AceEvent aceEvent:
+                        DataModel.Match.Ace.Trigger(new AceEventArgs
+                        {
+                            Acer = aceEvent.Acer,
+                            AcingTeam = ParseEnum<Team>.TryParseOr(aceEvent.AcingTeam, Team.Unknown)
+                        });
                         break;
-                    case BaronKillEvent bke:
-                        DataModel.Match.BaronKill.Trigger(new EpicCreatureKillEventArgs { Assisters = bke.Assisters, KillerName = bke.KillerName, Stolen = bke.Stolen });
+                    case BaronKillEvent baronKillEvent:
+                        DataModel.Match.BaronKill.Trigger(new EpicCreatureKillEventArgs
+                        {
+                            Assisters = baronKillEvent.Assisters,
+                            KillerName = baronKillEvent.KillerName,
+                            Stolen = baronKillEvent.Stolen
+                        });
                         break;
-                    case ChampionKillEvent cke:
-                        DataModel.Match.ChampionKill.Trigger(new ChampionKillEventArgs { KillerName = cke.KillerName, Assisters = cke.Assisters, VictimName = cke.VictimName});
+                    case ChampionKillEvent championKillEvent:
+                        DataModel.Match.ChampionKill.Trigger(new ChampionKillEventArgs
+                        {
+                            KillerName = championKillEvent.KillerName,
+                            Assisters = championKillEvent.Assisters,
+                            VictimName = championKillEvent.VictimName
+                        });
                         break;
-                    case DragonKillEvent dke:
-                        DataModel.Match.DragonKill.Trigger(new DragonKillEventArgs { Assisters = dke.Assisters, DragonType = dke.DragonType, KillerName = dke.KillerName, Stolen = dke.Stolen });
+                    case DragonKillEvent dragonKillEvent:
+                        DataModel.Match.DragonKill.Trigger(new DragonKillEventArgs
+                        {
+                            Assisters = dragonKillEvent.Assisters,
+                            DragonType = ParseEnum<DragonType>.TryParseOr(dragonKillEvent.DragonType, DragonType.Unknown),
+                            KillerName = dragonKillEvent.KillerName,
+                            Stolen = dragonKillEvent.Stolen
+                        });
                         break;
-                    case FirstBloodEvent fbe:
-                        DataModel.Match.FirstBlood.Trigger(new FirstBloodEventArgs { Recipient = fbe.Recipient });
+                    case FirstBloodEvent firstBloodEvent:
+                        DataModel.Match.FirstBlood.Trigger(new FirstBloodEventArgs
+                        {
+                            Recipient = firstBloodEvent.Recipient
+                        });
                         break;
-                    case FirstBrickEvent fbre:
+                    case FirstBrickEvent firstBrickEvent:
                         DataModel.Match.FirstBrick.Trigger();
                         break;
-                    case GameEndEvent gee:
-                        DataModel.Match.GameEnd.Trigger(new GameEndEventArgs { Result = gee.Result });
+                    case GameEndEvent gameEndEvent:
+                        DataModel.Match.GameEnd.Trigger(new GameEndEventArgs
+                        {
+                            Win = gameEndEvent.Result == "Win"
+                        });
                         break;
-                    case GameStartEvent gse:
+                    case GameStartEvent gameStartEvent:
                         DataModel.Match.GameStart.Trigger();
                         break;
-                    case HeraldKillEvent hke:
-                        DataModel.Match.HeraldKill.Trigger(new EpicCreatureKillEventArgs { Stolen = hke.Stolen, KillerName = hke.KillerName, Assisters = hke.Assisters });
+                    case HeraldKillEvent heraldKillEvent:
+                        DataModel.Match.HeraldKill.Trigger(new EpicCreatureKillEventArgs
+                        {
+                            Stolen = heraldKillEvent.Stolen,
+                            KillerName = heraldKillEvent.KillerName,
+                            Assisters = heraldKillEvent.Assisters
+                        });
                         break;
-                    case InhibKillEvent ike:
-                        DataModel.Match.InhibKill.Trigger(new InhibKillEventArgs { Assisters = ike.Assisters, KillerName = ike.KillerName, InhibKilled = ike.InhibKilled });
+                    case InhibKillEvent inhibKillEvent:
+                        DataModel.Match.InhibKill.Trigger(new InhibKillEventArgs
+                        {
+                            Assisters = inhibKillEvent.Assisters,
+                            KillerName = inhibKillEvent.KillerName,
+                            InhibKilled = ParseEnum<Inhibitor>.TryParseOr(inhibKillEvent.InhibKilled, Inhibitor.Unknown)
+                        });
                         break;
-                    case InhibRespawnedEvent ire:
-                        DataModel.Match.InhibRespawned.Trigger(new InhibRespawnedEventArgs { InhibRespawned = ire.InhibRespawned });
+                    case InhibRespawnedEvent inhibRespawnedEvent:
+                        DataModel.Match.InhibRespawned.Trigger(new InhibRespawnedEventArgs
+                        {
+                            InhibRespawned = ParseEnum<Inhibitor>.TryParseOr(inhibRespawnedEvent.InhibRespawned, Inhibitor.Unknown)
+                        });
                         break;
-                    case InhibRespawningSoonEvent irse:
-                        DataModel.Match.InhibRespawningSoon.Trigger(new InhibRespawningSoonEventArgs { InhibRespawningSoon = irse.InhibRespawningSoon });
+                    case InhibRespawningSoonEvent inhibRespawningSoonEvent:
+                        DataModel.Match.InhibRespawningSoon.Trigger(new InhibRespawningSoonEventArgs
+                        {
+                            InhibRespawningSoon = ParseEnum<Inhibitor>.TryParseOr(inhibRespawningSoonEvent.InhibRespawningSoon, Inhibitor.Unknown)
+                        });
                         break;
-                    case MinionsSpawningEvent mse:
+                    case MinionsSpawningEvent minionsSpawningEvent:
                         DataModel.Match.MinionsSpawning.Trigger();
                         break;
-                    case MultikillEvent mke:
-                        DataModel.Match.Multikill.Trigger(new MultikillEventArgs { KillerName = mke.KillerName, KillStreak =  mke.KillStreak});
+                    case MultikillEvent multikillEvent:
+                        DataModel.Match.Multikill.Trigger(new MultikillEventArgs
+                        {
+                            KillerName = multikillEvent.KillerName,
+                            KillStreak = multikillEvent.KillStreak
+                        });
                         break;
-                    case TurretKillEvent tke:
-                        DataModel.Match.TurretKill.Trigger(new TurretKillEventArgs { KillerName = tke.KillerName, Assisters = tke.Assisters, TurretKilled = tke.TurretKilled });
+                    case TurretKillEvent turretKillEvent:
+                        DataModel.Match.TurretKill.Trigger(new TurretKillEventArgs
+                        {
+                            KillerName = turretKillEvent.KillerName,
+                            Assisters = turretKillEvent.Assisters,
+                            TurretKilled = ParseEnum<Turret>.TryParseOr(turretKillEvent.TurretKilled, Turret.Unknown)
+                        });
                         break;
                 }
+
+                Console.WriteLine();
             }
 
             _lastEventTime = DataModel.RootGameData.Events.Events.Last().EventTime;

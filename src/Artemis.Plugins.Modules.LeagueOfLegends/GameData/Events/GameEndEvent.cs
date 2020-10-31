@@ -1,4 +1,5 @@
 ﻿using Artemis.Core;
+using Artemis.Core.DefaultTypes;
 
 namespace Artemis.Plugins.Modules.LeagueOfLegends.GameData
 {
@@ -9,6 +10,6 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.GameData
 
     public class GameEndEventArgs : DataModelEventArgs
     {
-        public string Result { get; set; }
+        public bool Win { get; set; }
     }
 }
