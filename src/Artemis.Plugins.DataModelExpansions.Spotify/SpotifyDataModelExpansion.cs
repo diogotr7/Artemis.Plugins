@@ -72,7 +72,7 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
         #endregion
 
         #region DataModel update methods
-        private async void UpdateData(double deltaTime)
+        private async Task UpdateData(double deltaTime)
         {
             //this will be null before authentication
             if (_spotify is null)
