@@ -9,7 +9,7 @@
         Flash,
         Ghost,
         Heal,
-        [Name("Smite", "Chilling Smite", "Challenging Smite")]
+        [Name("Chilling Smite", "Challenging Smite")]
         Smite,
         Teleport,
         Clarity,

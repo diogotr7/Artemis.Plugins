@@ -1,16 +1,13 @@
-﻿using JsonSubTypes;
-using Newtonsoft.Json;
-
-namespace Artemis.Plugins.Modules.LeagueOfLegends
+﻿namespace Artemis.Plugins.Modules.LeagueOfLegends.GameData
 {
-    public class Passive
+    public struct Passive
     {
         public string DisplayName { get; set; }
         public string RawDescription { get; set; }
         public string RawDisplayName { get; set; }
     }
 
-    public class Ability
+    public struct Ability
     {
         public int AbilityLevel { get; set; }
         public string DisplayName { get; set; }
@@ -19,7 +16,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         public string RawDisplayName { get; set; }
     }
 
-    public class Abilities
+    public struct Abilities
     {
         public Passive Passive { get; set; }
         public Ability Q { get; set; }
@@ -28,7 +25,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         public Ability R { get; set; }
     }
 
-    public class ChampionStats
+    public struct ChampionStats
     {
         public float AbilityPower { get; set; }
         public float Armor { get; set; }
@@ -60,7 +57,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         public float Tenacity { get; set; }
     }
 
-    public class Rune
+    public struct Rune
     {
         public string DisplayName { get; set; }
         public int Id { get; set; }
@@ -68,13 +65,13 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         public string RawDisplayName { get; set; }
     }
 
-    public class StatRune
+    public struct StatRune
     {
         public int Id { get; set; }
         public string RawDescription { get; set; }
     }
 
-    public class FullRunes
+    public struct FullRunes
     {
         public Rune[] GeneralRunes { get; set; }
         public Rune Keystone { get; set; }
@@ -83,7 +80,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         public StatRune[] StatRunes { get; set; }
     }
 
-    public class ActivePlayer
+    public struct ActivePlayer
     {
         public Abilities Abilities { get; set; }
         public ChampionStats ChampionStats { get; set; }
@@ -93,7 +90,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         public string SummonerName { get; set; }
     }
 
-    public class Item
+    public struct Item
     {
         public bool CanUse { get; set; }
         public bool Consumable { get; set; }
@@ -106,14 +103,14 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         public int Slot { get; set; }
     }
 
-    public class Runes
+    public struct Runes
     {
         public Rune Keystone { get; set; }
         public Rune PrimaryRuneTree { get; set; }
         public Rune SecondaryRuneTree { get; set; }
     }
 
-    public class Scores
+    public struct Scores
     {
         public int Assists { get; set; }
         public int CreepScore { get; set; }
@@ -122,20 +119,20 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         public float WardScore { get; set; }
     }
 
-    public class SummonerSpell
+    public struct SummonerSpell
     {
         public string DisplayName { get; set; }
         public string RawDescription { get; set; }
         public string RawDisplayName { get; set; }
     }
 
-    public class SummonerSpells
+    public struct SummonerSpells
     {
         public SummonerSpell SummonerSpellOne { get; set; }
         public SummonerSpell SummonerSpellTwo { get; set; }
     }
 
-    public class AllPlayer
+    public struct AllPlayer
     {
         public string ChampionName { get; set; }
         public bool IsBot { get; set; }
@@ -153,114 +150,12 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         public string Team { get; set; }
     }
 
-    [JsonConverter(typeof(JsonSubtypes), "EventName")]
-    [JsonSubtypes.KnownSubType(typeof(BaronKillEvent), "BaronKill")]
-    [JsonSubtypes.KnownSubType(typeof(HeraldKillEvent), "HeraldKill")]
-    [JsonSubtypes.KnownSubType(typeof(DragonKillEvent), "DragonKill")]
-    [JsonSubtypes.KnownSubType(typeof(ChampionKillEvent), "ChampionKill")]
-    [JsonSubtypes.KnownSubType(typeof(MultikillEvent), "Multikill")]
-    [JsonSubtypes.KnownSubType(typeof(FirstBloodEvent), "FirstBlood")]
-    [JsonSubtypes.KnownSubType(typeof(AceEvent), "Ace")]
-    [JsonSubtypes.KnownSubType(typeof(InhibKillEvent), "InhibKilled")]
-    [JsonSubtypes.KnownSubType(typeof(TurretKillEvent), "TurretKilled")]
-    [JsonSubtypes.KnownSubType(typeof(GameStartEvent), "GameStart")]
-    [JsonSubtypes.KnownSubType(typeof(GameEndEvent), "GameEnd")]
-    [JsonSubtypes.KnownSubType(typeof(MinionsSpawningEvent), "MinionsSpawning")]
-    [JsonSubtypes.KnownSubType(typeof(FirstBrickEvent), "FirstBrick")]
-    [JsonSubtypes.KnownSubType(typeof(InhibRespawningSoonEvent), "InhibRespawningSoon")]
-    [JsonSubtypes.KnownSubType(typeof(InhibRespawnedEvent), "InhibRespawned")]
-    public class Event
+    public struct EventList
     {
-        public int EventID { get; set; }
-        public string EventName { get; set; }
-        public float EventTime { get; set; }
+        public LolEvent[] Events { get; set; }
     }
 
-    public class GameStartEvent : Event { }
-
-    public class GameEndEvent : Event
-    {
-        public string Result { get; set; }
-    }
-
-    public class InhibRespawningSoonEvent : Event
-    {
-        public string InhibRespawningSoon { get; set; }
-    }
-
-    public class InhibRespawnedEvent : Event {
-        public string InhibRespawned { get; set; }
-    }
-
-    public class MinionsSpawningEvent : Event { }
-
-    public class FirstBrickEvent : Event { }
-
-    public class BaronKillEvent : Event
-    {
-        public bool Stolen { get; set; }
-        public string KillerName { get; set; }
-        public string[] Assisters { get; set; }
-    }
-
-    public class HeraldKillEvent : Event
-    {
-        public bool Stolen { get; set; }
-        public string KillerName { get; set; }
-        public string[] Assisters { get; set; }
-    }
-
-    public class DragonKillEvent : Event
-    {
-        public string DragonType { get; set; }
-        public bool Stolen { get; set; }
-        public string KillerName { get; set; }
-        public string[] Assisters { get; set; }
-    }
-
-    public class ChampionKillEvent : Event
-    {
-        public string KillerName { get; set; }
-        public string VictimName { get; set; }
-        public string[] Assisters { get; set; }
-    }
-    public class FirstBloodEvent : Event
-    {
-        public string Recipient { get; set; }
-    }
-
-    public class MultikillEvent : Event
-    {
-        public string KillerName { get; set; }
-        public int KillStreak { get; set; }
-    }
-
-    public class AceEvent : Event
-    {
-        public string Acer { get; set; }
-        public string AcingTeam { get; set; }
-    }
-
-    public class InhibKillEvent : Event
-    {
-        public string KillerName { get; set; }
-        public string InhibKilled { get; set; }
-        public string[] Assisters { get; set; }
-    }
-
-    public class TurretKillEvent : Event
-    {
-        public string KillerName { get; set; }
-        public string TurretKilled { get; set; }
-        public string[] Assisters { get; set; }
-    }
-
-    public class EventList
-    {
-        public Event[] Events { get; set; }
-    }
-
-    public class GameData
+    public struct GameData
     {
         public string GameMode { get; set; }
         public float GameTime { get; set; }
@@ -269,7 +164,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         public string MapTerrain { get; set; }
     }
 
-    public class RootGameData
+    public struct RootGameData
     {
         public ActivePlayer ActivePlayer { get; set; }
         public AllPlayer[] AllPlayers { get; set; }
