@@ -67,7 +67,8 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
         //unused
         public override void Update(double deltaTime)
         {
-            DataModel.Track.Progress += TimeSpan.FromSeconds(deltaTime);
+            if (DataModel.Player.IsPlaying)
+                DataModel.Track.Progress += TimeSpan.FromSeconds(deltaTime);
         }
         #endregion
 

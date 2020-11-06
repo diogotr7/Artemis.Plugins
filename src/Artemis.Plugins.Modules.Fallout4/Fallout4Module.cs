@@ -39,12 +39,8 @@ namespace Artemis.Plugins.Modules.Fallout4
 
         public override void ModuleActivated(bool isOverride)
         {
-            try
-            {
-                tcpClient = new TcpClient("127.0.0.1", 27000);
-                stream = tcpClient.GetStream();
-            }
-            catch { }
+            tcpClient = new TcpClient("127.0.0.1", 27000);
+            stream = tcpClient.GetStream();
         }
 
         public override void ModuleDeactivated(bool isOverride)
