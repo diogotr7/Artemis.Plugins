@@ -25,7 +25,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.DataModelEx
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.DataModelExpansions.OBS", "Artemis.Plugins.DataModelExpansions.OBS\Artemis.Plugins.DataModelExpansions.OBS.csproj", "{390B0800-9119-4070-B9B3-CC71DE42BD2F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Artemis.Plugins.Modules.Fallout4", "Artemis.Plugins.Modules.Fallout4\Artemis.Plugins.Modules.Fallout4.csproj", "{EA3D651A-1487-40D2-88DC-C6C5FBAB42FA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.Modules.Fallout4", "Artemis.Plugins.Modules.Fallout4\Artemis.Plugins.Modules.Fallout4.csproj", "{EA3D651A-1487-40D2-88DC-C6C5FBAB42FA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Artemis.Plugins.LayerBrushes.Particle", "Artemis.Plugins.LayerBrushes.Particle\Artemis.Plugins.LayerBrushes.Particle.csproj", "{058E7B0B-141C-4169-9A7C-A18680C3BBCD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -65,6 +67,10 @@ Global
 		{EA3D651A-1487-40D2-88DC-C6C5FBAB42FA}.Debug|x64.Build.0 = Debug|x64
 		{EA3D651A-1487-40D2-88DC-C6C5FBAB42FA}.Release|x64.ActiveCfg = Release|x64
 		{EA3D651A-1487-40D2-88DC-C6C5FBAB42FA}.Release|x64.Build.0 = Release|x64
+		{058E7B0B-141C-4169-9A7C-A18680C3BBCD}.Debug|x64.ActiveCfg = Debug|x64
+		{058E7B0B-141C-4169-9A7C-A18680C3BBCD}.Debug|x64.Build.0 = Debug|x64
+		{058E7B0B-141C-4169-9A7C-A18680C3BBCD}.Release|x64.ActiveCfg = Release|x64
+		{058E7B0B-141C-4169-9A7C-A18680C3BBCD}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -78,6 +84,7 @@ Global
 		{09090D32-10C0-42BD-AE9B-F2CA381C875E} = {02703C39-EEAE-42DF-BC48-0252E7E08007}
 		{390B0800-9119-4070-B9B3-CC71DE42BD2F} = {02703C39-EEAE-42DF-BC48-0252E7E08007}
 		{EA3D651A-1487-40D2-88DC-C6C5FBAB42FA} = {4F6A7057-E0EE-4584-9785-87EA6B362429}
+		{058E7B0B-141C-4169-9A7C-A18680C3BBCD} = {B28A4ED3-D452-43C6-95A4-DA9D828E1B45}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D87FE810-F20D-476A-8FE6-41BD3AC75D49}

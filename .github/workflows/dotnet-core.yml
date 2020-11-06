@@ -80,6 +80,12 @@ jobs:
           name: Artemis.Plugins.LayerBrushes.Chroma
           path: .\Plugins\src\Artemis.Plugins.LayerBrushes.Chroma\bin\x64\Release\netcoreapp3.1\publish
 
+      - name: Upload Particle
+        uses: actions/upload-artifact@v2
+        with:
+          name: Artemis.Plugins.LayerBrushes.Particle
+          path: .\Plugins\src\Artemis.Plugins.LayerBrushes.Particle\bin\x64\Release\netcoreapp3.1\publish
+
       - name: Upload Spotify
         uses: actions/upload-artifact@v2
         with:
