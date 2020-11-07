@@ -1,5 +1,6 @@
 ﻿using Artemis.Core;
 using Artemis.Core.DefaultTypes;
+using SkiaSharp;
 
 namespace Artemis.Plugins.LayerBrushes.Particle.PropertyGroups
 {
@@ -9,19 +10,19 @@ namespace Artemis.Plugins.LayerBrushes.Particle.PropertyGroups
         public BoolLayerProperty SpawnEnabled { get; set; }
 
         [PropertyDescription(MinInputValue = 0)]
-        public SKPointLayerProperty SpawnTime { get; set; }
+        public FloatRangeLayerProperty SpawnTimeRange { get; set; }
 
         [PropertyDescription(MinInputValue = 0)]
-        public SKPointLayerProperty SpawnAmount { get; set; }
+        public IntRangeLayerProperty SpawnAmountRange { get; set; }
 
         [PropertyDescription]
-        public SKPointLayerProperty InitialYVelocity { get; set; }
+        public FloatRangeLayerProperty InitialYVelocityRange { get; set; }
 
         [PropertyDescription]
-        public SKPointLayerProperty InitialXVelocity { get; set; }
+        public FloatRangeLayerProperty InitialXVelocityRange { get; set; }
 
-        [PropertyDescription(MinInputValue = 0)]
-        public SKPointLayerProperty MaxLifetime { get; set; }
+        [PropertyDescription(Description = "Lifetime", MinInputValue = 0)]
+        public FloatRangeLayerProperty MaxLifetimeRange { get; set; }
 
         [PropertyDescription]
         public SKPointLayerProperty Acceleration { get; set; }
@@ -30,7 +31,7 @@ namespace Artemis.Plugins.LayerBrushes.Particle.PropertyGroups
         public SKPointLayerProperty Drag { get; set; }
 
         [PropertyDescription(MinInputValue = 0)]
-        public SKPointLayerProperty Size { get; set; }
+        public FloatRangeLayerProperty SizeRange { get; set; }
 
         [PropertyDescription]
         public FloatLayerProperty DeltaSize { get; set; }
@@ -44,14 +45,14 @@ namespace Artemis.Plugins.LayerBrushes.Particle.PropertyGroups
         protected override void PopulateDefaults()
         {
             SpawnEnabled.DefaultValue = true;
-            SpawnTime.DefaultValue = new SkiaSharp.SKPoint(0.5f, 1f);
-            SpawnAmount.DefaultValue = new SkiaSharp.SKPoint(1, 10);
-            InitialYVelocity.DefaultValue = new SkiaSharp.SKPoint(0, 0);
-            InitialXVelocity.DefaultValue = new SkiaSharp.SKPoint(0, 0);
-            MaxLifetime.DefaultValue = new SkiaSharp.SKPoint(0, 5);
-            Acceleration.DefaultValue = new SkiaSharp.SKPoint(0, -1);
-            Drag.DefaultValue = new SkiaSharp.SKPoint(0, 0);
-            Size.DefaultValue = new SkiaSharp.SKPoint(6, 12);
+            SpawnTimeRange.DefaultValue = new FloatRange(0.5f, 1f);
+            SpawnAmountRange.DefaultValue = new IntRange(1, 10);
+            InitialYVelocityRange.DefaultValue = new FloatRange(0.5f, 1);
+            InitialXVelocityRange.DefaultValue = new FloatRange(0, 0);
+            MaxLifetimeRange.DefaultValue = new FloatRange(0, 5);
+            Acceleration.DefaultValue = new SKPoint(0, 0);
+            Drag.DefaultValue = new SKPoint(0, 0);
+            SizeRange.DefaultValue = new FloatRange(6, 12);
             DeltaSize.DefaultValue = 0;
             SpawnPosition.DefaultValue = PropertyGroups.SpawnPosition.Top;
             Gradient.DefaultValue = ColorGradient.GetUnicornBarf();

@@ -56,20 +56,14 @@ namespace Artemis.Plugins.LayerBrushes.Particle
             nextSpawnInterval -= deltaTime;
             if (nextSpawnInterval <= 0)
             {
-                float spawnCount = _random.RandomBetween(
-                    Properties.SpawnAmount.CurrentValue.X,
-                    Properties.SpawnAmount.CurrentValue.Y
-                );
+                float spawnCount = Properties.SpawnAmountRange.CurrentValue.GetRandomValue();
 
                 for (int i = 0; i < spawnCount; i++)
                 {
                     _particles.Add(new Particle(Properties, rect));
                 }
 
-                nextSpawnInterval = _random.RandomBetween(
-                    Properties.SpawnTime.CurrentValue.X,
-                    Properties.SpawnTime.CurrentValue.Y
-                );
+                nextSpawnInterval = Properties.SpawnTimeRange.CurrentValue.GetRandomValue();
             }
         }
 
@@ -107,12 +101,12 @@ namespace Artemis.Plugins.LayerBrushes.Particle
                 _ => new SKPoint(rnd.RandomBetween(0, rect.Width), rnd.RandomBetween(0, rect.Height)),
             };
             Velocity = new SKPoint(
-                rnd.RandomBetween(properties.InitialXVelocity.CurrentValue.X, properties.InitialXVelocity.CurrentValue.Y),
-                rnd.RandomBetween(properties.InitialYVelocity.CurrentValue.X, properties.InitialYVelocity.CurrentValue.Y)
+                properties.InitialXVelocityRange.CurrentValue.GetRandomValue(),
+                properties.InitialYVelocityRange.CurrentValue.GetRandomValue()
             );
-            Radius = rnd.RandomBetween(properties.Size.CurrentValue.X, properties.Size.CurrentValue.Y);
+            Radius = properties.SizeRange.CurrentValue.GetRandomValue();
             Lifetime = 0;
-            MaxLifetime = rnd.RandomBetween(properties.MaxLifetime.CurrentValue.X, properties.MaxLifetime.CurrentValue.Y);
+            MaxLifetime = properties.MaxLifetimeRange.CurrentValue.GetRandomValue();
         }
 
         public void Update(ParticlePropertyGroup properties, double deltaTime)
