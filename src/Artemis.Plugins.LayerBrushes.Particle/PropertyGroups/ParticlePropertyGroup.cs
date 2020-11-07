@@ -9,26 +9,23 @@ namespace Artemis.Plugins.LayerBrushes.Particle.PropertyGroups
         [PropertyDescription]
         public BoolLayerProperty SpawnEnabled { get; set; }
 
-        [PropertyDescription(MinInputValue = 0)]
-        public FloatRangeLayerProperty SpawnTimeRange { get; set; }
+        [PropertyDescription]
+        public EnumLayerProperty<SpawnPosition> SpawnPosition { get; set; }
 
         [PropertyDescription(MinInputValue = 0)]
         public IntRangeLayerProperty SpawnAmountRange { get; set; }
 
-        [PropertyDescription]
-        public FloatRangeLayerProperty InitialYVelocityRange { get; set; }
-
-        [PropertyDescription]
-        public FloatRangeLayerProperty InitialXVelocityRange { get; set; }
+        [PropertyDescription(MinInputValue = 0)]
+        public FloatRangeLayerProperty SpawnTimeRange { get; set; }
 
         [PropertyDescription(Description = "Lifetime", MinInputValue = 0)]
         public FloatRangeLayerProperty MaxLifetimeRange { get; set; }
 
         [PropertyDescription]
-        public SKPointLayerProperty Acceleration { get; set; }
+        public FloatRangeLayerProperty InitialXVelocityRange { get; set; }
 
-        [PropertyDescription(MinInputValue = 0, MaxInputValue = 1)]
-        public SKPointLayerProperty Drag { get; set; }
+        [PropertyDescription]
+        public FloatRangeLayerProperty InitialYVelocityRange { get; set; }
 
         [PropertyDescription(MinInputValue = 0)]
         public FloatRangeLayerProperty SizeRange { get; set; }
@@ -37,7 +34,10 @@ namespace Artemis.Plugins.LayerBrushes.Particle.PropertyGroups
         public FloatLayerProperty DeltaSize { get; set; }
 
         [PropertyDescription]
-        public EnumLayerProperty<SpawnPosition> SpawnPosition { get; set; }
+        public SKPointLayerProperty Acceleration { get; set; }
+
+        [PropertyDescription(MinInputValue = 0, MaxInputValue = 1)]
+        public SKPointLayerProperty Drag { get; set; }
 
         [PropertyDescription]
         public ColorGradientLayerProperty Gradient { get; set; }
@@ -54,7 +54,7 @@ namespace Artemis.Plugins.LayerBrushes.Particle.PropertyGroups
             Drag.DefaultValue = new SKPoint(0, 0);
             SizeRange.DefaultValue = new FloatRange(6, 12);
             DeltaSize.DefaultValue = 0;
-            SpawnPosition.DefaultValue = PropertyGroups.SpawnPosition.Top;
+            SpawnPosition.DefaultValue = PropertyGroups.SpawnPosition.TopEdge;
             Gradient.DefaultValue = ColorGradient.GetUnicornBarf();
         }
 
@@ -71,11 +71,12 @@ namespace Artemis.Plugins.LayerBrushes.Particle.PropertyGroups
 
     public enum SpawnPosition
     {
-        Top,
-        Right,
-        Bottom,
-        Left,
-        Random
+        TopEdge,
+        RightEdge,
+        BottomEdge,
+        LeftEdge,
+        Random,
+        Center
     }
 
     public enum ColorMode

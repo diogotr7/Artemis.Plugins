@@ -94,10 +94,11 @@ namespace Artemis.Plugins.LayerBrushes.Particle
         {
             Position = properties.SpawnPosition.CurrentValue switch
             {
-                SpawnPosition.Top => new SKPoint(rnd.RandomBetween(0, rect.Width), 0),
-                SpawnPosition.Right => new SKPoint(rect.Width, rnd.RandomBetween(0, rect.Height)),
-                SpawnPosition.Bottom => new SKPoint(rnd.RandomBetween(0, rect.Width), rect.Height),
-                SpawnPosition.Left => new SKPoint(0, rnd.RandomBetween(0, rect.Height)),
+                SpawnPosition.TopEdge => new SKPoint(rnd.RandomBetween(0, rect.Width), 0),
+                SpawnPosition.RightEdge => new SKPoint(rect.Width, rnd.RandomBetween(0, rect.Height)),
+                SpawnPosition.BottomEdge => new SKPoint(rnd.RandomBetween(0, rect.Width), rect.Height),
+                SpawnPosition.LeftEdge => new SKPoint(0, rnd.RandomBetween(0, rect.Height)),
+                SpawnPosition.Center => new SKPoint(rect.MidX, rect.MidY),
                 _ => new SKPoint(rnd.RandomBetween(0, rect.Width), rnd.RandomBetween(0, rect.Height)),
             };
             Velocity = new SKPoint(
