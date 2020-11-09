@@ -7,7 +7,6 @@ using RGB.NET.Core;
 using SkiaSharp;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Artemis.Plugins.LayerBrushes.Chroma
 {

@@ -1,5 +1,4 @@
-﻿using Artemis.Core;
-using SkiaSharp;
+﻿using SkiaSharp;
 using System;
 
 namespace Artemis.Plugins.LayerBrushes.Particle

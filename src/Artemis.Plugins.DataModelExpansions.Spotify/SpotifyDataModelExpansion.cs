@@ -79,7 +79,7 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
 
             try
             {
-                var playing = await _spotify.Player.GetCurrentPlayback();
+                CurrentlyPlayingContext playing = await _spotify.Player.GetCurrentPlayback();
                 if (playing is null || DataModel is null)
                     return;
 

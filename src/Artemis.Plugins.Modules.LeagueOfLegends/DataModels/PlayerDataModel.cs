@@ -1,5 +1,4 @@
-﻿using Artemis.Core;
-using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums;
+﻿using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums;
 using Artemis.Plugins.Modules.LeagueOfLegends.GameData;
 using SkiaSharp;
 using System;

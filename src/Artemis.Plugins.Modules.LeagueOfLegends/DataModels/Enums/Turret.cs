@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums
+﻿namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums
 {
     public enum Turret
     {

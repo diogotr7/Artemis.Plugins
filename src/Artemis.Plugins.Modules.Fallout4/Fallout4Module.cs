@@ -80,7 +80,7 @@ namespace Artemis.Plugins.Modules.Fallout4
                     SendHeartbeat(null, null);
                     break;
                 case 1:
-                    var gameInfo = buffer.ReadNullTerminatedString();
+                    string gameInfo = buffer.ReadNullTerminatedString();
                     heartbeatTimer.Start();
                     break;
                 case 3://data update
@@ -92,7 +92,7 @@ namespace Artemis.Plugins.Modules.Fallout4
                         uint[] removeList = null;
                         if (updateDataType == DataType.Map)
                         {
-                            var addList = Enumerable
+                            Dictionary<uint, string> addList = Enumerable
                                 .Range(0, buffer.ReadUInt16())
                                 .Select(_ => (buffer.ReadUInt32(), buffer.ReadNullTerminatedString()))
                                 .ToDictionary(a => a.Item1, b => b.Item2);
@@ -123,7 +123,7 @@ namespace Artemis.Plugins.Modules.Fallout4
                         _database[updateId] = (updateDataType, value);
                         if (removeList != null)
                         {
-                            foreach (var removeId in removeList)
+                            foreach (uint removeId in removeList)
                             {
                                 _database.Remove(removeId);
                             }
@@ -132,7 +132,7 @@ namespace Artemis.Plugins.Modules.Fallout4
                     if (!first || dictCount < _database.Count)
                     {
                         dictCount = _database.Count;
-                        var root = new MapNode(0);
+                        MapNode root = new MapNode(0);
                         root.Fill(_database);
 
                         FillAccessors(root);
@@ -160,8 +160,8 @@ namespace Artemis.Plugins.Modules.Fallout4
         private void FillAccessors(MapNode root)
         {
             #region Status
-            var status = root.Data["Status"] as MapNode;
-            var effectColor = status.Data["EffectColor"] as ArrayNode;
+            MapNode status = root.Data["Status"] as MapNode;
+            ArrayNode effectColor = status.Data["EffectColor"] as ArrayNode;
             DataModel.Status.effectColorR = new DictAccessor<float>(_database, (effectColor.Data[0] as Node<float>).Id);
             DataModel.Status.effectColorG = new DictAccessor<float>(_database, (effectColor.Data[1] as Node<float>).Id);
             DataModel.Status.effectColorB = new DictAccessor<float>(_database, (effectColor.Data[2] as Node<float>).Id);
@@ -181,7 +181,7 @@ namespace Artemis.Plugins.Modules.Fallout4
             #endregion
 
             #region Special
-            var special = root.Data["Special"] as ArrayNode;
+            ArrayNode special = root.Data["Special"] as ArrayNode;
 
             DataModel.Special.strength = new DictAccessor<int>(_database, ((special.Data[0] as MapNode).Data["Value"] as Node<int>).Id);
             DataModel.Special.perception = new DictAccessor<int>(_database, ((special.Data[1] as MapNode).Data["Value"] as Node<int>).Id);
@@ -193,7 +193,7 @@ namespace Artemis.Plugins.Modules.Fallout4
             #endregion
 
             #region Stats
-            var stats = root.Data["Stats"] as MapNode;
+            MapNode stats = root.Data["Stats"] as MapNode;
 
             DataModel.Stats.lLegCondition = new DictAccessor<float>(_database, (stats.Data["LLegCondition"] as Node<float>).Id);
             DataModel.Stats.radawayCount = new DictAccessor<uint>(_database, (stats.Data["RadawayCount"] as Node<uint>).Id);
@@ -209,7 +209,7 @@ namespace Artemis.Plugins.Modules.Fallout4
 
             #region PlayerInfo
 
-            var playerInfo = root.Data["PlayerInfo"] as MapNode;
+            MapNode playerInfo = root.Data["PlayerInfo"] as MapNode;
 
             DataModel.Player.maxWeight = new DictAccessor<float>(_database, (playerInfo.Data["MaxWeight"] as Node<float>).Id);
             DataModel.Player.xPLevel = new DictAccessor<int>(_database, (playerInfo.Data["XPLevel"] as Node<int>).Id);
@@ -229,7 +229,7 @@ namespace Artemis.Plugins.Modules.Fallout4
             DataModel.Player.currAP = new DictAccessor<float>(_database, (playerInfo.Data["CurrAP"] as Node<float>).Id);
             #endregion
         }
-    
+
         private void ClearAccessors()
         {
             DataModel.Status.effectColorR = null;

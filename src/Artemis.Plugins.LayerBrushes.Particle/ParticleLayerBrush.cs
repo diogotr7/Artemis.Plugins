@@ -47,9 +47,9 @@ namespace Artemis.Plugins.LayerBrushes.Particle
                 canvas.DrawCircle(particle.Position, particle.Radius, paint);
                 if (Properties.DrawTrail.CurrentValue)
                 {
-                    var normalized = SKPoint.Normalize(particle.Velocity);
-                    var mult = Properties.TrailLength.CurrentValue.GetValueAtPercent((float)particle.LifetimePercent);
-                    var trailEndPosition = new SKPoint(
+                    SKPoint normalized = SKPoint.Normalize(particle.Velocity);
+                    float mult = Properties.TrailLength.CurrentValue.GetValueAtPercent((float)particle.LifetimePercent);
+                    SKPoint trailEndPosition = new SKPoint(
                         particle.Position.X - (normalized.X * mult),
                         particle.Position.Y - (normalized.Y * mult)
                     );

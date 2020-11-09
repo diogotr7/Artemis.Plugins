@@ -1,7 +1,6 @@
 ﻿using Artemis.Plugins.Modules.Fallout4.Enums;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Artemis.Plugins.Modules.Fallout4
 {
@@ -58,10 +57,10 @@ namespace Artemis.Plugins.Modules.Fallout4
 
         public override void Fill(IDictionary<uint, (DataType DataType, object Data)> dict)
         {
-            var list = new List<INode>();
-            foreach (var item in dict[Id].Data as uint[])
+            List<INode> list = new List<INode>();
+            foreach (uint item in dict[Id].Data as uint[])
             {
-                var node = GetNodeType(dict[item].DataType, item);
+                INode node = GetNodeType(dict[item].DataType, item);
                 node.Fill(dict);
                 list.Add(node);
             }
@@ -78,9 +77,9 @@ namespace Artemis.Plugins.Modules.Fallout4
         public override void Fill(IDictionary<uint, (DataType DataType, object Data)> dict)
         {
             Data = new Dictionary<string, INode>();
-            foreach (var item in dict[Id].Data as Dictionary<uint, string>)
+            foreach (KeyValuePair<uint, string> item in dict[Id].Data as Dictionary<uint, string>)
             {
-                var node = GetNodeType(dict[item.Key].DataType, item.Key);
+                INode node = GetNodeType(dict[item.Key].DataType, item.Key);
                 node.Fill(dict);
                 Data.Add(item.Value, node);
             }

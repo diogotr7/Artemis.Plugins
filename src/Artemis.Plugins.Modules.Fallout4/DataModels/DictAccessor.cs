@@ -7,7 +7,7 @@ namespace Artemis.Plugins.Modules.Fallout4.DataModels
     {
         private readonly Dictionary<uint, (DataType, object)> cache;
         private readonly uint Id;
-        internal T Value => cache.TryGetValue(Id, out var data)
+        internal T Value => cache.TryGetValue(Id, out (DataType, object) data)
                                 ? (T)data.Item2
                                 : default;
 
