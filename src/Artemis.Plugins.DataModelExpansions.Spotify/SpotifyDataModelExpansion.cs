@@ -31,7 +31,6 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
 
         private HttpClient _httpClient = new HttpClient();
         private SpotifyClient _spotify;
-        private CurrentlyPlayingContext _playing;
         private readonly ConcurrentDictionary<string, TrackColorsDataModel> albumArtColorCache = new ConcurrentDictionary<string, TrackColorsDataModel>();
         private string _trackId = "";
         private string _contextId = "";
@@ -59,7 +58,6 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
         {
             _httpClient.Dispose();
             _spotify = null;
-            _playing = null;
             _trackId = null;
             _contextId = null;
         }
@@ -81,20 +79,20 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
 
             try
             {
-                _playing = await _spotify.Player.GetCurrentPlayback();
-                if (_playing is null)
+                var playing = await _spotify.Player.GetCurrentPlayback();
+                if (playing is null || DataModel is null)
                     return;
 
-                DataModel.Player.Shuffle = _playing.ShuffleState;
-                DataModel.Player.RepeatState = Enum.Parse<RepeatState>(_playing.RepeatState, true);
-                DataModel.Player.Volume = _playing.Device.VolumePercent ?? -1;
-                DataModel.Player.IsPlaying = _playing.IsPlaying;
-                DataModel.Track.Progress = TimeSpan.FromMilliseconds(_playing.ProgressMs);
+                DataModel.Player.Shuffle = playing.ShuffleState;
+                DataModel.Player.RepeatState = Enum.Parse<RepeatState>(playing.RepeatState, true);
+                DataModel.Player.Volume = playing.Device.VolumePercent ?? -1;
+                DataModel.Player.IsPlaying = playing.IsPlaying;
+                DataModel.Track.Progress = TimeSpan.FromMilliseconds(playing.ProgressMs);
 
-                if (_playing.Context != null && Enum.TryParse<ContextType>(_playing.Context.Type, true, out ContextType t))
+                if (playing.Context != null && Enum.TryParse<ContextType>(playing.Context.Type, true, out ContextType t))
                 {
                     DataModel.Player.ContextType = t;
-                    string contextId = _playing.Context.Uri.Split(':').Last();
+                    string contextId = playing.Context.Uri.Split(':').Last();
                     if (contextId != _contextId)
                     {
                         DataModel.Player.ContextName = t switch
@@ -113,7 +111,7 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
                     DataModel.Player.ContextType = ContextType.None;
                 }
 
-                if (_playing.Item is FullTrack track)
+                if (playing.Item is FullTrack track)
                 {
                     string trackId = track.Uri.Split(':').Last();
                     if (trackId != _trackId)

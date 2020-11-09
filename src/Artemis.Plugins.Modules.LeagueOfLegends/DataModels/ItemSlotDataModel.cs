@@ -7,7 +7,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
     {
         private readonly Func<AllPlayer> allPlayer;
         private readonly int itemIndex;
-        private Item Item => allPlayer().Items?.Length >= itemIndex ? allPlayer().Items[itemIndex] : default;
+        private Item Item => allPlayer().Items?.Length > itemIndex ? allPlayer().Items[itemIndex] : default;
 
         public ItemSlotDataModel(Func<AllPlayer> accessor, int index)
         {

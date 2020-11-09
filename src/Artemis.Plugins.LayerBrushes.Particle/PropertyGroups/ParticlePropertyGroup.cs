@@ -18,6 +18,9 @@ namespace Artemis.Plugins.LayerBrushes.Particle.PropertyGroups
         [PropertyDescription(MinInputValue = 0)]
         public FloatRangeLayerProperty SpawnTimeRange { get; set; }
 
+        [PropertyDescription]
+        public BoolLayerProperty DespawnOutOfBounds { get; set; }
+
         [PropertyDescription(Description = "Lifetime", MinInputValue = 0)]
         public FloatRangeLayerProperty MaxLifetimeRange { get; set; }
 
@@ -42,20 +45,38 @@ namespace Artemis.Plugins.LayerBrushes.Particle.PropertyGroups
         [PropertyDescription]
         public ColorGradientLayerProperty Gradient { get; set; }
 
+        [PropertyDescription]
+        public BoolLayerProperty DrawTrail { get; set; }
+
+        [PropertyDescription]
+        public SKPointLayerProperty TrailLength { get; set; }
+
+        [PropertyDescription]
+        public SKPointLayerProperty TrailWidth { get; set; }
+
         protected override void PopulateDefaults()
         {
+            //fire preset by default
             SpawnEnabled.DefaultValue = true;
-            SpawnTimeRange.DefaultValue = new FloatRange(0.5f, 1f);
-            SpawnAmountRange.DefaultValue = new IntRange(1, 10);
-            InitialYVelocityRange.DefaultValue = new FloatRange(0.5f, 1);
+            DespawnOutOfBounds.DefaultValue = true;
+            SpawnTimeRange.DefaultValue = new FloatRange(0.0f, 0.2f);
+            SpawnAmountRange.DefaultValue = new IntRange(5, 10);
+            InitialYVelocityRange.DefaultValue = new FloatRange(-10, -5);
             InitialXVelocityRange.DefaultValue = new FloatRange(0, 0);
-            MaxLifetimeRange.DefaultValue = new FloatRange(0, 5);
+            MaxLifetimeRange.DefaultValue = new FloatRange(0, 2);
             Acceleration.DefaultValue = new SKPoint(0, 0);
             Drag.DefaultValue = new SKPoint(0, 0);
-            SizeRange.DefaultValue = new FloatRange(6, 12);
-            DeltaSize.DefaultValue = 0;
-            SpawnPosition.DefaultValue = PropertyGroups.SpawnPosition.TopEdge;
-            Gradient.DefaultValue = ColorGradient.GetUnicornBarf();
+            SizeRange.DefaultValue = new FloatRange(20, 30);
+            DeltaSize.DefaultValue = -20;
+            SpawnPosition.DefaultValue = PropertyGroups.SpawnPosition.BottomEdge;
+            Gradient.DefaultValue = new ColorGradient();
+            Gradient.DefaultValue.Stops.Add(new ColorGradientStop(SKColors.Orange, 0));
+            Gradient.DefaultValue.Stops.Add(new ColorGradientStop(SKColors.Red, 0.8f));
+            Gradient.DefaultValue.Stops.Add(new ColorGradientStop(SKColors.Black, 1));
+
+            DrawTrail.DefaultValue = false;
+            TrailLength.DefaultValue = new SKPoint(0, 0);
+            TrailWidth.DefaultValue = new SKPoint(0, 0);
         }
 
         protected override void EnableProperties()

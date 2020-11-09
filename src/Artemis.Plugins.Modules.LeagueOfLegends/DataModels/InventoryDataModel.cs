@@ -5,8 +5,10 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
 {
     public class InventoryDataModel
     {
+        private readonly Func<AllPlayer> _allPlayer;
         public InventoryDataModel(Func<AllPlayer> allPlayer)
         {
+            _allPlayer = allPlayer;
             Slot1 = new ItemSlotDataModel(allPlayer, 0);
             Slot2 = new ItemSlotDataModel(allPlayer, 1);
             Slot3 = new ItemSlotDataModel(allPlayer, 2);
@@ -23,5 +25,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
         public ItemSlotDataModel Slot5 { get; }
         public ItemSlotDataModel Slot6 { get; }
         public ItemSlotDataModel Trinket { get; }
+
+        public int ItemCount => _allPlayer().Items?.Length ?? 0;
     }
 }

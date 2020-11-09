@@ -21,7 +21,7 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
 
         public override void EnableLayerBrush()
         {
-            manager = new RzSdkManager()
+            manager ??= new RzSdkManager()
             {
                 AppListEnabled = true,
                 MousepadEnabled = true,
@@ -41,7 +41,7 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
         public override void DisableLayerBrush()
         {
             manager.DataUpdated -= OnDataUpdated;
-            manager?.Dispose();
+            //manager?.Dispose();
         }
 
         public override void Update(double deltaTime) { }

@@ -1,4 +1,4 @@
-﻿using Artemis.Core;
+using Artemis.Core;
 using Artemis.Core.Modules;
 using Artemis.Plugins.Modules.LeagueOfLegends.DataModels;
 using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums;
@@ -7,7 +7,8 @@ using Artemis.Plugins.Modules.LeagueOfLegends.LeagueOfLegendsConfigurationDialog
 using Newtonsoft.Json;
 using SkiaSharp;
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -20,11 +21,11 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         private HttpClientHandler httpClientHandler;
         private HttpClient httpClient;
         private float _lastEventTime;
-        private readonly PluginSetting<Dictionary<Champion, SKColor>> _colors;
+        private readonly PluginSetting<ConcurrentDictionary<Champion, SKColor>> _colors;
 
         public LeagueOfLegendsModule(PluginSettings settings)
         {
-            _colors = settings.GetSetting("ChampionColors", DefaultChampionColors.Colors);
+            _colors = settings.GetSetting("ChampionColors", new ConcurrentDictionary<Champion, SKColor>(DefaultChampionColors.Colors));
         }
 
         public override void EnablePlugin()
@@ -35,6 +36,9 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             DefaultPriorityCategory = ModulePriorityCategory.Application;
             ActivationRequirements.Add(new ProcessActivationRequirement("League Of Legends"));
 
+            if (Debugger.IsAttached)//mock live game api
+                ActivationRequirements.Add(new ProcessActivationRequirement("node"));
+
             httpClientHandler = new HttpClientHandler
             {
                 //we need this to not make the user install Riot's certificate on their computer
@@ -42,9 +46,9 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             };
             httpClient = new HttpClient(httpClientHandler);
             httpClient.Timeout = TimeSpan.FromMilliseconds(80);
+
             UpdateDuringActivationOverride = false;
-            //we have to do this at least once to start with
-            DataModel.Player.ChampionColor = _colors.Value[DataModel.Player.Champion];
+            DataModel.Player.colorDictionary = _colors.Value;
             AddTimedUpdate(TimeSpan.FromMilliseconds(100), UpdateData);
         }
 
@@ -94,8 +98,6 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             }
 
             DataModel.RootGameData = JsonConvert.DeserializeObject<RootGameData>(jsonData);
-
-            DataModel.Player.ChampionColor = _colors.Value[DataModel.Player.Champion];
 
             #region events
             if (DataModel.RootGameData.Events.Events.Length == 0)

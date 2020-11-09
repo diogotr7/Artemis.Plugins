@@ -5,8 +5,8 @@
         public AbilityGroupDataModel(LeagueOfLegendsDataModel root) : base(root)
         {
             Q = new AbilityDataModel(() => RootGameData.ActivePlayer.Abilities.Q);
-            E = new AbilityDataModel(() => RootGameData.ActivePlayer.Abilities.W);
-            W = new AbilityDataModel(() => RootGameData.ActivePlayer.Abilities.E);
+            W = new AbilityDataModel(() => RootGameData.ActivePlayer.Abilities.W);
+            E = new AbilityDataModel(() => RootGameData.ActivePlayer.Abilities.E);
             R = new AbilityDataModel(() => RootGameData.ActivePlayer.Abilities.R);
         }
 

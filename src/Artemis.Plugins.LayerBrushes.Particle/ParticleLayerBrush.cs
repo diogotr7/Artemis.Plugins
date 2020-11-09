@@ -1,4 +1,4 @@
-﻿using Artemis.Core.LayerBrushes;
+using Artemis.Core.LayerBrushes;
 using Artemis.Plugins.LayerBrushes.Particle.PropertyGroups;
 using SkiaSharp;
 using System;
@@ -36,15 +36,26 @@ namespace Artemis.Plugins.LayerBrushes.Particle
                 SpawnParticles(deltaTime);
         }
 
-        public override void Render(SKCanvas canvas, SKImageInfo canvasInfo, SKPath path, SKPaint paint)
+        public override void Render(SKCanvas canvas, SKPath path, SKPaint paint)
         {
             if (rect != path.Bounds)
                 rect = path.Bounds;
 
             foreach (Particle particle in _particles)
             {
-                paint.Shader = SKShader.CreateColor(Properties.Gradient.CurrentValue.GetColor((float)(particle.Lifetime / particle.MaxLifetime)));
+                paint.Shader = SKShader.CreateColor(Properties.Gradient.CurrentValue.GetColor((float)particle.LifetimePercent));
                 canvas.DrawCircle(particle.Position, particle.Radius, paint);
+                if (Properties.DrawTrail.CurrentValue)
+                {
+                    var normalized = SKPoint.Normalize(particle.Velocity);
+                    var mult = Properties.TrailLength.CurrentValue.GetValueAtPercent((float)particle.LifetimePercent);
+                    var trailEndPosition = new SKPoint(
+                        particle.Position.X - (normalized.X * mult),
+                        particle.Position.Y - (normalized.Y * mult)
+                    );
+                    paint.StrokeWidth = Properties.TrailWidth.CurrentValue.GetValueAtPercent((float)particle.LifetimePercent);
+                    canvas.DrawLine(particle.Position, trailEndPosition, paint);
+                }
             }
         }
 
@@ -56,11 +67,9 @@ namespace Artemis.Plugins.LayerBrushes.Particle
             nextSpawnInterval -= deltaTime;
             if (nextSpawnInterval <= 0)
             {
-                float spawnCount = Properties.SpawnAmountRange.CurrentValue.GetRandomValue();
-
-                for (int i = 0; i < spawnCount; i++)
+                for (int i = 0; i < Properties.SpawnAmountRange.CurrentValue.GetRandomValue(); i++)
                 {
-                    _particles.Add(new Particle(Properties, rect));
+                    _particles.Add(new Particle(Properties, rect, _random));
                 }
 
                 nextSpawnInterval = Properties.SpawnTimeRange.CurrentValue.GetRandomValue();
@@ -69,20 +78,20 @@ namespace Artemis.Plugins.LayerBrushes.Particle
 
         private void DespawnParticles()
         {
-            _particles.RemoveAll(p => !p.IsAlive || !p.InBounds(rect));
+            _particles.RemoveAll(p => !p.IsAlive ||
+                (Properties.DespawnOutOfBounds.CurrentValue && !p.InBounds(rect)));
         }
     }
 
     public class Particle
     {
-        private static readonly Random rnd = new Random();
-
         public SKPoint Position { get; set; }
         public SKPoint Velocity { get; set; }
 
         public float Radius { get; set; }
         public double Lifetime { get; set; }
         public double MaxLifetime { get; set; }
+        public double LifetimePercent => Lifetime / MaxLifetime;
 
         public bool IsAlive => Lifetime < MaxLifetime;
         public float LeftEdge => Position.X - (Radius / 2f);
@@ -90,7 +99,7 @@ namespace Artemis.Plugins.LayerBrushes.Particle
         public float TopEdge => Position.Y - (Radius / 2f);
         public float BottomEdge => Position.Y + (Radius / 2f);
 
-        public Particle(ParticlePropertyGroup properties, SKRect rect)
+        public Particle(ParticlePropertyGroup properties, SKRect rect, Random rnd)
         {
             Position = properties.SpawnPosition.CurrentValue switch
             {

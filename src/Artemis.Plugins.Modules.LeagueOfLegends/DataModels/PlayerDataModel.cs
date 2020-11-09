@@ -1,7 +1,9 @@
-﻿using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums;
+﻿using Artemis.Core;
+using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums;
 using Artemis.Plugins.Modules.LeagueOfLegends.GameData;
 using SkiaSharp;
 using System;
+using System.Collections.Concurrent;
 using SummonerSpell = Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums.SummonerSpell;
 
 namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
@@ -9,6 +11,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
     public class PlayerDataModel : ChildDataModel
     {
         private readonly Func<AllPlayer> allPlayer;
+        internal ConcurrentDictionary<Champion, SKColor> colorDictionary;
 
         public PlayerDataModel(LeagueOfLegendsDataModel root) : base(root)
         {
@@ -38,6 +41,6 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
         public Position Position => ParseEnum<Position>.TryParseOr(allPlayer().Position, Position.Unknown);
         public SummonerSpell SpellD => ParseEnum<SummonerSpell>.TryParseOr(allPlayer().SummonerSpells.SummonerSpellOne.DisplayName, SummonerSpell.Unknown);
         public SummonerSpell SpellF => ParseEnum<SummonerSpell>.TryParseOr(allPlayer().SummonerSpells.SummonerSpellTwo.DisplayName, SummonerSpell.Unknown);
-        public SKColor ChampionColor { get; set; }
+        public SKColor ChampionColor => colorDictionary[Champion];
     }
 }
