@@ -42,6 +42,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="OpenRGB.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="OpenRGBConfigurationDialogView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </None>

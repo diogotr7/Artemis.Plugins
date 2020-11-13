@@ -1,4 +1,5 @@
 ﻿using Artemis.Core;
+using Artemis.UI.Shared;
 using RGB.NET.Devices.OpenRGB;
 using Stylet;
 using System.Collections.Generic;

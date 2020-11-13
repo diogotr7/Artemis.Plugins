@@ -17,10 +17,8 @@ namespace Artemis.Plugins.Devices.OpenRGB
             _settings = settings;
         }
 
-        public override void EnablePlugin()
-        {
-            ConfigurationDialog = new PluginConfigurationDialog<OpenRGBConfigurationDialogViewModel>();
-
+        public override void Enable()
+        {     
             PluginSetting<List<OpenRGBServerDefinition>> definitions = _settings.GetSetting<List<OpenRGBServerDefinition>>("DeviceDefinitions");
             if (definitions.Value is null)
             {
