@@ -1,4 +1,5 @@
 ﻿using Artemis.Core;
+using Artemis.UI.Shared;
 using SpotifyAPI.Web;
 using SpotifyAPI.Web.Auth;
 using System;
@@ -50,7 +51,7 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
             _token.Value = await new OAuthClient().RequestToken(tokenRequest);
             _token.Save();
 
-            (Plugin as SpotifyDataModelExpansion)?.InitializeSpotifyClient();
+            Plugin.GetFeature<SpotifyDataModelExpansion>()?.InitializeSpotifyClient();
         }
     }
 }

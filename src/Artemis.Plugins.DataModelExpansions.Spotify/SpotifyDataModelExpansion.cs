@@ -37,9 +37,8 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
         private string _albumArtUrl = "";
 
         #region Plugin Methods
-        public override void EnablePlugin()
+        public override void Enable()
         {
-            ConfigurationDialog = new PluginConfigurationDialog<SpotifyConfigurationDialogViewModel>();
             _httpClient = new HttpClient();
 
             try
@@ -54,7 +53,7 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
             AddTimedUpdate(TimeSpan.FromSeconds(2), UpdateData);
         }
 
-        public override void DisablePlugin()
+        public override void Disable()
         {
             _httpClient.Dispose();
             _spotify = null;
