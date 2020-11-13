@@ -1,8 +1,4 @@
 ﻿using Artemis.Core;
-using Artemis.Core.DefaultTypes;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using SkiaSharp;
 
 namespace Artemis.Plugins.LayerBrushes.Particle.PropertyGroups
