@@ -4,12 +4,12 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
 {
     public class ChromaLayerBrushProvider : LayerBrushProvider
     {
-        public override void EnablePlugin()
+        public override void Enable()
         {
-            RegisterLayerBrushDescriptor<ChromaLayerBrush>("Razer Chroma Grabber", "", "ToyBrickPlus");
+            RegisterLayerBrushDescriptor<ChromaLayerBrush>("Chroma Grabber Layer", "Allows you to have Razer Chroma lighting on all devices.", "Robber");
         }
 
-        public override void DisablePlugin()
+        public override void Disable()
         {
         }
     }
