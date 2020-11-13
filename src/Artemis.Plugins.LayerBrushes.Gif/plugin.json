@@ -1,6 +1,7 @@
 {
   "Guid": "bf9cf3ac-9f97-4328-b32f-aa39df1698ff",
   "Name": "Gif Layer Brush",
+  "Icon": "Gif",
   "Description": "Allows Artemis to display GIFs on your devices",
   "Version": "1.0.0.0",
   "Main": "Artemis.Plugins.LayerBrushes.Gif.dll"
