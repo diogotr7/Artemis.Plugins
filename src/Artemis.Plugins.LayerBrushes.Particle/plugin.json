@@ -2,7 +2,7 @@
   "Guid": "4570510a-7c8b-4324-b915-cea738a65ac2",
   "Name": "Particle Layer Brush",
   "Icon": "Grain",
-  "Description": "Adds a particle layer.",
+  "Description": "Provides a layer that simulates particles.",
   "Version": "1.0.0.0",
   "Main": "Artemis.Plugins.LayerBrushes.Particle.dll"
 }

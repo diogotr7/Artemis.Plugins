@@ -2,7 +2,7 @@
   "Guid": "fa01d824-ea74-4f4e-8aaa-1846189180f7",
   "Name": "Hardware Monitor",
   "Icon": "Chip",
-  "Description": "Provides hardware statistics like CPU / GPU usage and temperature",
+  "Description": "Provides hardware statistics like load, voltage and temperature for system components.",
   "Version": "1.0.0.0",
   "Main": "Artemis.Plugins.DataModelExpansions.HardwareMonitor.dll"
 }

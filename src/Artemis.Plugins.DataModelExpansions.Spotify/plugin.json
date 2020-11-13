@@ -2,7 +2,7 @@
   "Guid": "76d139ad-32da-4929-9694-a9759248a53f",
   "Name": "Spotify",
   "Icon":  "Spotify",
-  "Description": "Spotify data model expansion",
+  "Description": "Provides track and player data about your current Spotify listening session.",
   "Version": "1.0.0.0",
   "Main": "Artemis.Plugins.DataModelExpansions.Spotify.dll"
 }
