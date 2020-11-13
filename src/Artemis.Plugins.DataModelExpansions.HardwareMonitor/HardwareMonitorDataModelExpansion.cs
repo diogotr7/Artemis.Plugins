@@ -29,7 +29,7 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
         private ManagementObjectSearcher SensorSearcher;
         private ManagementObjectSearcher HardwareSearcher;
 
-        public override void EnablePlugin()
+        public override void Enable()
         {
             foreach (string scope in Scopes)
             {
@@ -122,10 +122,10 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
                 return;
                 //success!
             }
-            throw new ArtemisPluginException(PluginInfo, "Could not find hardware monitor WMI scope with data");
+            throw new ArtemisPluginException(Plugin, "Could not find hardware monitor WMI scope with data");
         }
 
-        public override void DisablePlugin()
+        public override void Disable()
         {
             SensorSearcher?.Dispose();
             HardwareSearcher?.Dispose();
