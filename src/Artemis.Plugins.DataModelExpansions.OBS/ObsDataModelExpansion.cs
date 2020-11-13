@@ -12,7 +12,7 @@ namespace Artemis.Plugins.DataModelExpansions.OBS
 
         private ObsWebSocket _obs;
 
-        public override void EnablePlugin()
+        public override void Enable()
         {
             _obs = new ObsWebSocket();
 
@@ -31,7 +31,7 @@ namespace Artemis.Plugins.DataModelExpansions.OBS
             }
         }
 
-        public override void DisablePlugin()
+        public override void Disable()
         {
             if (_obs != null)
             {

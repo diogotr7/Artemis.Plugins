@@ -39,6 +39,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="OBS.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="plugin.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
