@@ -23,17 +23,17 @@ namespace Artemis.Plugins.Modules.Fallout4
         private bool first;
         private int dictCount;
 
-        public override void EnablePlugin()
+        public override void Enable()
         {
             DisplayName = "Fallout 4";
-            DisplayIcon = "ToyBrickPlus";
+            DisplayIcon = "Radioactive";
             DefaultPriorityCategory = ModulePriorityCategory.Application;
             ActivationRequirements.Add(new ProcessActivationRequirement("Fallout4"));
             UpdateDuringActivationOverride = false;
             heartbeatTimer.Elapsed += SendHeartbeat;
         }
 
-        public override void DisablePlugin()
+        public override void Disable()
         {
         }
 
