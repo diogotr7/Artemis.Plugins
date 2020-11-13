@@ -3,11 +3,10 @@ using Artemis.Core.Modules;
 using Artemis.Plugins.Modules.LeagueOfLegends.DataModels;
 using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums;
 using Artemis.Plugins.Modules.LeagueOfLegends.GameData;
-using Artemis.Plugins.Modules.LeagueOfLegends.LeagueOfLegendsConfigurationDialog;
 using Newtonsoft.Json;
 using SkiaSharp;
 using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
@@ -21,16 +20,15 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         private HttpClientHandler httpClientHandler;
         private HttpClient httpClient;
         private float _lastEventTime;
-        private readonly PluginSetting<ConcurrentDictionary<Champion, SKColor>> _colors;
+        private readonly PluginSetting<Dictionary<Champion, SKColor>> _colors;
 
         public LeagueOfLegendsModule(PluginSettings settings)
         {
-            _colors = settings.GetSetting("ChampionColors", new ConcurrentDictionary<Champion, SKColor>(DefaultChampionColors.Colors));
+            _colors = settings.GetSetting("ChampionColors", new Dictionary<Champion, SKColor>(DefaultChampionColors.Colors));
         }
 
-        public override void EnablePlugin()
+        public override void Enable()
         {
-            ConfigurationDialog = new PluginConfigurationDialog<LeagueOfLegendsConfigurationDialogViewModel>();
             DisplayName = "League Of Legends";
             DisplayIcon = "LeagueOfLegendsIcon.svg";
             DefaultPriorityCategory = ModulePriorityCategory.Application;
@@ -52,7 +50,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             AddTimedUpdate(TimeSpan.FromMilliseconds(100), UpdateData);
         }
 
-        public override void DisablePlugin()
+        public override void Disable()
         {
             httpClient?.Dispose();
             httpClientHandler?.Dispose();

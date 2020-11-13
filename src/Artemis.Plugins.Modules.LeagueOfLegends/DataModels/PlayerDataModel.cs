@@ -2,7 +2,7 @@
 using Artemis.Plugins.Modules.LeagueOfLegends.GameData;
 using SkiaSharp;
 using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using SummonerSpell = Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums.SummonerSpell;
 
 namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
@@ -10,7 +10,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
     public class PlayerDataModel : ChildDataModel
     {
         private readonly Func<AllPlayer> allPlayer;
-        internal ConcurrentDictionary<Champion, SKColor> colorDictionary;
+        internal Dictionary<Champion, SKColor> colorDictionary;
 
         public PlayerDataModel(LeagueOfLegendsDataModel root) : base(root)
         {

@@ -31,12 +31,14 @@
                   CanUserAddRows="False"
                   materialDesign:DataGridAssist.CellPadding="13 8 8 8"
                   materialDesign:DataGridAssist.ColumnHeaderPadding="8"
-                  HeadersVisibility="All">
+                  HeadersVisibility="All"
+                  IsReadOnly="true">
             <DataGrid.Columns>
                 <materialDesign:DataGridTextColumn Width="*"
                                                    Binding="{Binding Champion}"
                                                    Header="Champion"
-                                                   EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" />
+                                                   EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" 
+                                                   />
                 <DataGridTemplateColumn>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
@@ -53,6 +55,9 @@
         <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right">
             <Button Style="{StaticResource MaterialDesignOutlinedButton}" Margin="0 0 5 0" Command="{s:Action Cancel}">
                 CANCEL
+            </Button>
+            <Button Style="{StaticResource MaterialDesignOutlinedButton}" Margin="0 0 5 0" Command="{s:Action Reset}">
+                RESET
             </Button>
             <Button Style="{StaticResource MaterialDesignFlatMidBgButton}" Command="{s:Action SaveChanges}">
                 SAVE CHANGES

@@ -1,5 +1,6 @@
 ﻿using Artemis.Core;
 using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums;
+using Artemis.UI.Shared;
 using SkiaSharp;
 using Stylet;
 using System.Collections.Generic;
@@ -16,7 +17,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.LeagueOfLegendsConfigurationDi
 
         public LeagueOfLegendsConfigurationDialogViewModel(Plugin plugin, PluginSettings settings) : base(plugin)
         {
-            _colors = settings.GetSetting("ChampionColors", DefaultChampionColors.Colors);
+            _colors = settings.GetSetting("LeagueOfLegendsChampionColors", DefaultChampionColors.Colors);
             Colors = new BindableCollection<ChampionColor>(_colors.Value.Select(kvp => new ChampionColor(kvp.Key, Convert(kvp.Value))));
         }
 
@@ -35,6 +36,12 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.LeagueOfLegendsConfigurationDi
         public void Cancel()
         {
             RequestClose();
+        }
+
+        public void Reset()
+        {
+            Colors = new BindableCollection<ChampionColor>(DefaultChampionColors.Colors.Select(kvp => new ChampionColor(kvp.Key, Convert(kvp.Value))));
+            NotifyOfPropertyChange(nameof(Colors));
         }
     }
 
