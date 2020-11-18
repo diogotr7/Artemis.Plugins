@@ -90,7 +90,7 @@ namespace Artemis.Plugins.LayerBrushes.Gif
                 currentFrame = 0;
         }
 
-        public override void Render(SKCanvas canvas, SKPath path, SKPaint paint)
+        public override void Render(SKCanvas canvas, SKRect bounds, SKPaint paint)
         {
             if (bitmaps is null)
             {
@@ -103,14 +103,14 @@ namespace Artemis.Plugins.LayerBrushes.Gif
                 return;
             }
 
-            if (path.Bounds.Width == 0 || path.Bounds.Height == 0)
+            if (bounds.Width == 0 || bounds.Height == 0)
                 return;
 
             lock (myLock)
             {
-                if (bitmaps[currentFrame].Height != path.Bounds.Height || bitmaps[currentFrame].Width != path.Bounds.Width)
+                if (bitmaps[currentFrame].Height != bounds.Height || bitmaps[currentFrame].Width != bounds.Width)
                 {
-                    bitmaps[currentFrame] = originals[currentFrame].Resize(new SKImageInfo((int)path.Bounds.Width, (int)path.Bounds.Height), SKFilterQuality.High);
+                    bitmaps[currentFrame] = originals[currentFrame].Resize(new SKImageInfo((int)bounds.Width, (int)bounds.Height), SKFilterQuality.High);
                 }
                 canvas.DrawBitmap(bitmaps[currentFrame], 0, 0);
             }

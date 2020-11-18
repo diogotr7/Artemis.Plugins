@@ -2,8 +2,8 @@
   "profiles": {
     "Launch Artemis": {
       "commandName": "Executable",
-      "executablePath": "D:\\Source\\Artemis\\Artemis\\src\\Artemis.UI\\bin\\x64\\Debug\\netcoreapp3.1\\Artemis.UI.exe",
-      "workingDirectory": "D:\\Source\\Artemis\\Artemis\\src\\Artemis.UI\\bin\\x64\\Debug\\netcoreapp3.1"
+      "executablePath": "D:\\Source\\Artemis\\Artemis\\src\\Artemis.UI\\bin\\x64\\Debug\\net5.0-windows\\Artemis.UI.exe",
+      "workingDirectory": "D:\\Source\\Artemis\\Artemis\\src\\Artemis.UI\\bin\\x64\\Debug\\net5.0-windows"
     }
   }
 }

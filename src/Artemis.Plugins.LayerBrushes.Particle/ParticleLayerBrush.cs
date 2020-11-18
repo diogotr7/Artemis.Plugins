@@ -37,10 +37,10 @@ namespace Artemis.Plugins.LayerBrushes.Particle
                 SpawnParticles(deltaTime);
         }
 
-        public override void Render(SKCanvas canvas, SKPath path, SKPaint paint)
+        public override void Render(SKCanvas canvas, SKRect bounds, SKPaint paint)
         {
-            if (rect != path.Bounds)
-                rect = path.Bounds;
+            if (rect != bounds)
+                rect = bounds;
 
             foreach (Particle particle in _particles)
             {

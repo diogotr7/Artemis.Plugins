@@ -54,46 +54,46 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Artemis.Plugins.Modules.LeagueOfLegends
-          path: .\Plugins\src\Artemis.Plugins.Modules.LeagueOfLegends\bin\x64\Release\netcoreapp3.1\publish
+          path: .\Plugins\src\Artemis.Plugins.Modules.LeagueOfLegends\bin\x64\Release\net5.0-windows\publish
 
       - name: Upload HardwareMonitor
         uses: actions/upload-artifact@v2
         with:
           name: Artemis.Plugins.DataModelExpansions.HardwareMonitor
-          path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.HardwareMonitor\bin\x64\Release\netcoreapp3.1\publish
+          path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.HardwareMonitor\bin\x64\Release\net5.0-windows\publish
 
       - name: Upload OpenRGB
         uses: actions/upload-artifact@v2
         with:
           name: Artemis.Plugins.Devices.OpenRGB
-          path: .\Plugins\src\Artemis.Plugins.Devices.OpenRGB\bin\x64\Release\netcoreapp3.1\publish
+          path: .\Plugins\src\Artemis.Plugins.Devices.OpenRGB\bin\x64\Release\net5.0-windows\publish
 
       - name: Upload Gif
         uses: actions/upload-artifact@v2
         with:
           name: Artemis.Plugins.LayerBrushes.Gif
-          path: .\Plugins\src\Artemis.Plugins.LayerBrushes.Gif\bin\x64\Release\netcoreapp3.1\publish
+          path: .\Plugins\src\Artemis.Plugins.LayerBrushes.Gif\bin\x64\Release\net5.0-windows\publish
 
       - name: Upload Chroma
         uses: actions/upload-artifact@v2
         with:
           name: Artemis.Plugins.LayerBrushes.Chroma
-          path: .\Plugins\src\Artemis.Plugins.LayerBrushes.Chroma\bin\x64\Release\netcoreapp3.1\publish
+          path: .\Plugins\src\Artemis.Plugins.LayerBrushes.Chroma\bin\x64\Release\net5.0-windows\publish
 
       - name: Upload Particle
         uses: actions/upload-artifact@v2
         with:
           name: Artemis.Plugins.LayerBrushes.Particle
-          path: .\Plugins\src\Artemis.Plugins.LayerBrushes.Particle\bin\x64\Release\netcoreapp3.1\publish
+          path: .\Plugins\src\Artemis.Plugins.LayerBrushes.Particle\bin\x64\Release\net5.0-windows\publish
 
       - name: Upload Spotify
         uses: actions/upload-artifact@v2
         with:
           name: Artemis.Plugins.DataModelExpansions.Spotify
-          path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.Spotify\bin\x64\Release\netcoreapp3.1\publish
+          path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.Spotify\bin\x64\Release\net5.0-windows\publish
 
       - name: Upload OBS
         uses: actions/upload-artifact@v2
         with:
           name: Artemis.Plugins.DataModelExpansions.OB
-          path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.OBS\bin\x64\Release\netcoreapp3.1\publish
+          path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.OBS\bin\x64\Release\net5.0-windows\publish
