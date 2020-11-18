@@ -12,53 +12,49 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
 {
     public class ChromaLayerBrush : PerLedLayerBrush<MainPropertyGroup>
     {
-        private RzSdkManager manager;
-        private string currentApp;
-        private readonly List<string> apps = new List<string>();
-        private readonly List<int> pids = new List<int>();
-        private readonly ConcurrentDictionary<LedId, SKColor> _colors = new ConcurrentDictionary<LedId, SKColor>();
+        private static RzSdkManager manager;
+        private static string currentApp;
+        private static readonly List<string> apps = new List<string>();
+        private static readonly List<int> pids = new List<int>();
+        private static readonly ConcurrentDictionary<LedId, SKColor> _colors = new ConcurrentDictionary<LedId, SKColor>();
 
         public override void EnableLayerBrush()
         {
-            manager ??= new RzSdkManager()
+            if (manager is null)
             {
-                AppListEnabled = true,
-                MousepadEnabled = true,
-                MouseEnabled = true,
-                KeypadEnabled = true,
-                KeyboardEnabled = true,
-                HeadsetEnabled = true,
-                ChromaLinkEnabled = true
-            };
-            manager.DataUpdated += OnDataUpdated;
+                manager = new RzSdkManager()
+                {
+                    AppListEnabled = true,
+                    MousepadEnabled = true,
+                    MouseEnabled = true,
+                    KeypadEnabled = true,
+                    KeyboardEnabled = true,
+                    HeadsetEnabled = true,
+                    ChromaLinkEnabled = true
+                };
+                manager.DataUpdated += OnDataUpdated;
 
-            RzAppListDataProvider app = manager.GetDataProvider<RzAppListDataProvider>();
+                RzAppListDataProvider app = manager.GetDataProvider<RzAppListDataProvider>();
 
-            UpdateAppListData(app);
+                UpdateAppListData(app);
+            }
         }
 
-        public override void DisableLayerBrush()
-        {
-            manager.DataUpdated -= OnDataUpdated;
-            //manager?.Dispose();
-        }
+        public override void DisableLayerBrush() { }
 
         public override void Update(double deltaTime) { }
 
         public override SKColor GetColor(ArtemisLed led, SKPoint renderPoint)
         {
-            if (currentApp is null)
+            if (currentApp is null || !_colors.TryGetValue(led.RgbLed.Id, out SKColor clr))
                 return SKColor.Empty;
 
-            if (_colors.TryGetValue(led.RgbLed.Id, out SKColor clr))
-                return clr;
-
-            return SKColor.Empty;
+            return clr;
         }
 
-        private void OnDataUpdated(object sender, System.EventArgs e)
+        private static void OnDataUpdated(object sender, System.EventArgs e)
         {
-            if (!(sender is AbstractDataProvider provider))
+            if (sender is not AbstractDataProvider provider)
                 return;
 
             provider.Update();
@@ -87,7 +83,7 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
             }
         }
 
-        private void UpdateAppListData(RzAppListDataProvider app)
+        private static void UpdateAppListData(RzAppListDataProvider app)
         {
             apps.Clear();
             pids.Clear();
