@@ -17,7 +17,7 @@
                  Margin="0 -2.5 0 2.5"
                  materialDesign:ValidationAssist.UsePopup="True"
                  HorizontalAlignment="Left"
-                 Text="{Binding Path=LayerProperty.BaseValue}"/>
+                 Text="{Binding InputValue}"/>
         <Button Content="BROWSE" Command="{s:Action Browse}" Height="18" FontSize="9"/>
         <!-- This is required because the main UI can't know where to show this -->
         <TextBlock Width="10" Text="{Binding LayerProperty.PropertyDescription.InputAffix}" />

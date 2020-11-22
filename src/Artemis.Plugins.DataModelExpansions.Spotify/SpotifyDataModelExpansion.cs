@@ -11,27 +11,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace Artemis.Plugins.DataModelExpansions.Spotify
 {
     public class SpotifyDataModelExpansion : DataModelExpansion<SpotifyDataModel>
     {
         #region DI
-        private readonly PluginSettings _settings;
         private readonly ILogger _logger;
         private readonly IColorQuantizerService _colorQuantizer;
+        private readonly PluginSetting<PKCETokenResponse> _token;
 
         public SpotifyDataModelExpansion(PluginSettings settings, ILogger logger, IColorQuantizerService colorQuantizer)
         {
-            _settings = settings;
             _logger = logger;
             _colorQuantizer = colorQuantizer;
+            _token = settings.GetSetting<PKCETokenResponse>(Constants.SPOTIFY_AUTH_SETTING);
         }
         #endregion
 
         private HttpClient _httpClient = new HttpClient();
         private SpotifyClient _spotify;
-        private readonly ConcurrentDictionary<string, TrackColorsDataModel> albumArtColorCache = new ConcurrentDictionary<string, TrackColorsDataModel>();
+        private readonly ConcurrentDictionary<string, TrackColorsDataModel> albumArtColorCache 
+                    = new ConcurrentDictionary<string, TrackColorsDataModel>();
         private string _trackId = "";
         private string _contextId = "";
         private string _albumArtUrl = "";
@@ -43,7 +45,7 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
 
             try
             {
-                InitializeSpotifyClient();
+                Login();
             }
             catch (Exception e)
             {
@@ -61,7 +63,6 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
             _contextId = null;
         }
 
-        //unused
         public override void Update(double deltaTime)
         {
             if (DataModel.Player.IsPlaying)
@@ -75,7 +76,7 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
             //this will be null before authentication
             if (_spotify is null)
                 return;
-
+            
             try
             {
                 CurrentlyPlayingContext playing = await _spotify.Player.GetCurrentPlayback();
@@ -88,13 +89,13 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
                 DataModel.Player.IsPlaying = playing.IsPlaying;
                 DataModel.Track.Progress = TimeSpan.FromMilliseconds(playing.ProgressMs);
 
-                if (playing.Context != null && Enum.TryParse<ContextType>(playing.Context.Type, true, out ContextType t))
+                if (playing.Context != null && Enum.TryParse(playing.Context.Type, true, out ContextType contextType))
                 {
-                    DataModel.Player.ContextType = t;
+                    DataModel.Player.ContextType = contextType;
                     string contextId = playing.Context.Uri.Split(':').Last();
                     if (contextId != _contextId)
                     {
-                        DataModel.Player.ContextName = t switch
+                        DataModel.Player.ContextName = contextType switch
                         {
                             ContextType.Artist => (await _spotify.Artists.Get(contextId)).Name,
                             ContextType.Album => (await _spotify.Albums.Get(contextId)).Name,
@@ -108,33 +109,59 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
                 else
                 {
                     DataModel.Player.ContextType = ContextType.None;
+                    DataModel.Player.ContextName = "";
+                    _contextId = "";
                 }
 
-                if (playing.Item is FullTrack track)
+                //in theory this can also be FullEpisode for podcasts
+                //but it does not seem to work correctly.
+                if (playing.Item is not FullTrack track)
+                    return;
+                
+                string trackId = track.Uri.Split(':').Last();
+                if (trackId != _trackId)
                 {
-                    string trackId = track.Uri.Split(':').Last();
-                    if (trackId != _trackId)
+                    UpdateBasicTrackInfo(track);
+
+                    TrackAudioFeatures features = await _spotify.Tracks.GetAudioFeatures(trackId);
+                    UpdateTrackFeatures(features);
+
+                    Image image = track.Album.Images.Last();
+                    if (image.Url != _albumArtUrl)
                     {
-                        UpdateBasicTrackInfo(track);
-
-                        TrackAudioFeatures features = await _spotify.Tracks.GetAudioFeatures(trackId);
-                        UpdateTrackFeatures(features);
-
-                        Image image = track.Album.Images.Last();
-                        if (image.Url != _albumArtUrl)
-                        {
-                            await UpdateAlbumArtColors(image.Url);
-                            _albumArtUrl = image.Url;
-                        }
-
-                        _trackId = trackId;
+                        await UpdateAlbumArtColors(image.Url);
+                        _albumArtUrl = image.Url;
                     }
+
+                    _trackId = trackId;
                 }
             }
             catch (APIException e)
             {
                 _logger.Error(e.ToString());
             }
+        }
+
+        private async Task UpdateAlbumArtColors(string albumArtUrl)
+        {
+            if (!albumArtColorCache.ContainsKey(albumArtUrl))
+            {
+                using HttpResponseMessage response = await _httpClient.GetAsync(albumArtUrl);
+                using Stream stream = await response.Content.ReadAsStreamAsync();
+                using SKBitmap skbm = SKBitmap.Decode(stream);
+                List<SKColor> skClrs = _colorQuantizer.Quantize(skbm.Pixels.ToList(), 256).ToList();
+                albumArtColorCache[albumArtUrl] = new TrackColorsDataModel
+                {
+                    Vibrant = _colorQuantizer.FindColorVariation(skClrs, ColorType.Vibrant, true),
+                    LightVibrant = _colorQuantizer.FindColorVariation(skClrs, ColorType.LightVibrant, true),
+                    DarkVibrant = _colorQuantizer.FindColorVariation(skClrs, ColorType.DarkVibrant, true),
+                    Muted = _colorQuantizer.FindColorVariation(skClrs, ColorType.Muted, true),
+                    LightMuted = _colorQuantizer.FindColorVariation(skClrs, ColorType.LightMuted, true),
+                    DarkMuted = _colorQuantizer.FindColorVariation(skClrs, ColorType.DarkMuted, true),
+                };
+            }
+
+            DataModel.Track.Colors = albumArtColorCache[albumArtUrl];
         }
 
         private void UpdateBasicTrackInfo(FullTrack track)
@@ -162,42 +189,18 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
             DataModel.Track.Features.TimeSignature = features.TimeSignature;
         }
 
-        private async Task UpdateAlbumArtColors(string albumArtUrl)
-        {
-            if (!albumArtColorCache.ContainsKey(albumArtUrl))
-            {
-                using HttpResponseMessage response = await _httpClient.GetAsync(albumArtUrl);
-                using System.IO.Stream stream = await response.Content.ReadAsStreamAsync();
-                using SKBitmap skbm = SKBitmap.Decode(stream);
-                List<SKColor> skClrs = _colorQuantizer.Quantize(skbm.Pixels.ToList(), 256).ToList();
-                albumArtColorCache[albumArtUrl] = new TrackColorsDataModel
-                {
-                    Vibrant = _colorQuantizer.FindColorVariation(skClrs, ColorType.Vibrant, true),
-                    LightVibrant = _colorQuantizer.FindColorVariation(skClrs, ColorType.LightVibrant, true),
-                    DarkVibrant = _colorQuantizer.FindColorVariation(skClrs, ColorType.DarkVibrant, true),
-                    Muted = _colorQuantizer.FindColorVariation(skClrs, ColorType.Muted, true),
-                    LightMuted = _colorQuantizer.FindColorVariation(skClrs, ColorType.LightMuted, true),
-                    DarkMuted = _colorQuantizer.FindColorVariation(skClrs, ColorType.DarkMuted, true),
-                };
-            }
-
-            DataModel.Track.Colors = albumArtColorCache[albumArtUrl];
-        }
         #endregion
 
         #region Spotify Client 
+        internal bool LoggedIn => _spotify != null;
 
-        private PluginSetting<PKCETokenResponse> token;
-
-        internal void InitializeSpotifyClient()
+        internal void Login()
         {
-            token = _settings.GetSetting<PKCETokenResponse>(Constants.SPOTIFY_AUTH_SETTING);
-
-            PKCEAuthenticator authenticator = new PKCEAuthenticator(Constants.SPOTIFY_CLIENT_ID, token.Value);
+            PKCEAuthenticator authenticator = new PKCEAuthenticator(Constants.SPOTIFY_CLIENT_ID, _token.Value);
             authenticator.TokenRefreshed += (_, t) =>
             {
-                token.Value = t;
-                token.Save();
+                _token.Value = t;
+                _token.Save();
                 _logger.Information("Refreshed spotify token!");
             };
 
@@ -205,6 +208,19 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
                 .WithAuthenticator(authenticator);
 
             _spotify = new SpotifyClient(config);
+        }
+
+        internal void Logout()
+        {
+            _spotify = null;
+        }
+
+        internal async Task<PrivateUser> GetUserInfo()
+        {
+            if (_spotify is null)
+                return null;
+
+            return await _spotify.UserProfile.Current();
         }
         #endregion
     }

@@ -17,7 +17,12 @@ namespace Artemis.Plugins.LayerBrushes.Gif
 
         public override void EnableLayerBrush()
         {
-            Properties.LayerPropertyOnCurrentValueSet += (a, b) => LoadGifData();
+            Properties.FileName.Updated += OnFileNameUpdated;
+            LoadGifData();
+        }
+
+        private void OnFileNameUpdated(object sender, Core.LayerPropertyEventArgs<string> e)
+        {
             LoadGifData();
         }
 
@@ -64,6 +69,8 @@ namespace Artemis.Plugins.LayerBrushes.Gif
                 foreach (SKBitmap bm in originals)
                     bm?.Dispose();
             }
+
+            Properties.FileName.Updated -= OnFileNameUpdated;
         }
 
         public override void Update(double deltaTime)
