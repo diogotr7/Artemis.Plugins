@@ -30,19 +30,17 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
         }
         #endregion
 
-        private HttpClient _httpClient = new HttpClient();
-        private SpotifyClient _spotify;
-        private readonly ConcurrentDictionary<string, TrackColorsDataModel> albumArtColorCache 
+        private readonly HttpClient _httpClient = new HttpClient();
+        private readonly ConcurrentDictionary<string, TrackColorsDataModel> albumArtColorCache
                     = new ConcurrentDictionary<string, TrackColorsDataModel>();
-        private string _trackId = "";
-        private string _contextId = "";
-        private string _albumArtUrl = "";
+        private SpotifyClient _spotify;
+        private string _trackId;
+        private string _contextId;
+        private string _albumArtUrl;
 
         #region Plugin Methods
         public override void Enable()
         {
-            _httpClient = new HttpClient();
-
             try
             {
                 Login();
@@ -57,10 +55,10 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
 
         public override void Disable()
         {
-            _httpClient.Dispose();
             _spotify = null;
             _trackId = null;
             _contextId = null;
+            _albumArtUrl = null;
         }
 
         public override void Update(double deltaTime)
@@ -83,62 +81,72 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
                 if (playing is null || DataModel is null)
                     return;
 
-                DataModel.Player.Shuffle = playing.ShuffleState;
-                DataModel.Player.RepeatState = Enum.Parse<RepeatState>(playing.RepeatState, true);
-                DataModel.Player.Volume = playing.Device.VolumePercent ?? -1;
-                DataModel.Player.IsPlaying = playing.IsPlaying;
-                DataModel.Track.Progress = TimeSpan.FromMilliseconds(playing.ProgressMs);
-
-                if (playing.Context != null && Enum.TryParse(playing.Context.Type, true, out ContextType contextType))
-                {
-                    DataModel.Player.ContextType = contextType;
-                    string contextId = playing.Context.Uri.Split(':').Last();
-                    if (contextId != _contextId)
-                    {
-                        DataModel.Player.ContextName = contextType switch
-                        {
-                            ContextType.Artist => (await _spotify.Artists.Get(contextId)).Name,
-                            ContextType.Album => (await _spotify.Albums.Get(contextId)).Name,
-                            ContextType.Playlist => (await _spotify.Playlists.Get(contextId)).Name,
-                            _ => ""
-                        };
-
-                        _contextId = contextId;
-                    }
-                }
-                else
-                {
-                    DataModel.Player.ContextType = ContextType.None;
-                    DataModel.Player.ContextName = "";
-                    _contextId = "";
-                }
+                await UpdatePlayerInfo(playing);
 
                 //in theory this can also be FullEpisode for podcasts
                 //but it does not seem to work correctly.
-                if (playing.Item is not FullTrack track)
-                    return;
-                
-                string trackId = track.Uri.Split(':').Last();
-                if (trackId != _trackId)
+                if (playing.Item is FullTrack track)
                 {
-                    UpdateBasicTrackInfo(track);
-
-                    TrackAudioFeatures features = await _spotify.Tracks.GetAudioFeatures(trackId);
-                    UpdateTrackFeatures(features);
-
-                    Image image = track.Album.Images.Last();
-                    if (image.Url != _albumArtUrl)
-                    {
-                        await UpdateAlbumArtColors(image.Url);
-                        _albumArtUrl = image.Url;
-                    }
-
-                    _trackId = trackId;
+                    await UpdateTrackInfo(track);
                 }
             }
             catch (APIException e)
             {
                 _logger.Error(e.ToString());
+            }
+        }
+
+        private async Task UpdateTrackInfo(FullTrack track)
+        {
+            string trackId = track.Uri.Split(':').Last();
+            if (trackId != _trackId)
+            {
+                UpdateBasicTrackInfo(track);
+
+                TrackAudioFeatures features = await _spotify.Tracks.GetAudioFeatures(trackId);
+                UpdateTrackFeatures(features);
+
+                Image image = track.Album.Images.Last();
+                if (image.Url != _albumArtUrl)
+                {
+                    await UpdateAlbumArtColors(image.Url);
+                    _albumArtUrl = image.Url;
+                }
+
+                _trackId = trackId;
+            }
+        }
+
+        private async Task UpdatePlayerInfo(CurrentlyPlayingContext playing)
+        {
+            DataModel.Player.Shuffle = playing.ShuffleState;
+            DataModel.Player.RepeatState = Enum.Parse<RepeatState>(playing.RepeatState, true);
+            DataModel.Player.Volume = playing.Device.VolumePercent ?? -1;
+            DataModel.Player.IsPlaying = playing.IsPlaying;
+            DataModel.Track.Progress = TimeSpan.FromMilliseconds(playing.ProgressMs);
+
+            if (playing.Context != null && Enum.TryParse(playing.Context.Type, true, out ContextType contextType))
+            {
+                DataModel.Player.ContextType = contextType;
+                string contextId = playing.Context.Uri.Split(':').Last();
+                if (contextId != _contextId)
+                {
+                    DataModel.Player.ContextName = contextType switch
+                    {
+                        ContextType.Artist => (await _spotify.Artists.Get(contextId)).Name,
+                        ContextType.Album => (await _spotify.Albums.Get(contextId)).Name,
+                        ContextType.Playlist => (await _spotify.Playlists.Get(contextId)).Name,
+                        _ => ""
+                    };
+
+                    _contextId = contextId;
+                }
+            }
+            else
+            {
+                DataModel.Player.ContextType = ContextType.None;
+                DataModel.Player.ContextName = "";
+                _contextId = "";
             }
         }
 
@@ -191,7 +199,7 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
 
         #endregion
 
-        #region Spotify Client 
+        #region VM interaction
         internal bool LoggedIn => _spotify != null;
 
         internal void Login()

@@ -112,6 +112,7 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
             UpdateProfilePicture();
             UpdateButtonVisibility();
             _waitingForUser = false;
+            _loginUrl = null;
         }
 
         private void UpdateButtonVisibility()
