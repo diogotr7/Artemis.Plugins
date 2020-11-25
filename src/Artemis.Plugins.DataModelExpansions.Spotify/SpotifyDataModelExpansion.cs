@@ -1,4 +1,4 @@
-﻿using Artemis.Core;
+using Artemis.Core;
 using Artemis.Core.DataModelExpansions;
 using Artemis.Core.Services;
 using Artemis.Plugins.DataModelExpansions.Spotify.DataModels;
@@ -40,7 +40,7 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
 
         #region Plugin Methods
         public override void Enable()
-        {
+        {   
             try
             {
                 Login();
@@ -50,6 +50,7 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
                 _logger.Error("Failed spotify authentication, login in the settings dialog:" + e.ToString());
             }
 
+            _httpClient.Timeout = TimeSpan.FromSeconds(2);
             AddTimedUpdate(TimeSpan.FromSeconds(2), UpdateData);
         }
 
@@ -154,22 +155,31 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
         {
             if (!albumArtColorCache.ContainsKey(albumArtUrl))
             {
-                using HttpResponseMessage response = await _httpClient.GetAsync(albumArtUrl);
-                using Stream stream = await response.Content.ReadAsStreamAsync();
-                using SKBitmap skbm = SKBitmap.Decode(stream);
-                List<SKColor> skClrs = _colorQuantizer.Quantize(skbm.Pixels.ToList(), 256).ToList();
-                albumArtColorCache[albumArtUrl] = new TrackColorsDataModel
+                try
                 {
-                    Vibrant = _colorQuantizer.FindColorVariation(skClrs, ColorType.Vibrant, true),
-                    LightVibrant = _colorQuantizer.FindColorVariation(skClrs, ColorType.LightVibrant, true),
-                    DarkVibrant = _colorQuantizer.FindColorVariation(skClrs, ColorType.DarkVibrant, true),
-                    Muted = _colorQuantizer.FindColorVariation(skClrs, ColorType.Muted, true),
-                    LightMuted = _colorQuantizer.FindColorVariation(skClrs, ColorType.LightMuted, true),
-                    DarkMuted = _colorQuantizer.FindColorVariation(skClrs, ColorType.DarkMuted, true),
-                };
+                    using HttpResponseMessage response = await _httpClient.GetAsync(albumArtUrl);
+                    using Stream stream = await response.Content.ReadAsStreamAsync();
+                    using SKBitmap skbm = SKBitmap.Decode(stream);
+                    SKColor[] skClrs = _colorQuantizer.Quantize(skbm.Pixels, 256);
+                    albumArtColorCache[albumArtUrl] = new TrackColorsDataModel
+                    {
+                        Vibrant = _colorQuantizer.FindColorVariation(skClrs, ColorType.Vibrant, true),
+                        LightVibrant = _colorQuantizer.FindColorVariation(skClrs, ColorType.LightVibrant, true),
+                        DarkVibrant = _colorQuantizer.FindColorVariation(skClrs, ColorType.DarkVibrant, true),
+                        Muted = _colorQuantizer.FindColorVariation(skClrs, ColorType.Muted, true),
+                        LightMuted = _colorQuantizer.FindColorVariation(skClrs, ColorType.LightMuted, true),
+                        DarkMuted = _colorQuantizer.FindColorVariation(skClrs, ColorType.DarkMuted, true),
+                    };
+                }
+                catch (Exception exception)
+                {
+                    _logger.Error("Failed to get album art colors: " + exception.ToString());
+                    throw;
+                }
             }
 
-            DataModel.Track.Colors = albumArtColorCache[albumArtUrl];
+            if (albumArtColorCache.TryGetValue(albumArtUrl, out var colorDataModel))
+                DataModel.Track.Colors = colorDataModel;
         }
 
         private void UpdateBasicTrackInfo(FullTrack track)
