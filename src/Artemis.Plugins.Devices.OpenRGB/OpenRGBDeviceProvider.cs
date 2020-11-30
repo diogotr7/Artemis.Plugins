@@ -1,6 +1,7 @@
 ﻿using Artemis.Core;
 using Artemis.Core.DeviceProviders;
 using Artemis.Core.Services;
+using RGB.NET.Core;
 using RGB.NET.Devices.OpenRGB;
 using System.Collections.Generic;
 
@@ -37,6 +38,7 @@ namespace Artemis.Plugins.Devices.OpenRGB
             {
                 RGB.NET.Devices.OpenRGB.OpenRGBDeviceProvider.Instance.DeviceDefinitions.Add(def);
             }
+            PathHelper.ResolvingAbsolutePath += (sender, args) => ResolveAbsolutePath(typeof(AbstractOpenRGBDevice<>), sender, args);
 
             _rgbService.AddDeviceProvider(RgbDeviceProvider);
         }
