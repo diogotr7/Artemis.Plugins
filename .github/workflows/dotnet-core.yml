@@ -26,6 +26,10 @@ jobs:
 
       - name: Build RGB.NET
         run: dotnet build .\RGB.NET\RGB.NET.Core\RGB.NET.Core.csproj
+        
+      - run: dotnet build .\RGB.NET\RGB.NET.Groups\RGB.NET.Groups.csproj
+      
+      - run: dotnet build .\RGB.NET\RGB.NET.Brushes\RGB.NET.Brushes.csproj
 
       - name: Clone RGB.NET.Devices.OpenRGB
         uses: actions/checkout@v2
