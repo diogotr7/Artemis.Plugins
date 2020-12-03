@@ -25,7 +25,7 @@ jobs:
           ref: Development
 
       - name: Build RGB.NET
-        run: dotnet build .\RGB.NET\RGB.NET.sln
+        run: dotnet build .\RGB.NET\RGB.NET.Core\RGB.NET.Core.csproj
 
       - name: Clone RGB.NET.Devices.OpenRGB
         uses: actions/checkout@v2
@@ -100,5 +100,11 @@ jobs:
       - name: Upload OBS
         uses: actions/upload-artifact@v2
         with:
-          name: Artemis.Plugins.DataModelExpansions.OB
+          name: Artemis.Plugins.DataModelExpansions.OBS
           path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.OBS\bin\x64\Release\net5.0-windows\publish
+
+      - name: Fallout 4
+        uses: actions/upload-artifact@v2
+        with:
+          name: Artemis.Plugins.Modules.Fallout4
+          path: .\Plugins\src\Artemis.Plugins.Modules.Fallout4\bin\x64\Release\net5.0-windows\publish
