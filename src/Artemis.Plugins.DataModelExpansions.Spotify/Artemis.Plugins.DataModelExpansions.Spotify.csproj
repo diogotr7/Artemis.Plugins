@@ -6,6 +6,7 @@
     <RootNamespace>Artemis.Plugins.DataModelExpansions.Spotify</RootNamespace>
     <Platforms>x64</Platforms>
     <GenerateDependencyFile>False</GenerateDependencyFile>
+    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
@@ -51,7 +52,7 @@
   <!-- Override the published DLLs with the built DLLs to enable edit & continue -->
   <Target Name="PostBuildLocalDlls" AfterTargets="PostBuildEvent" Condition="'$(BuildingInsideVisualStudio)' == 'true'">
     <ItemGroup>
-      <DllFiles Include="$(TargetDir)\!ref\*.dll" />
+      <DllFiles Include="$(TargetDir)\**\*.dll" />
     </ItemGroup>
     <Copy SourceFiles="@(DllFiles)" DestinationFolder="$(ProgramData)\Artemis\Plugins\$(ProjectName)" />
   </Target>
