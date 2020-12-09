@@ -34,8 +34,8 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             DefaultPriorityCategory = ModulePriorityCategory.Application;
             ActivationRequirements.Add(new ProcessActivationRequirement("League Of Legends"));
 
-            if (Debugger.IsAttached)//mock live game api
-                ActivationRequirements.Add(new ProcessActivationRequirement("node"));
+            //mock live game api
+            //ActivationRequirements.Add(new ProcessActivationRequirement("node"));
 
             httpClientHandler = new HttpClientHandler
             {
