@@ -29,6 +29,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.DataModelEx
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.DataModelExpansions.Discord", "Artemis.Plugins.DataModelExpansions.Discord\Artemis.Plugins.DataModelExpansions.Discord.csproj", "{ED13A1B2-81A3-41A7-8F19-AD4A38BF3931}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Artemis.Plugins.LayerBrushes.Ambilight", "Artemis.Plugins.LayerBrushes.Ambilight\Artemis.Plugins.LayerBrushes.Ambilight.csproj", "{75F4ADDB-CB2B-4B58-B762-E053D2AF1444}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -75,6 +77,10 @@ Global
 		{ED13A1B2-81A3-41A7-8F19-AD4A38BF3931}.Debug|x64.Build.0 = Debug|x64
 		{ED13A1B2-81A3-41A7-8F19-AD4A38BF3931}.Release|x64.ActiveCfg = Release|x64
 		{ED13A1B2-81A3-41A7-8F19-AD4A38BF3931}.Release|x64.Build.0 = Release|x64
+		{75F4ADDB-CB2B-4B58-B762-E053D2AF1444}.Debug|x64.ActiveCfg = Debug|x64
+		{75F4ADDB-CB2B-4B58-B762-E053D2AF1444}.Debug|x64.Build.0 = Debug|x64
+		{75F4ADDB-CB2B-4B58-B762-E053D2AF1444}.Release|x64.ActiveCfg = Release|x64
+		{75F4ADDB-CB2B-4B58-B762-E053D2AF1444}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -90,6 +96,7 @@ Global
 		{058E7B0B-141C-4169-9A7C-A18680C3BBCD} = {B28A4ED3-D452-43C6-95A4-DA9D828E1B45}
 		{C5D4A7C9-4B7C-494B-BA36-62695F7B6E0E} = {02703C39-EEAE-42DF-BC48-0252E7E08007}
 		{ED13A1B2-81A3-41A7-8F19-AD4A38BF3931} = {02703C39-EEAE-42DF-BC48-0252E7E08007}
+		{75F4ADDB-CB2B-4B58-B762-E053D2AF1444} = {B28A4ED3-D452-43C6-95A4-DA9D828E1B45}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D87FE810-F20D-476A-8FE6-41BD3AC75D49}
