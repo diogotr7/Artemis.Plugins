@@ -30,11 +30,11 @@
       <Private>false</Private>
     </Reference>
     <Reference Include="RGB.NET.Core">
-      <HintPath>..\..\..\Artemis\src\Artemis.UI\bin\x64\Debug\net5.0-windows\RGB.NET.Core.dll</HintPath>
+      <HintPath>..\..\..\RGB.NET\bin\net5.0\RGB.NET.Core.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="RGB.NET.Devices.OpenRGB">
-      <HintPath>..\..\..\RGB.NET.Devices.OpenRGB\bin\netstandard2.0\RGB.NET.Devices.OpenRGB.dll</HintPath>
+      <HintPath>..\..\..\RGB.NET.Devices.OpenRGB\bin\net5.0\RGB.NET.Devices.OpenRGB.dll</HintPath>
     </Reference>
   </ItemGroup>
 
