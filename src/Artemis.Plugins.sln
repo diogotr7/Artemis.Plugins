@@ -29,7 +29,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.Modules.Fal
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.LayerBrushes.Particle", "Artemis.Plugins.LayerBrushes.Particle\Artemis.Plugins.LayerBrushes.Particle.csproj", "{058E7B0B-141C-4169-9A7C-A18680C3BBCD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Artemis.Plugins.DataModelExpansions.StandaloneHardwareMonitor", "Artemis.Plugins.DataModelExpansions.StandaloneHardwareMonitor\Artemis.Plugins.DataModelExpansions.StandaloneHardwareMonitor.csproj", "{C5D4A7C9-4B7C-494B-BA36-62695F7B6E0E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.DataModelExpansions.StandaloneHardwareMonitor", "Artemis.Plugins.DataModelExpansions.StandaloneHardwareMonitor\Artemis.Plugins.DataModelExpansions.StandaloneHardwareMonitor.csproj", "{C5D4A7C9-4B7C-494B-BA36-62695F7B6E0E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Artemis.Plugins.DataModelExpansions.Discord", "Artemis.Plugins.DataModelExpansions.Discord\Artemis.Plugins.DataModelExpansions.Discord.csproj", "{ED13A1B2-81A3-41A7-8F19-AD4A38BF3931}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -77,6 +79,10 @@ Global
 		{C5D4A7C9-4B7C-494B-BA36-62695F7B6E0E}.Debug|x64.Build.0 = Debug|x64
 		{C5D4A7C9-4B7C-494B-BA36-62695F7B6E0E}.Release|x64.ActiveCfg = Release|x64
 		{C5D4A7C9-4B7C-494B-BA36-62695F7B6E0E}.Release|x64.Build.0 = Release|x64
+		{ED13A1B2-81A3-41A7-8F19-AD4A38BF3931}.Debug|x64.ActiveCfg = Debug|x64
+		{ED13A1B2-81A3-41A7-8F19-AD4A38BF3931}.Debug|x64.Build.0 = Debug|x64
+		{ED13A1B2-81A3-41A7-8F19-AD4A38BF3931}.Release|x64.ActiveCfg = Release|x64
+		{ED13A1B2-81A3-41A7-8F19-AD4A38BF3931}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -92,6 +98,7 @@ Global
 		{EA3D651A-1487-40D2-88DC-C6C5FBAB42FA} = {4F6A7057-E0EE-4584-9785-87EA6B362429}
 		{058E7B0B-141C-4169-9A7C-A18680C3BBCD} = {B28A4ED3-D452-43C6-95A4-DA9D828E1B45}
 		{C5D4A7C9-4B7C-494B-BA36-62695F7B6E0E} = {02703C39-EEAE-42DF-BC48-0252E7E08007}
+		{ED13A1B2-81A3-41A7-8F19-AD4A38BF3931} = {02703C39-EEAE-42DF-BC48-0252E7E08007}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D87FE810-F20D-476A-8FE6-41BD3AC75D49}
