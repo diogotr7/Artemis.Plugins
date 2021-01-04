@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace Artemis.Plugins.DataModelExpansions.Discord
+﻿namespace Artemis.Plugins.DataModelExpansions.Discord
 {
     internal class SpeakingStartDiscordEvent : DiscordEvent
     {

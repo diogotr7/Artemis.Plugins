@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
-using System;
 using Newtonsoft.Json.Serialization;
+using System;
 
 namespace Artemis.Plugins.DataModelExpansions.Discord
 {

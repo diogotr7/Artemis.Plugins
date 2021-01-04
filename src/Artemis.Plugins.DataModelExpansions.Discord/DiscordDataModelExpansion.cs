@@ -3,6 +3,7 @@ using Artemis.Core.DataModelExpansions;
 using Artemis.Plugins.DataModelExpansions.Discord.DataModels;
 using Artemis.Plugins.DataModelExpansions.Discord.Enums;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,6 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Serialization;
 
 namespace Artemis.Plugins.DataModelExpansions.Discord
 {
@@ -74,11 +74,11 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
             {
                 Connect();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw new ArtemisPluginException("Failed to connect to Discord RPC", e);
             }
-            
+
             SendPacket(new { v = RPC_VERSION, client_id = clientId.Value }, RpcPacketType.HANDSHAKE);
             _cancellationToken = new CancellationTokenSource();
             Task.Run(StartReceive);
@@ -104,11 +104,11 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
 
         private void SendPacket(object obj, RpcPacketType opcode = RpcPacketType.FRAME)
         {
-            var stringData = JsonConvert.SerializeObject(obj, _jsonSerializerSettings);
-            var data = Encoding.UTF8.GetBytes(stringData);
+            string stringData = JsonConvert.SerializeObject(obj, _jsonSerializerSettings);
+            byte[] data = Encoding.UTF8.GetBytes(stringData);
             int dataLength = data.Length;
-            var sendBuff = new byte[dataLength + 8];
-            var writer = new BinaryWriter(new MemoryStream(sendBuff));
+            byte[] sendBuff = new byte[dataLength + 8];
+            BinaryWriter writer = new BinaryWriter(new MemoryStream(sendBuff));
             writer.Write((int)opcode);
             writer.Write(dataLength);
             writer.Write(data);
@@ -119,12 +119,12 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
         {
             while (!_cancellationToken.IsCancellationRequested)
             {
-                var buffer = new byte[8192];
+                byte[] buffer = new byte[8192];
                 _pipe.Read(buffer, 0, buffer.Length);
-                var reader = new BinaryReader(new MemoryStream(buffer));
-                var opCode = (RpcPacketType)reader.ReadInt32();
-                var dataLength = reader.ReadInt32();
-                var data = Encoding.UTF8.GetString(reader.ReadBytes(dataLength));
+                BinaryReader reader = new BinaryReader(new MemoryStream(buffer));
+                RpcPacketType opCode = (RpcPacketType)reader.ReadInt32();
+                int dataLength = reader.ReadInt32();
+                string data = Encoding.UTF8.GetString(reader.ReadBytes(dataLength));
 
                 OnMessageReceived(opCode, data);
             }
@@ -152,7 +152,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
             if (discordMessage is DiscordResponse discordResponse)
                 ProcessDiscordResponse(discordResponse);
             else if (discordMessage is DiscordEvent discordEvent)
-                ProcessDiscordEvent(discordEvent);            
+                ProcessDiscordEvent(discordEvent);
         }
         #endregion
 
@@ -180,7 +180,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
                         //Then, authenticate.
                         if (token.Value.ExpirationDate > DateTime.UtcNow)
                         {
-                            var tokenResponse = RefreshAccessTokenAsync(token.Value.RefreshToken).Result;
+                            TokenResponse tokenResponse = RefreshAccessTokenAsync(token.Value.RefreshToken).Result;
                             SaveToken(tokenResponse);
                         }
 
@@ -237,7 +237,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
                     //so we can get a token with the Code discord gives us. 
                     //This token can then be reused.
 
-                    var tokenResponse = GetAccessTokenAsync(authorize.Data.Code).Result;
+                    TokenResponse tokenResponse = GetAccessTokenAsync(authorize.Data.Code).Result;
                     SaveToken(tokenResponse);
                     SendPacket(new DiscordRequest(DiscordRpcCommand.AUTHENTICATE).WithArgument("access_token", token.Value.AccessToken));
                     break;
@@ -274,7 +274,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
             }
         }
 
-        private void SubscribeToSpeakingEvents(string  id)
+        private void SubscribeToSpeakingEvents(string id)
         {
             SendPacket(new DiscordSubscribe(DiscordRpcEvent.SPEAKING_START).WithArgument("channel_id", id));
             SendPacket(new DiscordSubscribe(DiscordRpcEvent.SPEAKING_STOP).WithArgument("channel_id", id));

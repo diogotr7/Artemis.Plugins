@@ -1,6 +1,5 @@
 ﻿using Artemis.Core;
 using Artemis.Core.DataModelExpansions;
-using System.Collections.Generic;
 
 namespace Artemis.Plugins.DataModelExpansions.Discord.DataModels
 {
