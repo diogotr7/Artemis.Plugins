@@ -36,7 +36,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
         {
             "rpc",
             "identify",
-            "messages.read",
+            //"messages.read",
             "rpc.notifications.read"
         };
         const string PIPE = @"discord-ipc-0";
@@ -81,7 +81,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
 
             SendPacket(new { v = RPC_VERSION, client_id = clientId.Value }, RpcPacketType.HANDSHAKE);
             _cancellationToken = new CancellationTokenSource();
-            Task.Run(StartReceive);
+            Task.Run(StartReadAsync, _cancellationToken.Token);
         }
 
         public override void Disable()
@@ -115,18 +115,18 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
             _pipe.Write(sendBuff);
         }
 
-        private void StartReceive()
+        private async Task StartReadAsync()
         {
             while (!_cancellationToken.IsCancellationRequested)
             {
-                byte[] buffer = new byte[8192];
-                _pipe.Read(buffer, 0, buffer.Length);
-                BinaryReader reader = new BinaryReader(new MemoryStream(buffer));
-                RpcPacketType opCode = (RpcPacketType)reader.ReadInt32();
-                int dataLength = reader.ReadInt32();
-                string data = Encoding.UTF8.GetString(reader.ReadBytes(dataLength));
+                byte[] header = new byte[8];
+                await _pipe.ReadAsync(header.AsMemory(0, header.Length), _cancellationToken.Token);
+                RpcPacketType opCode = (RpcPacketType)BitConverter.ToInt32(header, 0);
+                int dataLength = BitConverter.ToInt32(header, 4);
+                byte[] dataBuffer = new byte[dataLength];
+                await _pipe.ReadAsync(dataBuffer.AsMemory(0, dataBuffer.Length), _cancellationToken.Token);
 
-                OnMessageReceived(opCode, data);
+                OnMessageReceived(opCode, Encoding.UTF8.GetString(dataBuffer));
             }
         }
 
@@ -150,9 +150,17 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
             }
 
             if (discordMessage is DiscordResponse discordResponse)
+            {
+                _logger.Verbose($"Received discord response: {discordResponse.Command}");
+                _logger.Verbose(data);
                 ProcessDiscordResponse(discordResponse);
+            }
             else if (discordMessage is DiscordEvent discordEvent)
+            {
+                _logger.Verbose($"Received discord message: {discordEvent.Event}");
+                _logger.Verbose(data);
                 ProcessDiscordEvent(discordEvent);
+            }
         }
         #endregion
 
