@@ -1,6 +1,6 @@
 ﻿namespace Artemis.Plugins.DataModelExpansions.Discord
 {
-    public class VoiceSettingsUpdateDiscordResponse : EventDiscordResponse
+    public class VoiceSettingsUpdateDiscordEvent : DiscordEvent
     {
         public VoiceSettingsData Data { get; set; }
     }

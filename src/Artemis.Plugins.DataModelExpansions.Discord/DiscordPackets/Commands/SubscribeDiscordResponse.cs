@@ -2,7 +2,7 @@
 
 namespace Artemis.Plugins.DataModelExpansions.Discord
 {
-    public class SubscribeDiscordResponse : CommandDiscordResponse
+    public class SubscribeDiscordResponse : DiscordResponse
     {
         public SubscribeData Data { get; set; }
     }

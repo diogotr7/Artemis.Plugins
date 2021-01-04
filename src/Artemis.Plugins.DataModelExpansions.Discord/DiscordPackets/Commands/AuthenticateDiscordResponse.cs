@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Artemis.Plugins.DataModelExpansions.Discord
 {
-    public class AuthenticateDiscordResponse : CommandDiscordResponse
+    public class AuthenticateDiscordResponse : DiscordResponse
     {
         public AuthenticateData Data { get; set; }
     }

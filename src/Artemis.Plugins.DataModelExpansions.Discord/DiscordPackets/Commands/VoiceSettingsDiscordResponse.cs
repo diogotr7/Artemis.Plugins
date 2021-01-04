@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Artemis.Plugins.DataModelExpansions.Discord
 {
-    public class VoiceSettingsDiscordResponse : CommandDiscordResponse
+    public class VoiceSettingsDiscordResponse : DiscordResponse
     {
         public VoiceSettingsData Data { get; set; }
     }

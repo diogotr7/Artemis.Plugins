@@ -2,12 +2,12 @@
 
 namespace Artemis.Plugins.DataModelExpansions.Discord
 {
-    internal class SpeakingStartDiscordResponse : EventDiscordResponse
+    internal class SpeakingStartDiscordEvent : DiscordEvent
     {
         public SpeakingStartStopData Data { get; set; }
     }
 
-    internal class SpeakingStopDiscordResponse : EventDiscordResponse
+    internal class SpeakingStopDiscordEvent : DiscordEvent
     {
         public SpeakingStartStopData Data { get; set; }
     }

@@ -2,7 +2,7 @@
 
 namespace Artemis.Plugins.DataModelExpansions.Discord
 {
-    public class ReadyDiscordResponse : EventDiscordResponse
+    public class ReadyDiscordEvent : DiscordEvent
     {
         public ReadyObject Data { get; set; }
     }

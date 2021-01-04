@@ -3,7 +3,7 @@ using System;
 
 namespace Artemis.Plugins.DataModelExpansions.Discord
 {
-    internal class NotificationCreateDiscordResponse : EventDiscordResponse
+    internal class NotificationCreateDiscordEvent : DiscordEvent
     {
         public NotificationCreateData Data { get; set; }
     }

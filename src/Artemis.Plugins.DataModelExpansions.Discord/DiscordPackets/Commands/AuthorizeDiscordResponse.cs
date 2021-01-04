@@ -1,6 +1,6 @@
 ﻿namespace Artemis.Plugins.DataModelExpansions.Discord
 {
-    public class AuthorizeDiscordResponse : CommandDiscordResponse
+    public class AuthorizeDiscordResponse : DiscordResponse
     {
         public AuthorizeData Data { get; set; }
     }
