@@ -4,18 +4,15 @@ using Newtonsoft.Json.Serialization;
 
 namespace Artemis.Plugins.DataModelExpansions.Discord
 {
-    public partial class DiscordDataModelExpansion
+    public class SavedToken
     {
-        internal class SavedToken
-        {
-            [JsonProperty("refresh_token")]
-            public string RefreshToken;
+        [JsonProperty("refresh_token")]
+        public string RefreshToken;
 
-            [JsonProperty("access_token")]
-            public string AccessToken;
+        [JsonProperty("access_token")]
+        public string AccessToken;
 
-            [JsonProperty("expiration_date")]
-            public DateTime ExpirationDate;
-        }
+        [JsonProperty("expiration_date")]
+        public DateTime ExpirationDate;
     }
 }

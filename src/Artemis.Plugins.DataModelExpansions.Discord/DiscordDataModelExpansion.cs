@@ -16,7 +16,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace Artemis.Plugins.DataModelExpansions.Discord
 {
-    public partial class DiscordDataModelExpansion : DataModelExpansion<DiscordDataModel>
+    public class DiscordDataModelExpansion : DataModelExpansion<DiscordDataModel>
     {
         private static readonly JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings
         {
