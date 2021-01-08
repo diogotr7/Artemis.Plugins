@@ -9,15 +9,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "LayerBrushes", "LayerBrushe
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataModelExpansions", "DataModelExpansions", "{02703C39-EEAE-42DF-BC48-0252E7E08007}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Devices", "Devices", "{422885D2-E059-4558-9961-B77BD9C5DBDC}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.LayerBrushes.Gif", "Artemis.Plugins.LayerBrushes.Gif\Artemis.Plugins.LayerBrushes.Gif.csproj", "{DDB60A1E-BA5F-45FA-9FF8-D038B503C1FA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.Modules.LeagueOfLegends", "Artemis.Plugins.Modules.LeagueOfLegends\Artemis.Plugins.Modules.LeagueOfLegends.csproj", "{55A728EE-76D6-492E-A45C-FADAC7FDECEE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.DataModelExpansions.HardwareMonitor", "Artemis.Plugins.DataModelExpansions.HardwareMonitor\Artemis.Plugins.DataModelExpansions.HardwareMonitor.csproj", "{17AC4F31-51F2-4FC6-9AB4-1D72B1FE6023}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.Devices.OpenRGB", "Artemis.Plugins.Devices.OpenRGB\Artemis.Plugins.Devices.OpenRGB.csproj", "{8A13B54C-34C9-47BA-B72F-2A4A8C973BFA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.LayerBrushes.Chroma", "Artemis.Plugins.LayerBrushes.Chroma\Artemis.Plugins.LayerBrushes.Chroma.csproj", "{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61}"
 EndProject
@@ -31,7 +27,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.LayerBrushe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.DataModelExpansions.StandaloneHardwareMonitor", "Artemis.Plugins.DataModelExpansions.StandaloneHardwareMonitor\Artemis.Plugins.DataModelExpansions.StandaloneHardwareMonitor.csproj", "{C5D4A7C9-4B7C-494B-BA36-62695F7B6E0E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Artemis.Plugins.DataModelExpansions.Discord", "Artemis.Plugins.DataModelExpansions.Discord\Artemis.Plugins.DataModelExpansions.Discord.csproj", "{ED13A1B2-81A3-41A7-8F19-AD4A38BF3931}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.DataModelExpansions.Discord", "Artemis.Plugins.DataModelExpansions.Discord\Artemis.Plugins.DataModelExpansions.Discord.csproj", "{ED13A1B2-81A3-41A7-8F19-AD4A38BF3931}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,10 +47,6 @@ Global
 		{17AC4F31-51F2-4FC6-9AB4-1D72B1FE6023}.Debug|x64.Build.0 = Debug|x64
 		{17AC4F31-51F2-4FC6-9AB4-1D72B1FE6023}.Release|x64.ActiveCfg = Release|x64
 		{17AC4F31-51F2-4FC6-9AB4-1D72B1FE6023}.Release|x64.Build.0 = Release|x64
-		{8A13B54C-34C9-47BA-B72F-2A4A8C973BFA}.Debug|x64.ActiveCfg = Debug|x64
-		{8A13B54C-34C9-47BA-B72F-2A4A8C973BFA}.Debug|x64.Build.0 = Debug|x64
-		{8A13B54C-34C9-47BA-B72F-2A4A8C973BFA}.Release|x64.ActiveCfg = Release|x64
-		{8A13B54C-34C9-47BA-B72F-2A4A8C973BFA}.Release|x64.Build.0 = Release|x64
 		{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61}.Debug|x64.ActiveCfg = Debug|x64
 		{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61}.Debug|x64.Build.0 = Debug|x64
 		{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61}.Release|x64.ActiveCfg = Release|x64
@@ -91,7 +83,6 @@ Global
 		{DDB60A1E-BA5F-45FA-9FF8-D038B503C1FA} = {B28A4ED3-D452-43C6-95A4-DA9D828E1B45}
 		{55A728EE-76D6-492E-A45C-FADAC7FDECEE} = {4F6A7057-E0EE-4584-9785-87EA6B362429}
 		{17AC4F31-51F2-4FC6-9AB4-1D72B1FE6023} = {02703C39-EEAE-42DF-BC48-0252E7E08007}
-		{8A13B54C-34C9-47BA-B72F-2A4A8C973BFA} = {422885D2-E059-4558-9961-B77BD9C5DBDC}
 		{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61} = {B28A4ED3-D452-43C6-95A4-DA9D828E1B45}
 		{09090D32-10C0-42BD-AE9B-F2CA381C875E} = {02703C39-EEAE-42DF-BC48-0252E7E08007}
 		{390B0800-9119-4070-B9B3-CC71DE42BD2F} = {02703C39-EEAE-42DF-BC48-0252E7E08007}

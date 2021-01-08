@@ -66,12 +66,6 @@ jobs:
           name: Artemis.Plugins.DataModelExpansions.HardwareMonitor
           path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.HardwareMonitor\bin\x64\Release\net5.0-windows\publish
 
-      - name: Upload OpenRGB
-        uses: actions/upload-artifact@v2
-        with:
-          name: Artemis.Plugins.Devices.OpenRGB
-          path: .\Plugins\src\Artemis.Plugins.Devices.OpenRGB\bin\x64\Release\net5.0-windows\publish
-
       - name: Upload Gif
         uses: actions/upload-artifact@v2
         with:
