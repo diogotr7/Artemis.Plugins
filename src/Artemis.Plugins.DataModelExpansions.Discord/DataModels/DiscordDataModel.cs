@@ -49,5 +49,11 @@ namespace Artemis.Plugins.DataModelExpansions.Discord.DataModels
 
         [DataModelProperty]
         public string State { get; set; }
+
+        [DataModelProperty]
+        public DataModelEvent Connected { get; set; }
+
+        [DataModelProperty]
+        public DataModelEvent Disconnected { get; set; }
     }
 }
