@@ -60,7 +60,7 @@ namespace Artemis.Plugins.LayerBrushes.Particle.PropertyGroups
             SpawnPosition.CurrentValueSet -= SpawnPositionOnCurrentValueSet;
         }
 
-        private void SpawnPositionOnCurrentValueSet(object sender, LayerPropertyEventArgs<SpawnPosition> e)
+        private void SpawnPositionOnCurrentValueSet(object sender, LayerPropertyEventArgs e)
         {
             UpdateVisibility();
         }

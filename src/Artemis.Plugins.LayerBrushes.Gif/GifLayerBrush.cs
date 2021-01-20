@@ -21,7 +21,7 @@ namespace Artemis.Plugins.LayerBrushes.Gif
             LoadGifData();
         }
 
-        private void OnFileNameUpdated(object sender, Core.LayerPropertyEventArgs<string> e)
+        private void OnFileNameUpdated(object sender, Core.LayerPropertyEventArgs e)
         {
             LoadGifData();
         }

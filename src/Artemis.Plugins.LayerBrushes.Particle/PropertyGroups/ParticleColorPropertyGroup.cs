@@ -34,7 +34,7 @@ namespace Artemis.Plugins.LayerBrushes.Particle.PropertyGroups
             ColorMode.CurrentValueSet -= ColorModeOnCurrentValueSet;
         }
 
-        private void ColorModeOnCurrentValueSet(object sender, LayerPropertyEventArgs<ParticleColorMode> e)
+        private void ColorModeOnCurrentValueSet(object sender, LayerPropertyEventArgs e)
         {
             UpdateVisibility();
         }
