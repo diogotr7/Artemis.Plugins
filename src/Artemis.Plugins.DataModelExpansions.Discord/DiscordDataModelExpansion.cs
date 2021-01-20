@@ -25,7 +25,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
                 NamingStrategy = new SnakeCaseNamingStrategy { ProcessDictionaryKeys = true }
             }
         };
-        private static readonly HttpClient client = new HttpClient();
+        private static readonly HttpClient httpClient = new HttpClient();
 
         private readonly PluginSetting<string> clientId;
         private readonly PluginSetting<string> clientSecret;
@@ -41,6 +41,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
         };
         const string PIPE = @"discord-ipc-0";
         const string RPC_VERSION = "1";
+        const int HEADER_SIZE = 8;
         private NamedPipeClientStream _pipe;
         private CancellationTokenSource _cancellationToken;
 
@@ -82,6 +83,8 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
             SendPacket(new { v = RPC_VERSION, client_id = clientId.Value }, RpcPacketType.HANDSHAKE);
             _cancellationToken = new CancellationTokenSource();
             Task.Run(StartReadAsync, _cancellationToken.Token);
+
+            AddTimedUpdate(TimeSpan.FromDays(1), TryRefreshTokenAsync);
         }
 
         public override void Disable()
@@ -107,7 +110,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
             string stringData = JsonConvert.SerializeObject(obj, _jsonSerializerSettings);
             byte[] data = Encoding.UTF8.GetBytes(stringData);
             int dataLength = data.Length;
-            byte[] sendBuff = new byte[dataLength + 8];
+            byte[] sendBuff = new byte[dataLength + HEADER_SIZE];
             BinaryWriter writer = new BinaryWriter(new MemoryStream(sendBuff));
             writer.Write((int)opcode);
             writer.Write(dataLength);
@@ -119,18 +122,18 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
         {
             while (!_cancellationToken.IsCancellationRequested)
             {
-                byte[] header = new byte[8];
+                byte[] header = new byte[HEADER_SIZE];
                 await _pipe.ReadAsync(header.AsMemory(0, header.Length), _cancellationToken.Token);
-                RpcPacketType opCode = (RpcPacketType)BitConverter.ToInt32(header, 0);
-                int dataLength = BitConverter.ToInt32(header, 4);
+                RpcPacketType opCode = (RpcPacketType)BitConverter.ToInt32(header.AsSpan());
+                int dataLength = BitConverter.ToInt32(header.AsSpan(4));
                 byte[] dataBuffer = new byte[dataLength];
                 await _pipe.ReadAsync(dataBuffer.AsMemory(0, dataBuffer.Length), _cancellationToken.Token);
 
-                OnMessageReceived(opCode, Encoding.UTF8.GetString(dataBuffer));
+                await ProcessPipeMessageAsync(opCode, Encoding.UTF8.GetString(dataBuffer));
             }
         }
 
-        private void OnMessageReceived(RpcPacketType opCode, string data)
+        private async Task ProcessPipeMessageAsync(RpcPacketType opCode, string data)
         {
             if (opCode == RpcPacketType.PING)
             {
@@ -145,7 +148,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
             }
             catch (Exception exc)
             {
-                _logger.Error(exc, $"Error deserializing discord message");
+                _logger.Error(exc, $"Error deserializing discord message: {data}");
                 return;
             }
 
@@ -153,19 +156,19 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
             {
                 _logger.Verbose($"Received discord response: {discordResponse.Command}");
                 _logger.Verbose(data);
-                ProcessDiscordResponse(discordResponse);
+                await ProcessDiscordResponseAsync(discordResponse);
             }
             else if (discordMessage is DiscordEvent discordEvent)
             {
                 _logger.Verbose($"Received discord message: {discordEvent.Event}");
                 _logger.Verbose(data);
-                ProcessDiscordEvent(discordEvent);
+                await ProcessDiscordEventAsync(discordEvent);
             }
         }
         #endregion
 
         #region Message handling
-        private void ProcessDiscordEvent(DiscordEvent discordEvent)
+        private async Task ProcessDiscordEventAsync(DiscordEvent discordEvent)
         {
             switch (discordEvent)
             {
@@ -182,14 +185,13 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
                     }
                     else
                     {
-                        //Ff we already have a token saved from earlier,
+                        //If we already have a token saved from earlier,
                         //we need to check if it expired or not.
                         //If yes, refresh it.
                         //Then, authenticate.
-                        if (token.Value.ExpirationDate > DateTime.UtcNow)
+                        if (token.Value.ExpirationDate < DateTime.UtcNow)
                         {
-                            TokenResponse tokenResponse = RefreshAccessTokenAsync(token.Value.RefreshToken).Result;
-                            SaveToken(tokenResponse);
+                            SaveToken(await RefreshAccessTokenAsync(token.Value.RefreshToken));
                         }
 
                         SendPacket(new DiscordRequest(DiscordRpcCommand.AUTHENTICATE)
@@ -222,10 +224,12 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
                 case VoiceChannelSelectDiscordEvent voiceSelect:
                     if (voiceSelect.Data.ChannelId is not null)//join voice channel
                     {
+                        DataModel.VoiceConnection.Connected.Trigger();
                         SubscribeToSpeakingEvents(voiceSelect.Data.ChannelId);
                     }
                     else//leave voice channel
                     {
+                        DataModel.VoiceConnection.Disconnected.Trigger();
                     }
                     break;
                 default:
@@ -233,7 +237,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
             }
         }
 
-        private void ProcessDiscordResponse(DiscordResponse discordResponse)
+        private async Task ProcessDiscordResponseAsync(DiscordResponse discordResponse)
         {
             switch (discordResponse)
             {
@@ -245,8 +249,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
                     //so we can get a token with the Code discord gives us. 
                     //This token can then be reused.
 
-                    TokenResponse tokenResponse = GetAccessTokenAsync(authorize.Data.Code).Result;
-                    SaveToken(tokenResponse);
+                    SaveToken(await GetAccessTokenAsync(authorize.Data.Code));
                     SendPacket(new DiscordRequest(DiscordRpcCommand.AUTHENTICATE).WithArgument("access_token", token.Value.AccessToken));
                     break;
                 case AuthenticateDiscordResponse authenticate:
@@ -271,7 +274,6 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
                 case SubscribeDiscordResponse subscribe:
                     _logger.Verbose($"Subscribed to event {subscribe.Data.Event} successfully.");
                     break;
-
                 case SelectedVoiceChannelDiscordResponse selectedVoiceChannel:
                     //Data is null when the user leaves a voice channel
                     if (selectedVoiceChannel.Data != null)
@@ -290,6 +292,17 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
         #endregion
 
         #region Authorization & Authentication
+        private async Task TryRefreshTokenAsync(double obj)
+        {
+            if (token.Value == null)
+                return;
+
+            if (token.Value.ExpirationDate < DateTime.UtcNow.AddDays(1))
+            {
+                SaveToken(await RefreshAccessTokenAsync(token.Value.RefreshToken));
+            }
+        }
+
         private void SaveToken(TokenResponse newToken)
         {
             token.Value = new SavedToken
@@ -303,15 +316,15 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
 
         private async Task<TokenResponse> GetAccessTokenAsync(string challengeCode)
         {
-            return await GetCredentials("authorization_code", "code", challengeCode);
+            return await GetCredentialsAsync("authorization_code", "code", challengeCode);
         }
 
         private async Task<TokenResponse> RefreshAccessTokenAsync(string refreshToken)
         {
-            return await GetCredentials("refresh_token", "refresh_token", refreshToken);
+            return await GetCredentialsAsync("refresh_token", "refresh_token", refreshToken);
         }
 
-        private async Task<TokenResponse> GetCredentials(string grantType, string secretType, string secret)
+        private async Task<TokenResponse> GetCredentialsAsync(string grantType, string secretType, string secret)
         {
             Dictionary<string, string> values = new Dictionary<string, string>
             {
@@ -321,7 +334,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
                 ["client_secret"] = clientSecret.Value
             };
 
-            using HttpResponseMessage response = await client.PostAsync("https://discord.com/api/oauth2/token", new FormUrlEncodedContent(values));
+            using HttpResponseMessage response = await httpClient.PostAsync("https://discord.com/api/oauth2/token", new FormUrlEncodedContent(values));
             string responseString = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<TokenResponse>(responseString, _jsonSerializerSettings);
         }
