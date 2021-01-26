@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace Artemis.Plugins.LayerBrushes.Chroma
 {
     //https://developer.razer.com/works-with-chroma/razer-chroma-led-profiles/
-    internal static class KeyMap
+    internal static class DefaultLedIdMap
     {
         private static readonly Dictionary<(int Row, int Column), LedId> Keyboard = new Dictionary<(int Row, int Column), LedId>
         {
@@ -227,14 +227,14 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
             [(0, 4)] = LedId.LedStripe5,
         };
 
-        internal static Dictionary<Type, Dictionary<(int Row, int Column), LedId>> DeviceTypes = new Dictionary<Type, Dictionary<(int Row, int Column), LedId>>
+        internal static Dictionary<RzDeviceType, Dictionary<(int Row, int Column), LedId>> DeviceTypes = new Dictionary<RzDeviceType, Dictionary<(int Row, int Column), LedId>>
         {
-            [typeof(RzKeyboardDataProvider)] = Keyboard,
-            [typeof(RzMouseDataProvider)] = Mouse,
-            [typeof(RzMousepadDataProvider)] = Mousepad,
-            [typeof(RzHeadsetDataProvider)] = Headset,
-            [typeof(RzKeypadDataProvider)] = Keypad,
-            [typeof(RzChromaLinkDataProvider)] = ChromaLink
+            [RzDeviceType.Keyboard] = Keyboard,
+            [RzDeviceType.Mouse] = Mouse,
+            [RzDeviceType.Mousepad] = Mousepad,
+            [RzDeviceType.Headset] = Headset,
+            [RzDeviceType.Keypad] = Keypad,
+            [RzDeviceType.ChromaLink] = ChromaLink
         };
     }
 }
