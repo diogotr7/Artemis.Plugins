@@ -1,4 +1,4 @@
-﻿using Artemis.Core.Services;
+using Artemis.Core.Services;
 using RazerSdkWrapper;
 using RazerSdkWrapper.Data;
 using RGB.NET.Core;
@@ -7,6 +7,7 @@ using SkiaSharp;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Text.Json;
 
 namespace Artemis.Plugins.LayerBrushes.Chroma
 {
@@ -39,16 +40,11 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
             _logger.Verbose("Started RzSdkManager successfully");
             _manager.DataUpdated += OnDataUpdated;
 
-            ForceUpdateAppList();
+            UpdateAppList();
         }
 
-        internal void ForceUpdateAppList()
+        internal void UpdateAppList()
         {
-            //Opening new apps seems to trigger the update correctly.
-            //This means that if there is an app controlling the lighting we do not need to force an update.
-            if (CurrentApp == null)
-                return;
-
             _logger.Verbose("Running forced AppList update...");
             var applist = _manager.GetDataProvider<RzAppListDataProvider>();
             applist.Update();
@@ -112,7 +108,6 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
             [typeof(RzKeypadDataProvider)] = RzDeviceType.Keypad,
             [typeof(RzKeyboardDataProvider)] = RzDeviceType.Keyboard,
             [typeof(RzHeadsetDataProvider)] = RzDeviceType.Headset,
-            [typeof(RzConnectDataProvider)] = RzDeviceType.Connect,
             [typeof(RzChromaLinkDataProvider)] = RzDeviceType.ChromaLink
         };
 

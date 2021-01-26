@@ -57,11 +57,6 @@ namespace Artemis.Plugins.LayerBrushes.Chroma.DataModelExpansion
                 DataModel.Headset = m5.Cast<SKColor>().ToArray();
             }
 
-            if (_chroma.Matrices.TryGetValue(RzDeviceType.Connect, out var m6))
-            {
-                DataModel.Connect = m6.Cast<SKColor>().ToArray();
-            }
-
             if (_chroma.Matrices.TryGetValue(RzDeviceType.ChromaLink, out var m7))
             {
                 DataModel.ChromaLink = m7.Cast<SKColor>().ToArray();

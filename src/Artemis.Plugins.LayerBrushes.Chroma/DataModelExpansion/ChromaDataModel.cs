@@ -16,7 +16,6 @@ namespace Artemis.Plugins.LayerBrushes.Chroma.DataModelExpansion
         public SKColor[] Keypad { get; set; }
         public SKColor[] Keyboard { get; set; }
         public SKColor[] Headset { get; set; }
-        public SKColor[] Connect { get; set; }
         public SKColor[] ChromaLink { get; set; }
     }
 }

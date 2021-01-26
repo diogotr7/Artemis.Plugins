@@ -60,7 +60,7 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
             }
             else
             {
-                _chroma.ForceUpdateAppList();
+                _chroma.UpdateAppList();
                 forceRefreshAppListTimer = 0;
             }
         }

@@ -7,7 +7,6 @@
             Keypad,
             Keyboard,
             Headset,
-            Connect,
             ChromaLink
         }
 }
