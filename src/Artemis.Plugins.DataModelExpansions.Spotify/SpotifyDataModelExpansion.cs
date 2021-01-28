@@ -12,27 +12,33 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace Artemis.Plugins.DataModelExpansions.Spotify
 {
     public class SpotifyDataModelExpansion : DataModelExpansion<SpotifyDataModel>
     {
-        #region DI
+        #region Constructor and readonly fields
         private readonly ILogger _logger;
         private readonly IColorQuantizerService _colorQuantizer;
         private readonly PluginSetting<PKCETokenResponse> _token;
+        private readonly HttpClient _httpClient;
+        private readonly ConcurrentDictionary<string, TrackColorsDataModel> albumArtColorCache;
 
         public SpotifyDataModelExpansion(PluginSettings settings, ILogger logger, IColorQuantizerService colorQuantizer)
         {
             _logger = logger;
             _colorQuantizer = colorQuantizer;
             _token = settings.GetSetting<PKCETokenResponse>(Constants.SPOTIFY_AUTH_SETTING);
+            _httpClient = new HttpClient
+            {
+                Timeout = TimeSpan.FromSeconds(2)
+            };
+            albumArtColorCache = new ConcurrentDictionary<string, TrackColorsDataModel>();
         }
         #endregion
 
-        private readonly HttpClient _httpClient = new HttpClient();
-        private readonly ConcurrentDictionary<string, TrackColorsDataModel> albumArtColorCache
-                    = new ConcurrentDictionary<string, TrackColorsDataModel>();
+
         private SpotifyClient _spotify;
         private string _trackId;
         private string _contextId;
@@ -40,7 +46,7 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
 
         #region Plugin Methods
         public override void Enable()
-        {   
+        {
             try
             {
                 Login();
@@ -50,7 +56,6 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
                 _logger.Error("Failed spotify authentication, login in the settings dialog:" + e.ToString());
             }
 
-            _httpClient.Timeout = TimeSpan.FromSeconds(2);
             AddTimedUpdate(TimeSpan.FromSeconds(2), UpdateData);
         }
 

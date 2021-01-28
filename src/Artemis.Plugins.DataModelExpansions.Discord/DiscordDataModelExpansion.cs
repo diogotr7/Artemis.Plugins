@@ -51,19 +51,6 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
             clientId = pluginSettings.GetSetting<string>("DiscordClientId", null);
             clientSecret = pluginSettings.GetSetting<string>("DiscordClientSecret", null);
             token = pluginSettings.GetSetting<SavedToken>("DiscordToken", null);
-
-            //REMOVE THIS
-            if (clientId.Value == null)
-            {
-                clientId.Value = "YOUR_CLIENT_ID";
-                clientId.Save();
-            }
-            if (clientSecret.Value == null)
-            {
-                clientSecret.Value = "YOUR_CLIENT_SECRET";
-                clientSecret.Save();
-            }
-            //REMOVE THIS
         }
 
         public override void Enable()
