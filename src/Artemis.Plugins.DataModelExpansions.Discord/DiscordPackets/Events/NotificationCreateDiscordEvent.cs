@@ -2,11 +2,6 @@
 
 namespace Artemis.Plugins.DataModelExpansions.Discord
 {
-    internal class NotificationCreateDiscordEvent : DiscordEvent
-    {
-        public NotificationCreateData Data { get; set; }
-    }
-
     public record NotificationCreateData
     (
         string ChannelId,
@@ -14,7 +9,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
         string IconUrl,
         string Title,
         string Body
-    );
+    ) : DiscordMessageData;
 
     //TODO: i have no idea what the hell they did with this data structure.
     //The docs don't seem to be correct.

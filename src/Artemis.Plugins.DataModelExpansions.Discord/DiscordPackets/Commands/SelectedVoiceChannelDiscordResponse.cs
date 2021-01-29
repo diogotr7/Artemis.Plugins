@@ -2,11 +2,6 @@
 
 namespace Artemis.Plugins.DataModelExpansions.Discord
 {
-    internal class SelectedVoiceChannelDiscordResponse : DiscordResponse
-    {
-        public SelectedVoiceChannelData Data { get; set; }
-    }
-
     public record SelectedVoiceChannelData(
         string Id,
         string GuildId,
@@ -16,7 +11,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
         int UserLimit,
         int Position,
         List<UserVoiceState> VoiceStates
-    );
+    ) : DiscordMessageData;
 
     public record Pan(
         double Left,

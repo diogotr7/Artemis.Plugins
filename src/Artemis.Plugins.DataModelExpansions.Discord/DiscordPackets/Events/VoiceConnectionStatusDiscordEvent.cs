@@ -2,11 +2,6 @@
 
 namespace Artemis.Plugins.DataModelExpansions.Discord
 {
-    public class VoiceConnectionStatusDiscordEvent : DiscordEvent
-    {
-        public VoiceConnectionStatusData Data { get; set; }
-    }
-
     public record VoiceConnectionStatusData
     (
         string State,
@@ -14,5 +9,5 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
         List<int> Pings,
         float AveragePing,
         float? LastPing
-    );
+    ) : DiscordMessageData;
 }

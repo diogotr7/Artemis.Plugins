@@ -1,4 +1,4 @@
-﻿using Artemis.Core;
+using Artemis.Core;
 using Artemis.Core.DataModelExpansions;
 using Artemis.Plugins.DataModelExpansions.Discord.DataModels;
 using Artemis.Plugins.DataModelExpansions.Discord.Enums;
@@ -129,6 +129,11 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
                 SendPacket(data, RpcPacketType.PONG);
                 return;
             }
+            if (opCode == RpcPacketType.HANDSHAKE)
+            {
+                //happens when closing discord and artemis is open?
+                //TODO: investigate
+            }
 
             IDiscordMessage discordMessage;
             try
@@ -151,6 +156,11 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
             {
                 await ProcessDiscordEventAsync(discordEvent);
             }
+            else
+            {
+                //never happens
+                int a = 0;
+            }
         }
         #endregion
 
@@ -159,7 +169,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
         {
             switch (discordEvent)
             {
-                case ReadyDiscordEvent:
+                case DiscordEvent<ReadyData>:
                     if (token.Value == null)
                     {
                         //We have no token saved. This means it's probably the first time
@@ -185,30 +195,30 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
                                         .WithArgument("access_token", token.Value.AccessToken));
                     }
                     break;
-                case VoiceSettingsUpdateDiscordEvent voice:
+                case DiscordEvent<VoiceSettingsData> voice:
                     DataModel.VoiceSettings.Deafened = voice.Data.Deaf;
                     DataModel.VoiceSettings.Muted = voice.Data.Mute;
                     break;
-                case VoiceConnectionStatusDiscordEvent voiceStatus:
+                case DiscordEvent<VoiceConnectionStatusData> voiceStatus:
                     DataModel.VoiceConnection.State = voiceStatus.Data.State;
                     DataModel.VoiceConnection.Ping = voiceStatus.Data.LastPing;
                     break;
-                case NotificationCreateDiscordEvent:
+                case DiscordEvent<NotificationCreateData>:
                     DataModel.Notification.Trigger();
                     break;
-                case SpeakingStopDiscordEvent speakingStop:
+                case DiscordEvent<SpeakingStopData> speakingStop:
                     if (speakingStop.Data.UserId == DataModel.User.Id)
                     {
                         DataModel.VoiceSettings.Speaking = false;
                     }
                     break;
-                case SpeakingStartDiscordEvent speakingStart:
+                case DiscordEvent<SpeakingStartData> speakingStart:
                     if (speakingStart.Data.UserId == DataModel.User.Id)
                     {
                         DataModel.VoiceSettings.Speaking = true;
                     }
                     break;
-                case VoiceChannelSelectDiscordEvent voiceSelect:
+                case DiscordEvent<VoiceChannelSelectData> voiceSelect:
                     if (voiceSelect.Data.ChannelId is not null)//join voice channel
                     {
                         DataModel.VoiceConnection.Connected.Trigger();
@@ -230,7 +240,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
             {
                 //we should only receive the authorize event once from the client
                 //since after that the token should be refreshed
-                case AuthorizeDiscordResponse authorize:
+                case DiscordResponse<AuthorizeData> authorize:
                     //If we get here, it means it's the first time the user is using the plugin.
                     //In this case, we need to ask for their permission for this app to be used
                     //so we can get a token with the Code discord gives us. 
@@ -239,7 +249,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
                     SaveToken(await GetAccessTokenAsync(authorize.Data.Code));
                     SendPacket(new DiscordRequest(DiscordRpcCommand.AUTHENTICATE).WithArgument("access_token", token.Value.AccessToken));
                     break;
-                case AuthenticateDiscordResponse authenticate:
+                case DiscordResponse<AuthenticateData> authenticate:
                     DataModel.User.Username = authenticate.Data.User.Username;
                     DataModel.User.Discriminator = authenticate.Data.User.Discriminator;
                     DataModel.User.Id = authenticate.Data.User.Id;
@@ -254,16 +264,16 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
                     SendPacket(new DiscordSubscribe(DiscordRpcEvent.VOICE_CONNECTION_STATUS));
                     SendPacket(new DiscordSubscribe(DiscordRpcEvent.VOICE_CHANNEL_SELECT));
                     break;
-                case VoiceSettingsDiscordResponse voice:
+                case DiscordResponse<VoiceSettingsData> voice:
                     DataModel.VoiceSettings.Deafened = voice.Data.Deaf;
                     DataModel.VoiceSettings.Muted = voice.Data.Mute;
                     break;
-                case SubscribeDiscordResponse subscribe:
+                case DiscordResponse<SubscribeData> subscribe:
                     _logger.Verbose("Subscribed to event {event} successfully.", subscribe.Data.Event);
                     break;
-                case SelectedVoiceChannelDiscordResponse selectedVoiceChannel:
+                case DiscordResponse<SelectedVoiceChannelData> selectedVoiceChannel:
                     //Data is null when the user leaves a voice channel
-                    if (selectedVoiceChannel.Data != null)
+                    if (selectedVoiceChannel != null)
                         SubscribeToSpeakingEvents(selectedVoiceChannel.Data.Id);
                     break;
                 default:

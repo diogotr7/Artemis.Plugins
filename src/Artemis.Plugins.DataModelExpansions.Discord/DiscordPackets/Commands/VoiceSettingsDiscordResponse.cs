@@ -2,11 +2,6 @@
 
 namespace Artemis.Plugins.DataModelExpansions.Discord
 {
-    public class VoiceSettingsDiscordResponse : DiscordResponse
-    {
-        public VoiceSettingsData Data { get; set; }
-    }
-
     public record VoiceSettingsData
     (
         bool AutomaticGainControl,
@@ -19,7 +14,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
         VoiceSettingsMode Mode,
         InputOutput Input,
         InputOutput Output
-    );
+    ) : DiscordMessageData;
 
     public record Shortcut
     (

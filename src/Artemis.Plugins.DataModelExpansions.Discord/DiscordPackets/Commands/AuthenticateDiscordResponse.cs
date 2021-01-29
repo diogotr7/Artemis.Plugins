@@ -3,11 +3,6 @@ using System.Collections.Generic;
 
 namespace Artemis.Plugins.DataModelExpansions.Discord
 {
-    public class AuthenticateDiscordResponse : DiscordResponse
-    {
-        public AuthenticateData Data { get; set; }
-    }
-
     public record DiscordUser
     (
         string Username,
@@ -35,5 +30,5 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
         DiscordApplication Application,
         DateTime Expires,
         string AccessToken
-    );
+    ) : DiscordMessageData;
 }

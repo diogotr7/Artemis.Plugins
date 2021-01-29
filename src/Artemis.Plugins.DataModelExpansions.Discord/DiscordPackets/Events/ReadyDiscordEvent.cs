@@ -2,11 +2,6 @@
 
 namespace Artemis.Plugins.DataModelExpansions.Discord
 {
-    public class ReadyDiscordEvent : DiscordEvent
-    {
-        public ReadyObject Data { get; set; }
-    }
-
     public record ReadyConfig
     (
         string CdnHost ,
@@ -14,9 +9,9 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
         string Enviroment 
     );
 
-    public record ReadyObject(
+    public record ReadyData(
         [JsonProperty("v")] int Version,
-        ReadyConfig ReadyConfig,
+        ReadyConfig Config,
         DiscordUser User
-    );
+    ) : DiscordMessageData;
 }
