@@ -103,6 +103,8 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
             writer.Write(dataLength);
             writer.Write(data);
             _pipe.Write(sendBuff);
+
+            _logger.Verbose("Sent discord message: {stringData}", stringData);
         }
 
         private async Task StartReadAsync()
@@ -135,20 +137,18 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
             }
             catch (Exception exc)
             {
-                _logger.Error(exc, $"Error deserializing discord message: {data}");
+                _logger.Error(exc, "Error deserializing discord message: {data}", data);
                 return;
             }
 
+            _logger.Verbose("Received discord message: {data}", data);
+
             if (discordMessage is DiscordResponse discordResponse)
             {
-                _logger.Verbose($"Received discord response: {discordResponse.Command}");
-                _logger.Verbose(data);
                 await ProcessDiscordResponseAsync(discordResponse);
             }
             else if (discordMessage is DiscordEvent discordEvent)
             {
-                _logger.Verbose($"Received discord message: {discordEvent.Event}");
-                _logger.Verbose(data);
                 await ProcessDiscordEventAsync(discordEvent);
             }
         }
@@ -259,7 +259,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
                     DataModel.VoiceSettings.Muted = voice.Data.Mute;
                     break;
                 case SubscribeDiscordResponse subscribe:
-                    _logger.Verbose($"Subscribed to event {subscribe.Data.Event} successfully.");
+                    _logger.Verbose("Subscribed to event {event} successfully.", subscribe.Data.Event);
                     break;
                 case SelectedVoiceChannelDiscordResponse selectedVoiceChannel:
                     //Data is null when the user leaves a voice channel
