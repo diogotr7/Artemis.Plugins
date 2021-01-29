@@ -5,9 +5,9 @@
         public VoiceChannelSelectData Data { get; set; }
     }
 
-    public class VoiceChannelSelectData
-    {
-        public string GuildId { get; set; }
-        public string ChannelId { get; set; }
-    }
+    public record VoiceChannelSelectData
+    (
+        string GuildId,
+        string ChannelId
+    );
 }

@@ -5,8 +5,5 @@
         public AuthorizeData Data { get; set; }
     }
 
-    public class AuthorizeData
-    {
-        public string Code { get; set; }
-    }
+    public record AuthorizeData(string Code);
 }

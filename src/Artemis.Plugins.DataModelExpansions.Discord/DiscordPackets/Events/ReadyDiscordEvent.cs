@@ -7,22 +7,16 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
         public ReadyObject Data { get; set; }
     }
 
-    public class ReadyConfig
-    {
-        public string CdnHost { get; set; }
+    public record ReadyConfig
+    (
+        string CdnHost ,
+        string ApiEndpoint ,
+        string Enviroment 
+    );
 
-        public string ApiEndpoint { get; set; }
-
-        public string Enviroment { get; set; }
-    }
-
-    public class ReadyObject
-    {
-        [JsonProperty("v")]
-        public int Version { get; set; }
-
-        public ReadyConfig Config { get; set; }
-
-        public DiscordUser User { get; set; }
-    }
+    public record ReadyObject(
+        [JsonProperty("v")] int Version,
+        ReadyConfig ReadyConfig,
+        DiscordUser User
+    );
 }

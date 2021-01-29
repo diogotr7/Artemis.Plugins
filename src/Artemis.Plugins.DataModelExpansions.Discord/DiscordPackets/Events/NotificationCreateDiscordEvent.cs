@@ -7,32 +7,33 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
         public NotificationCreateData Data { get; set; }
     }
 
-    public class NotificationCreateData
-    {
-        public string ChannelId { get; set; }
-        public string IconUrl { get; set; }
-        public string Title { get; set; }
-        public string Body { get; set; }
-        public DiscordMessage Message { get; set; }
-    }
+    public record NotificationCreateData
+    (
+        string ChannelId,
+        DiscordMessage Message,
+        string IconUrl,
+        string Title,
+        string Body
+    );
 
-    public class DiscordMessage
-    {
-        public string Id { get; set; }
-        public bool Blocked { get; set; }
-        public string Content { get; set; }
-        public string AuthorColor { get; set; }
-        public DateTime? EditedTimestamp { get; set; }
-        public DateTime Timestamp { get; set; }
-        public bool Tts { get; set; }
-        public bool MentionEveryone { get; set; }
-        public int Type { get; set; }
-        public bool Pinned { get; set; }
-        public DiscordUser Author { get; set; }
+    //TODO: i have no idea what the hell they did with this data structure.
+    //The docs don't seem to be correct.
+    public record DiscordMessage
+    (
+        string Id,
+        string Content,
+        string Nick,
+        DateTime Timestamp,
+        DateTime? EditedTimestamp,
+        bool Tts,
+        int Type,
+        DiscordUser Author,
+        bool Pinned
+        
         //"mentions": [],
         //"mention_roles": [],
         //"embeds": [],
         //"attachments": [],
         //"content_parsed"
-    }
+    );
 }

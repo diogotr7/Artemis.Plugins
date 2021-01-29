@@ -10,8 +10,5 @@
         public SpeakingStartStopData Data { get; set; }
     }
 
-    public class SpeakingStartStopData
-    {
-        public string UserId { get; set; }
-    }
+    public record SpeakingStartStopData(string UserId);
 }

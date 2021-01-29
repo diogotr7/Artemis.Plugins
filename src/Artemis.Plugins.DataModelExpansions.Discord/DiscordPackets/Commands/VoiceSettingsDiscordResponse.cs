@@ -7,41 +7,50 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
         public VoiceSettingsData Data { get; set; }
     }
 
-    public class VoiceSettingsMode
-    {
-        public string Type { get; set; }
-        public bool AutoThreshold { get; set; }
-        public float Threshold { get; set; }
-        //shortcut???
-        public float Delay { get; set; }
-    }
+    public record VoiceSettingsData
+    (
+        bool AutomaticGainControl,
+        bool EchoCancellation,
+        bool NoiseSuppression,
+        bool Qos,
+        bool SilenceWarning,
+        bool Deaf,
+        bool Mute,
+        VoiceSettingsMode Mode,
+        InputOutput Input,
+        InputOutput Output
+    );
 
-    public class AudioDevice
-    {
-        public string Id { get; set; }
-        public string Name { get; set; }
-    }
+    public record Shortcut
+    (
+         //0 - KEYBOARD_KEY
+         //1 - MOUSE_BUTTON
+         //2 - KEYBOARD_MODIFIER_KEY
+         //3 - GAMEPAD_BUTTON
+         int Type,
+         int Code,
+         string Name
+    );
 
-    public class InputOutput
-    {
-        public List<AudioDevice> AvailableDevices { get; set; }
+    public record VoiceSettingsMode
+    (
+        string Type,
+        bool AutoThreshold,
+        float Threshold,
+        Shortcut[] Shortcut,
+        float Delay
+    );
 
-        public string DeviceId { get; set; }
+    public record AudioDevice
+    (
+        string Id,
+        string Name
+    );
 
-        public float Volume { get; set; }
-    }
-
-    public class VoiceSettingsData
-    {
-        public bool AutomaticGainControl { get; set; }
-        public bool EchoCancellation { get; set; }
-        public bool NoiseSuppression { get; set; }
-        public bool Qos { get; set; }
-        public bool SilenceWarning { get; set; }
-        public bool Deaf { get; set; }
-        public bool Mute { get; set; }
-        public VoiceSettingsMode Mode { get; set; }
-        public InputOutput Input { get; set; }
-        public InputOutput Output { get; set; }
-    }
+    public record InputOutput
+    (
+        List<AudioDevice> AvailableDevices,
+        string DeviceId,
+        float Volume
+    );
 }

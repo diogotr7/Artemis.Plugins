@@ -7,9 +7,8 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
         public SubscribeData Data { get; set; }
     }
 
-    public class SubscribeData
-    {
+    public record SubscribeData(
         [JsonProperty("evt")]
-        public string Event { get; set; }
-    }
+        string Event
+    );
 }

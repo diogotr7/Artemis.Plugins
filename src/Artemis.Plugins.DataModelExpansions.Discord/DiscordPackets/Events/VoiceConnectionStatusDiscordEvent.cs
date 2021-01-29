@@ -7,16 +7,12 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
         public VoiceConnectionStatusData Data { get; set; }
     }
 
-    public class VoiceConnectionStatusData
-    {
-        public string State { get; set; }
-
-        public string Hostname { get; set; }
-
-        public List<int> Pings { get; set; }
-
-        public float AveragePing { get; set; }
-
-        public float? LastPing { get; set; }
-    }
+    public record VoiceConnectionStatusData
+    (
+        string State,
+        string Hostname,
+        List<int> Pings,
+        float AveragePing,
+        float? LastPing
+    );
 }
