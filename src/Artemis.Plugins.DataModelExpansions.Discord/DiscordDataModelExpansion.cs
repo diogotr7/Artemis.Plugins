@@ -158,8 +158,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
             }
             else
             {
-                //never happens
-                int a = 0;
+                _logger.Error("Received unexpected discord message: {data}", data);
             }
         }
         #endregion
@@ -230,6 +229,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
                     }
                     break;
                 default:
+                    _logger.Error("Received unexpected discord event of type {eventType}", discordEvent.Event);
                     break;
             }
         }
@@ -277,6 +277,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
                         SubscribeToSpeakingEvents(selectedVoiceChannel.Data.Id);
                     break;
                 default:
+                    _logger.Error("Received unexpected discord response to command {commandType} with guid {guid}", discordResponse.Command, discordResponse.Nonce);
                     break;
             }
         }
