@@ -11,7 +11,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
         int UserLimit,
         int Position,
         List<UserVoiceState> VoiceStates
-    ) : DiscordMessageData;
+    );
 
     public record Pan(
         double Left,

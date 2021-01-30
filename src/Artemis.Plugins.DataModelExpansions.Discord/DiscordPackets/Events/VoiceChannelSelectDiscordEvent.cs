@@ -4,5 +4,5 @@
     (
         string GuildId,
         string ChannelId
-    ) : DiscordMessageData;
+    );
 }

@@ -25,7 +25,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
     [KnownSubType(typeof(DiscordResponse<VoiceSettingsData>), DiscordRpcCommand.GET_VOICE_SETTINGS)]
     [KnownSubType(typeof(DiscordResponse<SubscribeData>), DiscordRpcCommand.SUBSCRIBE)]
     [KnownSubType(typeof(DiscordResponse<SelectedVoiceChannelData>), DiscordRpcCommand.GET_SELECTED_VOICE_CHANNEL)]
-    public class DiscordResponse<T> : DiscordResponse where T : DiscordMessageData
+    public class DiscordResponse<T> : DiscordResponse
     {
         public T Data { get; init; }
     }
@@ -44,10 +44,8 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
     [KnownSubType(typeof(DiscordEvent<SpeakingStopData>), DiscordRpcEvent.SPEAKING_STOP)]
     [KnownSubType(typeof(DiscordEvent<SpeakingStartData>), DiscordRpcEvent.SPEAKING_START)]
     [KnownSubType(typeof(DiscordEvent<VoiceChannelSelectData>), DiscordRpcEvent.VOICE_CHANNEL_SELECT)]
-    public class DiscordEvent<T> : DiscordEvent where T : DiscordMessageData
+    public class DiscordEvent<T> : DiscordEvent
     {
         public T Data { get; init; }
     }
-
-    public abstract record DiscordMessageData;
 }

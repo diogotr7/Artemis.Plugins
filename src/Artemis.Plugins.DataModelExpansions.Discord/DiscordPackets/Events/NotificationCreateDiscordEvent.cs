@@ -9,7 +9,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
         string IconUrl,
         string Title,
         string Body
-    ) : DiscordMessageData;
+    );
 
     //TODO: i have no idea what the hell they did with this data structure.
     //The docs don't seem to be correct.

@@ -13,5 +13,5 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
         [JsonProperty("v")] int Version,
         ReadyConfig Config,
         DiscordUser User
-    ) : DiscordMessageData;
+    );
 }

@@ -9,5 +9,5 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
         List<int> Pings,
         float AveragePing,
         float? LastPing
-    ) : DiscordMessageData;
+    );
 }

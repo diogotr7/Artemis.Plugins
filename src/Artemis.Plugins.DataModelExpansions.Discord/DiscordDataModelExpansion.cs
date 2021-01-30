@@ -39,9 +39,9 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
             //"messages.read",
             "rpc.notifications.read"
         };
-        const string PIPE = @"discord-ipc-0";
-        const string RPC_VERSION = "1";
-        const int HEADER_SIZE = 8;
+        private const string PIPE = @"discord-ipc-0";
+        private const string RPC_VERSION = "1";
+        private const int HEADER_SIZE = 8;
         private NamedPipeClientStream _pipe;
         private CancellationTokenSource _cancellationToken;
 
@@ -273,7 +273,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
                     break;
                 case DiscordResponse<SelectedVoiceChannelData> selectedVoiceChannel:
                     //Data is null when the user leaves a voice channel
-                    if (selectedVoiceChannel != null)
+                    if (selectedVoiceChannel.Data != null)
                         SubscribeToSpeakingEvents(selectedVoiceChannel.Data.Id);
                     break;
                 default:

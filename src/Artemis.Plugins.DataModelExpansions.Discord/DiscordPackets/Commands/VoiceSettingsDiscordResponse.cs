@@ -14,7 +14,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
         VoiceSettingsMode Mode,
         InputOutput Input,
         InputOutput Output
-    ) : DiscordMessageData;
+    );
 
     public record Shortcut
     (

@@ -30,5 +30,5 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
         DiscordApplication Application,
         DateTime Expires,
         string AccessToken
-    ) : DiscordMessageData;
+    );
 }
