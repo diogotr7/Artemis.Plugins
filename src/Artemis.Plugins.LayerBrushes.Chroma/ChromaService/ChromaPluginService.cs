@@ -1,13 +1,11 @@
 using Artemis.Core.Services;
 using RazerSdkWrapper;
 using RazerSdkWrapper.Data;
-using RGB.NET.Core;
 using Serilog;
 using SkiaSharp;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Text.Json;
 
 namespace Artemis.Plugins.LayerBrushes.Chroma
 {
@@ -21,7 +19,7 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
         public List<string> Apps { get; } = new List<string>();
         public List<int> Pids { get; } = new List<int>();
         public ConcurrentDictionary<RzDeviceType, SKColor[,]> Matrices { get; } = new ConcurrentDictionary<RzDeviceType, SKColor[,]>();
-        
+
         public ChromaPluginService(ILogger logger)
         {
             _logger = logger;
@@ -43,10 +41,17 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
             UpdateAppList();
         }
 
-        internal void UpdateAppList()
+        internal void UpdateAppList(bool forced = false)
         {
-            _logger.Verbose("Running forced AppList update...");
-            var applist = _manager.GetDataProvider<RzAppListDataProvider>();
+            if (CurrentApp == null && !forced)
+                return;
+
+            if (forced)
+                _logger.Verbose("Running forced AppList update...");
+            else
+                _logger.Verbose("Running applist update to check for closed apps...");
+
+            RzAppListDataProvider applist = _manager.GetDataProvider<RzAppListDataProvider>();
             applist.Update();
             UpdateAppListData(applist);
         }
@@ -75,7 +80,7 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
             RzDeviceType matrixDeviceType = deviceTypeDict[colorProvider.GetType()];
             GridSize grid = colorProvider.Grids[0];
 
-            var matrix = Matrices.GetOrAdd(matrixDeviceType, new SKColor[grid.Height, grid.Width]);
+            SKColor[,] matrix = Matrices.GetOrAdd(matrixDeviceType, new SKColor[grid.Height, grid.Width]);
 
             for (int i = 0; i < grid.Height; i++)
             {
@@ -122,5 +127,5 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
             GC.SuppressFinalize(this);
         }
         #endregion
-    }        
+    }
 }

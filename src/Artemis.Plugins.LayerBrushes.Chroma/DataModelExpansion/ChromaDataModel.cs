@@ -1,7 +1,5 @@
 ﻿using Artemis.Core.DataModelExpansions;
-using RGB.NET.Core;
 using SkiaSharp;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace Artemis.Plugins.LayerBrushes.Chroma.DataModelExpansion

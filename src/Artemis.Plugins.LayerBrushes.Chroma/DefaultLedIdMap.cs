@@ -1,6 +1,4 @@
-﻿using RazerSdkWrapper.Data;
-using RGB.NET.Core;
-using System;
+﻿using RGB.NET.Core;
 using System.Collections.Generic;
 
 namespace Artemis.Plugins.LayerBrushes.Chroma

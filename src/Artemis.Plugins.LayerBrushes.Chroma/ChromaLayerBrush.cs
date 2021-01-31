@@ -2,7 +2,6 @@
 using Artemis.Core.LayerBrushes;
 using Artemis.Plugins.LayerBrushes.Chroma.PropertyGroups;
 using RGB.NET.Core;
-using Serilog;
 using SkiaSharp;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -32,7 +31,7 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
 
         private void OnMatrixUpdated(object sender, RzDeviceType e)
         {
-            var matrix = _chroma.Matrices[e];
+            SKColor[,] matrix = _chroma.Matrices[e];
             if (!DefaultLedIdMap.DeviceTypes.TryGetValue(e, out Dictionary<(int Row, int Column), LedId> dict))
                 return;
 
@@ -40,7 +39,7 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
             {
                 for (int j = 0; j < matrix.GetLength(1); j++)
                 {
-                    if (dict.TryGetValue((i, j), out var ledid))
+                    if (dict.TryGetValue((i, j), out LedId ledid))
                     {
                         _colors[ledid] = matrix[i, j];
                     }
