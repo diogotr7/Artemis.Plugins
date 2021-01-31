@@ -38,7 +38,7 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
             _logger.Verbose("Started RzSdkManager successfully");
             _manager.DataUpdated += OnDataUpdated;
 
-            UpdateAppList();
+            UpdateAppList(true);
         }
 
         internal void UpdateAppList(bool forced = false)

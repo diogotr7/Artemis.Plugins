@@ -32,7 +32,7 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
         private void OnMatrixUpdated(object sender, RzDeviceType e)
         {
             SKColor[,] matrix = _chroma.Matrices[e];
-            if (!DefaultLedIdMap.DeviceTypes.TryGetValue(e, out Dictionary<(int Row, int Column), LedId> dict))
+            if (!DefaultChromaLedMap.DeviceTypes.TryGetValue(e, out Dictionary<(int Row, int Column), LedId> dict))
                 return;
 
             for (int i = 0; i < matrix.GetLength(0); i++)

@@ -4,12 +4,13 @@ using System.Collections.Generic;
 namespace Artemis.Plugins.LayerBrushes.Chroma
 {
     //https://developer.razer.com/works-with-chroma/razer-chroma-led-profiles/
-    internal static class DefaultLedIdMap
+    public static class DefaultChromaLedMap
     {
-        private static readonly Dictionary<(int Row, int Column), LedId> Keyboard = new Dictionary<(int Row, int Column), LedId>
+        public static readonly Dictionary<(int Row, int Column), LedId> Keyboard = new Dictionary<(int Row, int Column), LedId>
         {
             [(0, 1)] = LedId.Keyboard_Escape,
-            [(0, 3)] = LedId.Keyboard_F1,
+            //[(0, 2)] = LedId.?,
+            [(0, 03)] = LedId.Keyboard_F1,
             [(0, 4)] = LedId.Keyboard_F2,
             [(0, 5)] = LedId.Keyboard_F3,
             [(0, 6)] = LedId.Keyboard_F4,
@@ -24,7 +25,10 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
             [(0, 15)] = LedId.Keyboard_PrintScreen,
             [(0, 16)] = LedId.Keyboard_ScrollLock,
             [(0, 17)] = LedId.Keyboard_PauseBreak,
+            //[(0, 18)] = LedId.?,
+            //[(0, 19)] = LedId.?,
             [(0, 20)] = LedId.Logo,
+            //[(0, 21)] = LedId.?,
 
             [(1, 0)] = LedId.Keyboard_Macro1,
             [(1, 1)] = LedId.Keyboard_GraveAccentAndTilde,
@@ -87,9 +91,13 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
             [(3, 12)] = LedId.Keyboard_ApostropheAndDoubleQuote,
             [(3, 13)] = LedId.Keyboard_NonUsTilde,
             [(3, 14)] = LedId.Keyboard_Enter,
+            //[(3, 15)] = LedId.?,
+            //[(3, 16)] = LedId.?,
+            //[(3, 17)] = LedId.?,
             [(3, 18)] = LedId.Keyboard_Num4,
             [(3, 19)] = LedId.Keyboard_Num5,
             [(3, 20)] = LedId.Keyboard_Num6,
+            //[(3, 21)] = LedId.?,
 
             [(4, 0)] = LedId.Keyboard_Macro4,
             [(4, 1)] = LedId.Keyboard_LeftShift,
@@ -105,7 +113,9 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
             [(4, 11)] = LedId.Keyboard_PeriodAndBiggerThan,
             [(4, 12)] = LedId.Keyboard_SlashAndQuestionMark,
             [(4, 14)] = LedId.Keyboard_RightShift,
+            //[(4, 15)] = LedId.?,
             [(4, 16)] = LedId.Keyboard_ArrowUp,
+            //[(4, 17)] = LedId.?,
             [(4, 18)] = LedId.Keyboard_Num1,
             [(4, 19)] = LedId.Keyboard_Num2,
             [(4, 20)] = LedId.Keyboard_Num3,
@@ -115,7 +125,13 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
             [(5, 1)] = LedId.Keyboard_LeftCtrl,
             [(5, 2)] = LedId.Keyboard_LeftGui,
             [(5, 3)] = LedId.Keyboard_LeftAlt,
+            //[(5, 4)] = LedId.?,
+            //[(5, 5)] = LedId.?,
+            //[(5, 6)] = LedId.?,
             [(5, 7)] = LedId.Keyboard_Space,
+            //[(5, 8)] = LedId.?,
+            //[(5, 9)] = LedId.?,
+            //[(5, 10)] = LedId.?,
             [(5, 11)] = LedId.Keyboard_RightAlt,
             [(5, 12)] = LedId.Keyboard_RightGui,
             [(5, 13)] = LedId.Keyboard_Application,
@@ -123,11 +139,13 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
             [(5, 15)] = LedId.Keyboard_ArrowLeft,
             [(5, 16)] = LedId.Keyboard_ArrowDown,
             [(5, 17)] = LedId.Keyboard_ArrowRight,
+            //[(5, 18)] = LedId.?,
             [(5, 19)] = LedId.Keyboard_Num0,
             [(5, 20)] = LedId.Keyboard_NumPeriodAndDelete
+            //[(5, 21)] = LedId.?
         };
 
-        private static readonly Dictionary<(int Row, int Column), LedId> Mouse = new Dictionary<(int Row, int Column), LedId>
+        public static readonly Dictionary<(int Row, int Column), LedId> Mouse = new Dictionary<(int Row, int Column), LedId>
         {
             [(1, 0)] = LedId.Mouse1,
             [(1, 6)] = LedId.Mouse2,
@@ -161,7 +179,7 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
             [(8, 6)] = LedId.Mouse23,
         };
 
-        private static readonly Dictionary<(int Row, int Column), LedId> Mousepad = new Dictionary<(int Row, int Column), LedId>
+        public static readonly Dictionary<(int Row, int Column), LedId> Mousepad = new Dictionary<(int Row, int Column), LedId>
         {
             [(0, 0)] = LedId.Mousepad15,
             [(0, 1)] = LedId.Mousepad14,
@@ -180,7 +198,7 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
             [(0, 14)] = LedId.Mousepad1
         };
 
-        private static readonly Dictionary<(int Row, int Column), LedId> Headset = new Dictionary<(int Row, int Column), LedId>
+        public static readonly Dictionary<(int Row, int Column), LedId> Headset = new Dictionary<(int Row, int Column), LedId>
         {
             [(0, 0)] = LedId.Headset1,
             [(0, 1)] = LedId.Headset2,
@@ -189,7 +207,7 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
             [(0, 4)] = LedId.Headset5
         };
 
-        private static readonly Dictionary<(int Row, int Column), LedId> Keypad = new Dictionary<(int Row, int Column), LedId>
+        public static readonly Dictionary<(int Row, int Column), LedId> Keypad = new Dictionary<(int Row, int Column), LedId>
         {
             [(0, 0)] = LedId.Keypad1,
             [(0, 1)] = LedId.Keypad2,
@@ -216,7 +234,7 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
             [(3, 4)] = LedId.Keypad20,
         };
 
-        private static readonly Dictionary<(int Row, int Column), LedId> ChromaLink = new Dictionary<(int Row, int Column), LedId>
+        public static readonly Dictionary<(int Row, int Column), LedId> ChromaLink = new Dictionary<(int Row, int Column), LedId>
         {
             [(0, 0)] = LedId.LedStripe1,
             [(0, 1)] = LedId.LedStripe2,
@@ -225,7 +243,7 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
             [(0, 4)] = LedId.LedStripe5,
         };
 
-        internal static Dictionary<RzDeviceType, Dictionary<(int Row, int Column), LedId>> DeviceTypes = new Dictionary<RzDeviceType, Dictionary<(int Row, int Column), LedId>>
+        public static readonly Dictionary<RzDeviceType, Dictionary<(int Row, int Column), LedId>> DeviceTypes = new Dictionary<RzDeviceType, Dictionary<(int Row, int Column), LedId>>
         {
             [RzDeviceType.Keyboard] = Keyboard,
             [RzDeviceType.Mouse] = Mouse,
