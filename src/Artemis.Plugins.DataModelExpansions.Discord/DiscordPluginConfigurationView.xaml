@@ -25,9 +25,15 @@
                 <TextBox Grid.Row="0" Grid.Column="2" Text="{Binding ClientId}" Width="400"/>
                 <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding ClientSecret}" Width="400"/>
             </Grid>
-            <Button Style="{StaticResource MaterialDesignFlatMidBgButton}" Command="{s:Action Save}" VerticalAlignment="Bottom">
-                SAVE CHANGES
-            </Button>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
+                <Button Style="{StaticResource MaterialDesignFlatMidBgButton}" Command="{s:Action Reset}" VerticalAlignment="Bottom">
+                    RESET
+                </Button>
+                
+                <Button Style="{StaticResource MaterialDesignFlatMidBgButton}" Command="{s:Action Save}" VerticalAlignment="Bottom">
+                    SAVE CHANGES
+                </Button>
+            </StackPanel>
         </StackPanel>
     </Grid>
 </UserControl>

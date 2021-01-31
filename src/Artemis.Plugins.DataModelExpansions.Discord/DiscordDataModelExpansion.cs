@@ -55,7 +55,8 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
 
         public override void Enable()
         {
-            if (clientId.Value == null || clientSecret == null)
+            if (clientId.Value == null || clientId.Value.Length != 18 || 
+                clientSecret.Value == null || clientSecret.Value.Length != 32 )
                 throw new ArtemisPluginException("Client ID or secret invalid");
 
             try
@@ -76,8 +77,8 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
 
         public override void Disable()
         {
-            _cancellationToken.Cancel();
-            _pipe.Dispose();
+            _cancellationToken?.Cancel();
+            _pipe?.Dispose();
         }
 
         public override void Update(double deltaTime)
@@ -133,6 +134,11 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
             {
                 //happens when closing discord and artemis is open?
                 //TODO: investigate
+            }
+            if (opCode == RpcPacketType.CLOSE)
+            {
+                _logger.Error("Discord pipe connection closed: {data}", data);
+                return;
             }
 
             IDiscordMessage discordMessage;
@@ -334,6 +340,12 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
 
             using HttpResponseMessage response = await httpClient.PostAsync("https://discord.com/api/oauth2/token", new FormUrlEncodedContent(values));
             string responseString = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.Error("Discord credentials error. Grant Type: {grantType}, Secret Type: {secretType}, Message: {message}", grantType, secretType, responseString);
+                throw new UnauthorizedAccessException(responseString);
+            }
+
             return JsonConvert.DeserializeObject<TokenResponse>(responseString, _jsonSerializerSettings);
         }
         #endregion
