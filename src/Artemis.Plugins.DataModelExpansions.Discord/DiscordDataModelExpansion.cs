@@ -55,8 +55,8 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
 
         public override void Enable()
         {
-            if (clientId.Value == null || clientId.Value.Length != 18 || 
-                clientSecret.Value == null || clientSecret.Value.Length != 32 )
+            if (clientId.Value == null || clientId.Value.Length != 18 ||
+                clientSecret.Value == null || clientSecret.Value.Length != 32)
                 throw new ArtemisPluginException("Client ID or secret invalid");
 
             try

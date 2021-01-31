@@ -30,7 +30,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
         public T Data { get; init; }
     }
 
-    public class DiscordEvent : IDiscordMessage 
+    public class DiscordEvent : IDiscordMessage
     {
         [JsonProperty("evt")]
         public DiscordRpcEvent Event { get; set; }

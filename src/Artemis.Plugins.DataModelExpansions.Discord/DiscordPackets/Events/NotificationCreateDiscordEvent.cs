@@ -24,11 +24,11 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
         int Type,
         DiscordUser Author,
         bool Pinned
-        
-        //"mentions": [],
-        //"mention_roles": [],
-        //"embeds": [],
-        //"attachments": [],
-        //"content_parsed"
+
+    //"mentions": [],
+    //"mention_roles": [],
+    //"embeds": [],
+    //"attachments": [],
+    //"content_parsed"
     );
 }

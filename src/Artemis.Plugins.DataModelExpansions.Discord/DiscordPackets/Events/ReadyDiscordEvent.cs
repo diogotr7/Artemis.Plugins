@@ -4,9 +4,9 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
 {
     public record ReadyConfig
     (
-        string CdnHost ,
-        string ApiEndpoint ,
-        string Enviroment 
+        string CdnHost,
+        string ApiEndpoint,
+        string Enviroment
     );
 
     public record ReadyData(
