@@ -15,6 +15,8 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
         private readonly RzSdkManager _manager;
 
         public event EventHandler<RzDeviceType> MatrixUpdated;
+        public event EventHandler AppListUpdated;
+
         public string CurrentApp { get; private set; }
         public List<string> Apps { get; } = new List<string>();
         public List<int> Pids { get; } = new List<int>();
@@ -104,6 +106,8 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
                 Apps.Add(app.GetExecutableName(i));
                 Pids.Add(app.GetPid(i));
             }
+
+            AppListUpdated?.Invoke(this, EventArgs.Empty);
         }
 
         private readonly Dictionary<Type, RzDeviceType> deviceTypeDict = new Dictionary<Type, RzDeviceType>
