@@ -11,13 +11,16 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
     public class ChromaLayerBrush : PerLedLayerBrush<MainPropertyGroup>
     {
         private readonly ChromaPluginService _chroma;
-        public ChromaLayerBrush(ChromaPluginService chroma)
+        private readonly PluginSetting<Dictionary<RzDeviceType, LedId[,]>> _keyMapSetting;
+        private readonly ConcurrentDictionary<LedId, SKColor> _colors = new ConcurrentDictionary<LedId, SKColor>();
+
+        public ChromaLayerBrush(ChromaPluginService chroma, PluginSettings pluginSettings)
         {
             _chroma = chroma;
+            _keyMapSetting = pluginSettings.GetSetting("ChromaLedArray", DefaultChromaLedMap.Clone());
         }
 
         private double forceRefreshAppListTimer;
-        private readonly ConcurrentDictionary<LedId, SKColor> _colors = new ConcurrentDictionary<LedId, SKColor>();
 
         public override void EnableLayerBrush()
         {
@@ -32,17 +35,13 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
         private void OnMatrixUpdated(object sender, RzDeviceType e)
         {
             SKColor[,] matrix = _chroma.Matrices[e];
-            if (!DefaultChromaLedMap.DeviceTypes.TryGetValue(e, out Dictionary<(int Row, int Column), LedId> dict))
-                return;
+            var dict = _keyMapSetting.Value[e];
 
             for (int i = 0; i < matrix.GetLength(0); i++)
             {
                 for (int j = 0; j < matrix.GetLength(1); j++)
                 {
-                    if (dict.TryGetValue((i, j), out LedId ledid))
-                    {
-                        _colors[ledid] = matrix[i, j];
-                    }
+                    _colors[dict[i, j]] = matrix[i, j];
                 }
             }
         }
