@@ -96,20 +96,26 @@ jobs:
           name: Artemis.Plugins.DataModelExpansions.OBS
           path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.OBS\bin\x64\Release\net5.0-windows\publish
 
-      - name: Fallout 4
+      - name: Upload Fallout 4
         uses: actions/upload-artifact@v2
         with:
           name: Artemis.Plugins.Modules.Fallout4
           path: .\Plugins\src\Artemis.Plugins.Modules.Fallout4\bin\x64\Release\net5.0-windows\publish
 
-      - name: Standalone Hardware Monitor
+      - name: Upload Standalone Hardware Monitor
         uses: actions/upload-artifact@v2
         with:
           name: Artemis.Plugins.DataModelExpansions.StandaloneHardwareMonitor
           path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.StandaloneHardwareMonitor\bin\x64\Release\net5.0-windows\publish
 
-      - name: Discord
+      - name: Upload Discord
         uses: actions/upload-artifact@v2
         with:
           name: Artemis.Plugins.DataModelExpansions.Discord
           path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.Discord\bin\x64\Release\net5.0-windows\publish
+
+      - name: Upload Ambilight
+        uses: actions/upload-artifact@v2
+        with:
+          name: Artemis.Plugins.LayerBrushes.Ambilight
+          path: .\Plugins\src\Artemis.Plugins.LayerBrushes.Discord\bin\x64\Release\net5.0-windows\publish
