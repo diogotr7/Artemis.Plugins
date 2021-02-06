@@ -1,4 +1,4 @@
-﻿using Artemis.Core;
+using Artemis.Core;
 using Artemis.Core.LayerBrushes;
 using Artemis.Plugins.LayerBrushes.Ambilight.PropertyGroups;
 using SkiaSharp;
@@ -113,9 +113,21 @@ namespace Artemis.Plugins.LayerBrushes.Ambilight
                 screenResource.Dispose();
                 duplication.ReleaseFrame();
             }
-            catch (Exception e)
+            catch (SharpGen.Runtime.SharpGenException e)
             {
-                StartDesktopDuplicator(0, 0);
+                if(e.ResultCode == Vortice.DXGI.ResultCode.AccessLost)
+                {
+                    StartDesktopDuplicator(0, 0);
+
+                }
+                else if(e.ResultCode == Vortice.DXGI.ResultCode.WaitTimeout)
+                {
+                    //ignore
+                }
+                else
+                {
+
+                }
                 //throw;
             }
         }
@@ -142,7 +154,7 @@ namespace Artemis.Plugins.LayerBrushes.Ambilight
         public override SKColor GetColor(ArtemisLed led, SKPoint renderPoint)
         {
             const int sampleSize = 9;
-            int sampleDepth = Math.Sqrt(sampleSize).RoundToInt();
+            const int sampleDepth = 3;
 
             var renderBounds = Layer.Bounds;
             var widthScale = pixmap.Width / renderBounds.Width;
@@ -164,7 +176,7 @@ namespace Artemis.Plugins.LayerBrushes.Ambilight
                     for (int verticalStep = 0; verticalStep < sampleDepth; verticalStep++)
                     {
                         var bruhX = x + horizontalSteps * horizontalStep;
-                        var bruhY = y + verticalSteps* verticalStep;
+                        var bruhY = y + verticalSteps * verticalStep;
                         SKColor color = pixmap.GetPixelColor(bruhX, bruhY);
                         r += color.Red;
                         g += color.Green;
