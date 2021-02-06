@@ -118,4 +118,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Artemis.Plugins.LayerBrushes.Ambilight
-          path: .\Plugins\src\Artemis.Plugins.LayerBrushes.Discord\bin\x64\Release\net5.0-windows\publish
+          path: .\Plugins\src\Artemis.Plugins.LayerBrushes.Ambilight\bin\x64\Release\net5.0-windows\publish
