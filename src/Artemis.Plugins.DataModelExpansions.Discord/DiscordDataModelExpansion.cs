@@ -110,17 +110,29 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
 
         private async Task StartReadAsync()
         {
-            while (!_cancellationToken.IsCancellationRequested)
+            while (!_cancellationToken.IsCancellationRequested && (_pipe?.IsConnected == true))
             {
-                byte[] header = new byte[HEADER_SIZE];
-                await _pipe.ReadAsync(header.AsMemory(0, header.Length), _cancellationToken.Token);
-                RpcPacketType opCode = (RpcPacketType)BitConverter.ToInt32(header.AsSpan());
-                int dataLength = BitConverter.ToInt32(header.AsSpan(4));
-                byte[] dataBuffer = new byte[dataLength];
-                await _pipe.ReadAsync(dataBuffer.AsMemory(0, dataBuffer.Length), _cancellationToken.Token);
+                try
+                {
+                    byte[] header = new byte[HEADER_SIZE];
+                    await _pipe.ReadAsync(header.AsMemory(0, header.Length), _cancellationToken.Token);
+                    RpcPacketType opCode = (RpcPacketType)BitConverter.ToInt32(header.AsSpan());
+                    int dataLength = BitConverter.ToInt32(header.AsSpan(4));
 
-                await ProcessPipeMessageAsync(opCode, Encoding.UTF8.GetString(dataBuffer));
+                    if (dataLength == 0)//if this is zero it means the pipe closed
+                        break;
+
+                    byte[] dataBuffer = new byte[dataLength];
+                    await _pipe.ReadAsync(dataBuffer.AsMemory(0, dataBuffer.Length), _cancellationToken.Token);
+                    await ProcessPipeMessageAsync(opCode, Encoding.UTF8.GetString(dataBuffer));
+                }
+                catch (Exception exc)
+                {
+                    _logger.Error("Discord Pipe read error",exc);
+                    throw;
+                }
             }
+            _logger.Information("Stopped reading from discord pipe");
         }
 
         private async Task ProcessPipeMessageAsync(RpcPacketType opCode, string data)
@@ -132,6 +144,15 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
             }
             if (opCode == RpcPacketType.HANDSHAKE)
             {
+                if (string.IsNullOrEmpty(data))
+                {
+                    //probably close?
+                }
+                else
+                {
+                    //probably restart?
+                }
+                //SendPacket(new { v = RPC_VERSION, client_id = clientId.Value }, RpcPacketType.HANDSHAKE);
                 //happens when closing discord and artemis is open?
                 //TODO: investigate
             }
