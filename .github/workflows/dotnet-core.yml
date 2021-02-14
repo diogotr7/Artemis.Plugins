@@ -48,65 +48,65 @@ jobs:
       - name: Upload League of Legends
         uses: actions/upload-artifact@v2
         with:
-          name: Artemis.Plugins.Modules.LeagueOfLegends
+          name: League Of Legends
           path: .\Plugins\src\Artemis.Plugins.Modules.LeagueOfLegends\bin\x64\Release\net5.0-windows\publish
 
       - name: Upload HardwareMonitor
         uses: actions/upload-artifact@v2
         with:
-          name: Artemis.Plugins.DataModelExpansions.HardwareMonitor
+          name: HardwareMonitor
           path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.HardwareMonitor\bin\x64\Release\net5.0-windows\publish
 
       - name: Upload Gif
         uses: actions/upload-artifact@v2
         with:
-          name: Artemis.Plugins.LayerBrushes.Gif
+          name: Gif
           path: .\Plugins\src\Artemis.Plugins.LayerBrushes.Gif\bin\x64\Release\net5.0-windows\publish
 
       - name: Upload Chroma
         uses: actions/upload-artifact@v2
         with:
-          name: Artemis.Plugins.LayerBrushes.Chroma
+          name: Chroma
           path: .\Plugins\src\Artemis.Plugins.LayerBrushes.Chroma\bin\x64\Release\net5.0-windows\publish
 
       - name: Upload Particle
         uses: actions/upload-artifact@v2
         with:
-          name: Artemis.Plugins.LayerBrushes.Particle
+          name: Particle
           path: .\Plugins\src\Artemis.Plugins.LayerBrushes.Particle\bin\x64\Release\net5.0-windows\publish
 
       - name: Upload Spotify
         uses: actions/upload-artifact@v2
         with:
-          name: Artemis.Plugins.DataModelExpansions.Spotify
+          name: Spotify
           path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.Spotify\bin\x64\Release\net5.0-windows\publish
 
       - name: Upload OBS
         uses: actions/upload-artifact@v2
         with:
-          name: Artemis.Plugins.DataModelExpansions.OBS
+          name: OBS
           path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.OBS\bin\x64\Release\net5.0-windows\publish
 
       - name: Upload Fallout 4
         uses: actions/upload-artifact@v2
         with:
-          name: Artemis.Plugins.Modules.Fallout4
+          name: Fallout4
           path: .\Plugins\src\Artemis.Plugins.Modules.Fallout4\bin\x64\Release\net5.0-windows\publish
 
       - name: Upload Standalone Hardware Monitor
         uses: actions/upload-artifact@v2
         with:
-          name: Artemis.Plugins.DataModelExpansions.StandaloneHardwareMonitor
+          name: StandaloneHardwareMonitor
           path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.StandaloneHardwareMonitor\bin\x64\Release\net5.0-windows\publish
 
       - name: Upload Discord
         uses: actions/upload-artifact@v2
         with:
-          name: Artemis.Plugins.DataModelExpansions.Discord
+          name: Discord
           path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.Discord\bin\x64\Release\net5.0-windows\publish
 
       - name: Upload Ambilight
         uses: actions/upload-artifact@v2
         with:
-          name: Artemis.Plugins.LayerBrushes.Ambilight
+          name: Ambilight
           path: .\Plugins\src\Artemis.Plugins.LayerBrushes.Ambilight\bin\x64\Release\net5.0-windows\publish
