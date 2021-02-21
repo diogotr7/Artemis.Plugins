@@ -68,7 +68,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
 
         public override void Update(double deltaTime) { }
 
-        public override void Render(double deltaTime, ArtemisSurface surface, SKCanvas canvas, SKImageInfo canvasInfo) { }
+        public override void Render(double deltaTime, SKCanvas canvas, SKImageInfo canvasInfo) { }
 
         private async Task UpdateData(double deltaTime)
         {

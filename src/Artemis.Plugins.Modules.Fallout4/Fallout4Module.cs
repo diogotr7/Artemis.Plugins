@@ -143,7 +143,7 @@ namespace Artemis.Plugins.Modules.Fallout4
             }
         }
 
-        public override void Render(double deltaTime, ArtemisSurface surface, SKCanvas canvas, SKImageInfo canvasInfo) { }
+        public override void Render(double deltaTime, SKCanvas canvas, SKImageInfo canvasInfo) { }
 
         private void SendHeartbeat(object sender, System.Timers.ElapsedEventArgs e)
         {
