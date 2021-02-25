@@ -31,7 +31,7 @@ jobs:
         with:
           repository: Artemis-RGB/Artemis
           path: Artemis
-          ref: Development
+          ref: development
 
       - name: Build Artemis
         run: dotnet build .\Artemis\src\Artemis.sln
