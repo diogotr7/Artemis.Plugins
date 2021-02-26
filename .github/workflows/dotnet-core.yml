@@ -26,6 +26,9 @@ jobs:
       
       - run: dotnet build .\RGB.NET\RGB.NET.Brushes\RGB.NET.Brushes.csproj
 
+      - run: dotnet build .\RGB.NET\RGB.NET.Layout\RGB.NET.Layout.csproj
+
+
       - name: Clone Artemis
         uses: actions/checkout@v2
         with:
