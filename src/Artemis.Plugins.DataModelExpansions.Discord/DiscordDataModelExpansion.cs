@@ -18,30 +18,32 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
 {
     public class DiscordDataModelExpansion : DataModelExpansion<DiscordDataModel>
     {
-        private static readonly JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings
+        private readonly JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings
         {
             ContractResolver = new DefaultContractResolver
             {
                 NamingStrategy = new SnakeCaseNamingStrategy { ProcessDictionaryKeys = true }
             }
         };
-        private static readonly HttpClient httpClient = new HttpClient();
+        private readonly HttpClient httpClient = new HttpClient();
 
         private readonly PluginSetting<string> clientId;
         private readonly PluginSetting<string> clientSecret;
         private readonly PluginSetting<SavedToken> token;
         private readonly ILogger _logger;
 
-        private static readonly string[] _scopes = new string[]
+        #region RPC Constants
+        private static readonly string[] SCOPES = new string[]
         {
             "rpc",
             "identify",
-            //"messages.read",
             "rpc.notifications.read"
         };
-        private const string PIPE = @"discord-ipc-0";
+        private const string PIPE = "discord-ipc-0";
         private const string RPC_VERSION = "1";
         private const int HEADER_SIZE = 8;
+        #endregion
+
         private NamedPipeClientStream _pipe;
         private CancellationTokenSource _cancellationToken;
 
@@ -63,7 +65,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
             {
                 Connect();
             }
-            catch (Exception e)
+            catch (TimeoutException e)
             {
                 throw new ArtemisPluginException("Failed to connect to Discord RPC", e);
             }
@@ -204,7 +206,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
                         //This token can be saved and reused (+ refreshed) later.
                         SendPacket(new DiscordRequest(DiscordRpcCommand.AUTHORIZE)
                             .WithArgument("client_id", clientId.Value)
-                            .WithArgument("scopes", _scopes));
+                            .WithArgument("scopes", SCOPES));
                     }
                     else
                     {
