@@ -8,6 +8,8 @@ namespace Artemis.Plugins.LayerBrushes.Chroma.DataModelExpansion
     public class ChromaDataModelExpansion : DataModelExpansion<ChromaDataModel>
     {
         private readonly ChromaPluginService _chroma;
+        private readonly object _lock = new object();
+
         public ChromaDataModelExpansion(ChromaPluginService chroma)
         {
             _chroma = chroma;
@@ -37,48 +39,31 @@ namespace Artemis.Plugins.LayerBrushes.Chroma.DataModelExpansion
             DataModel.PidList = _chroma.Pids;
         }
 
-        private void UpdateMatrix(object sender, RzDeviceType e)
+        private void UpdateMatrix(object sender, RzDeviceType rzDeviceType)
         {
-            switch (e)
+            lock (_lock)
             {
-                case RzDeviceType.Mousepad:
-                    if (_chroma.Matrices.TryGetValue(RzDeviceType.Mousepad, out SKColor[,] m1))
-                    {
-                        DataModel.Mousepad = m1.Cast<SKColor>().ToArray();
-                    }
-                    break;
-                case RzDeviceType.Mouse:
+                if (!_chroma.Matrices.TryGetValue(rzDeviceType, out SKColor[,] colors))
+                    return;
 
-                    if (_chroma.Matrices.TryGetValue(RzDeviceType.Mouse, out SKColor[,] m2))
-                    {
-                        DataModel.Mouse = m2.Cast<SKColor>().ToArray();
-                    }
-                    break;
-                case RzDeviceType.Keypad:
+                var deviceDataModel = DataModel.DynamicChild<ChromaDeviceDataModel>(rzDeviceType.ToString())
+                                    ?? DataModel.AddDynamicChild(new ChromaDeviceDataModel(), rzDeviceType.ToString());
 
-                    if (_chroma.Matrices.TryGetValue(RzDeviceType.Keypad, out SKColor[,] m3))
+                for (int row = 0; row < colors.GetLength(0); row++)
+                {
+                    for (int col = 0; col < colors.GetLength(1); col++)
                     {
-                        DataModel.Keypad = m3.Cast<SKColor>().ToArray();
+                        var ledId = DefaultChromaLedMap.DeviceTypes[rzDeviceType][row, col];
+                        if (ledId == RGB.NET.Core.LedId.Invalid)
+                            continue;
+
+                        var chromaKeyDataModel = deviceDataModel.DynamicChild<ChromaLedDataModel>(ledId.ToString());
+                        if (chromaKeyDataModel != null)
+                            chromaKeyDataModel.Color = colors[row, col];
+                        else
+                            deviceDataModel.AddDynamicChild(new ChromaLedDataModel { Color = colors[row, col] }, ledId.ToString());
                     }
-                    break;
-                case RzDeviceType.Keyboard:
-                    if (_chroma.Matrices.TryGetValue(RzDeviceType.Keyboard, out SKColor[,] m4))
-                    {
-                        DataModel.Keyboard = m4.Cast<SKColor>().ToArray();
-                    }
-                    break;
-                case RzDeviceType.Headset:
-                    if (_chroma.Matrices.TryGetValue(RzDeviceType.Headset, out SKColor[,] m5))
-                    {
-                        DataModel.Headset = m5.Cast<SKColor>().ToArray();
-                    }
-                    break;
-                case RzDeviceType.ChromaLink:
-                    if (_chroma.Matrices.TryGetValue(RzDeviceType.ChromaLink, out SKColor[,] m7))
-                    {
-                        DataModel.ChromaLink = m7.Cast<SKColor>().ToArray();
-                    }
-                    break;
+                }
             }
         }
     }
