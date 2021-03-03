@@ -3,37 +3,43 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:local="clr-namespace:Artemis.Plugins.DataModelExpansions.Discord"
              xmlns:s="https://github.com/canton7/Stylet"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid Margin="15">
-        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition Width="50"/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                </Grid.RowDefinitions>
+    <materialDesign:Card Margin="10" Width="400" Height="180">
+        <StackPanel Orientation="Vertical" 
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Client Id" Width="100" Style="{StaticResource MaterialDesignTextBlock}"/>
+                <TextBox Text="{Binding ClientId}" Width="230"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Client Secret" Width="100" Style="{StaticResource MaterialDesignTextBlock}"/>
+                <TextBox Text="{Binding ClientSecret}" Width="230"/>
+            </StackPanel>            
 
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="Client Id"/>
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="Client Secret"/>
-                <TextBox Grid.Row="0" Grid.Column="2" Text="{Binding ClientId}" Width="400"/>
-                <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding ClientSecret}" Width="400"/>
-            </Grid>
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
-                <Button Style="{StaticResource MaterialDesignFlatMidBgButton}" Command="{s:Action Reset}" VerticalAlignment="Bottom">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+                <Button Margin="10"
+                        Height="35"
+                        Width="150"
+                        HorizontalAlignment="Center"
+                        Style="{StaticResource MaterialDesignFlatMidBgButton}" 
+                        Command="{s:Action Reset}">
                     RESET
                 </Button>
-                
-                <Button Style="{StaticResource MaterialDesignFlatMidBgButton}" Command="{s:Action Save}" VerticalAlignment="Bottom">
+
+                <Button Margin="10"
+                        Height="35"
+                        Width="150"
+                        HorizontalAlignment="Center"
+                        Style="{StaticResource MaterialDesignFlatMidBgButton}" 
+                        Command="{s:Action Save}">
                     SAVE CHANGES
                 </Button>
             </StackPanel>
         </StackPanel>
-    </Grid>
+    </materialDesign:Card>
 </UserControl>
