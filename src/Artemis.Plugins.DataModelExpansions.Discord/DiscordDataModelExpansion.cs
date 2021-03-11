@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipes;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -130,7 +131,7 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
                 }
                 catch (Exception exc)
                 {
-                    _logger.Error("Discord Pipe read error",exc);
+                    _logger.Error("Discord Pipe read error", exc);
                     throw;
                 }
             }
@@ -224,32 +225,59 @@ namespace Artemis.Plugins.DataModelExpansions.Discord
                     }
                     break;
                 case DiscordEvent<VoiceSettingsData> voice:
-                    DataModel.VoiceSettings.Deafened = voice.Data.Deaf;
-                    DataModel.VoiceSettings.Muted = voice.Data.Mute;
+                    var voiceData = voice.Data;
+                    DataModel.VoiceSettings.AutomaticGainControl = voiceData.AutomaticGainControl;
+                    DataModel.VoiceSettings.EchoCancellation = voiceData.EchoCancellation;
+                    DataModel.VoiceSettings.NoiseSuppression = voiceData.NoiseSuppression;
+                    DataModel.VoiceSettings.Qos = voiceData.Qos;
+                    DataModel.VoiceSettings.SilenceWarning = voiceData.SilenceWarning;
+                    DataModel.VoiceSettings.Deafened = voiceData.Deaf;
+                    DataModel.VoiceSettings.Muted = voiceData.Mute;
+                    DataModel.VoiceSettings.Mode.Type = Enum.Parse<DiscordVoiceModeType>(voiceData.Mode.Type);
+                    DataModel.VoiceSettings.Mode.AutoThreshold = voiceData.Mode.AutoThreshold;
+                    DataModel.VoiceSettings.Mode.Threshold = voiceData.Mode.Threshold;
+                    DataModel.VoiceSettings.Mode.Shortcut = voiceData.Mode.Shortcut
+                        .Select(ds => new DiscordShortcut
+                        {
+                            Type = (DiscordKeyType)ds.Type,
+                            Code = ds.Code,
+                            Name = ds.Name
+                        })
+                        .ToArray();
+
                     break;
                 case DiscordEvent<VoiceConnectionStatusData> voiceStatus:
                     DataModel.VoiceConnection.State = voiceStatus.Data.State;
                     DataModel.VoiceConnection.Ping = voiceStatus.Data.LastPing;
+                    DataModel.VoiceConnection.Hostname = voiceStatus.Data.Hostname;
                     break;
-                case DiscordEvent<NotificationCreateData>:
-                    DataModel.Notification.Trigger();
+                case DiscordEvent<NotificationCreateData> notif:
+                    DataModel.Notification.Trigger(new DiscordNotificationEventArgs
+                    {
+                        Body = notif.Data.Body,
+                        ChannelId = notif.Data.ChannelId,
+                        IconUrl = notif.Data.IconUrl,
+                        Author = notif.Data.Message.Author,
+                        Title = notif.Data.Title
+                    });
                     break;
                 case DiscordEvent<SpeakingStopData> speakingStop:
                     if (speakingStop.Data.UserId == DataModel.User.Id)
                     {
-                        DataModel.VoiceSettings.Speaking = false;
+                        DataModel.VoiceConnection.Speaking = false;
                     }
                     break;
                 case DiscordEvent<SpeakingStartData> speakingStart:
                     if (speakingStart.Data.UserId == DataModel.User.Id)
                     {
-                        DataModel.VoiceSettings.Speaking = true;
+                        DataModel.VoiceConnection.Speaking = true;
                     }
                     break;
                 case DiscordEvent<VoiceChannelSelectData> voiceSelect:
                     if (voiceSelect.Data.ChannelId is not null)//join voice channel
                     {
                         DataModel.VoiceConnection.Connected.Trigger();
+                        SendPacket(new DiscordRequest(DiscordRpcCommand.GET_SELECTED_VOICE_CHANNEL));
                         SubscribeToSpeakingEvents(voiceSelect.Data.ChannelId);
                     }
                     else//leave voice channel
