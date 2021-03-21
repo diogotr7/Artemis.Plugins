@@ -30,23 +30,40 @@ namespace Artemis.Plugins.LayerBrushes.Ambilight
         private ID3D11Device device;
         private ID3D11Texture2D smallerTexture;
         private ID3D11ShaderResourceView smallerTextureView;
+        private System.Timers.Timer releaseLastFrameTimer;
         private bool release = false;
 
         public override void EnableLayerBrush()
         {
             factory = DXGI.CreateDXGIFactory1<IDXGIFactory1>();
 
-            StartDesktopDuplicator(0,0);
+            StartDesktopDuplicator(0, 0);
             Thread.Sleep(100);
+
+            releaseLastFrameTimer = new System.Timers.Timer(5000);
+            releaseLastFrameTimer.Elapsed += ReleaseLastFrameTimer_Elapsed;
+        }
+
+        private void ReleaseLastFrameTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            if (release)
+            {
+                duplication.ReleaseFrame();
+                release = false;
+            }
         }
 
         public override void DisableLayerBrush()
         {
+            releaseLastFrameTimer.Elapsed -= ReleaseLastFrameTimer_Elapsed;
+            releaseLastFrameTimer.Dispose();
             StopDesktopDuplicator();
         }
 
         public override void Update(double deltaTime)
         {
+            releaseLastFrameTimer.Stop();
+            releaseLastFrameTimer.Start();
             IDXGIResource screenResource;
             OutduplFrameInfo frameInfo;
             try
@@ -77,11 +94,11 @@ namespace Artemis.Plugins.LayerBrushes.Ambilight
             }
             catch (SharpGen.Runtime.SharpGenException e)
             {
-                if(e.ResultCode == Vortice.DXGI.ResultCode.AccessLost)
+                if (e.ResultCode == Vortice.DXGI.ResultCode.AccessLost)
                 {
                     StartDesktopDuplicator(0, 0);
                 }
-                else if(e.ResultCode == Vortice.DXGI.ResultCode.WaitTimeout)
+                else if (e.ResultCode == Vortice.DXGI.ResultCode.WaitTimeout)
                 {
                     //ignore
                 }
