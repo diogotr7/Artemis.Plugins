@@ -1,0 +1,8 @@
+{
+  "Guid": "90d07f55-be06-42d5-9d51-59f2ea758a1b",
+  "Name": "AIDA64",
+  "Icon": "Chip",
+  "Description": "Provides hardware statistics like load, voltage and temperature for system components. Requires Aida64 to be running in the background.",
+  "Version": "1.0.0.0",
+  "Main": "Artemis.Plugins.DataModelExpansions.Aida64.dll"
+}
