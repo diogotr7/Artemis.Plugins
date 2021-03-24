@@ -38,11 +38,11 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
         }
         #endregion
 
-
         private SpotifyClient _spotify;
         private string _trackId;
         private string _contextId;
         private string _albumArtUrl;
+        private TrackAudioAnalysis _analysis;
 
         #region Plugin Methods
         public override void Enable()
@@ -56,7 +56,7 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
                 _logger.Error("Failed spotify authentication, login in the settings dialog:" + e.ToString());
             }
 
-            AddTimedUpdate(TimeSpan.FromSeconds(2), UpdateData);
+            AddTimedUpdate(TimeSpan.FromSeconds(2), UpdatePlayback);
         }
 
         public override void Disable()
@@ -69,36 +69,66 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
 
         public override void Update(double deltaTime)
         {
-            if (DataModel.Player.IsPlaying)
-                DataModel.Track.Progress += TimeSpan.FromSeconds(deltaTime);
+            if (!DataModel.Player.IsPlaying)
+                return;
+
+            DataModel.Track.Progress += TimeSpan.FromSeconds(deltaTime);
+
+            if (_analysis is null)
+                return;
+
+            var currentSeconds = DataModel.Track.Progress.TotalSeconds;
+            var currentSection = _analysis.Sections.Find(s => currentSeconds > s.Start &&
+                                                              currentSeconds < s.Start + s.Duration);
+            if (currentSection != null)
+            {
+                DataModel.Track.Analysis.CurrentSection = currentSection;
+            }
+
+            var currentSegment = _analysis.Segments.Find(s => currentSeconds > s.Start &&
+                                                              currentSeconds < s.Start + s.Duration);
+            if (currentSegment != null)
+            {
+                DataModel.Track.Analysis.CurrentSegment = currentSegment;
+            }
         }
         #endregion
 
         #region DataModel update methods
-        private async Task UpdateData(double deltaTime)
+        private async Task UpdatePlayback(double deltaTime)
         {
             //this will be null before authentication
             if (_spotify is null)
                 return;
-            
+
+            CurrentlyPlayingContext playing;
             try
             {
-                CurrentlyPlayingContext playing = await _spotify.Player.GetCurrentPlayback();
-                if (playing is null || DataModel is null)
-                    return;
-
-                await UpdatePlayerInfo(playing);
-
-                //in theory this can also be FullEpisode for podcasts
-                //but it does not seem to work correctly.
-                if (playing.Item is FullTrack track)
-                {
-                    await UpdateTrackInfo(track);
-                }
+                playing = await _spotify.Player.GetCurrentPlayback();
             }
-            catch (APIException e)
+            catch (Exception e)
             {
-                _logger.Error(e.ToString());
+                _logger.Error("Error updating playback", e);
+                return;
+            }
+
+            if (playing is null || DataModel is null)
+                return;//weird
+
+            try
+            {
+                await UpdatePlayerInfo(playing);
+            }
+            catch (Exception e)
+            {
+                _logger.Error("Error updating player info", e);
+            }
+
+            //in theory this can also be FullEpisode for podcasts
+            //but it does not seem to work correctly.
+            if (playing.Item is FullTrack track)
+            {
+                await UpdateTrackInfo(track);
             }
         }
 
@@ -109,8 +139,24 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
             {
                 UpdateBasicTrackInfo(track);
 
-                TrackAudioFeatures features = await _spotify.Tracks.GetAudioFeatures(trackId);
-                UpdateTrackFeatures(features);
+                try
+                {
+                    TrackAudioFeatures features = await _spotify.Tracks.GetAudioFeatures(trackId);
+                    UpdateTrackFeatures(features);
+                }
+                catch (Exception e)
+                {
+                    _logger.Error("Error updating track audio features", e);
+                }
+
+                try
+                {
+                    _analysis = await _spotify.Tracks.GetAudioAnalysis(trackId);
+                }
+                catch (Exception e)
+                {
+                    _logger.Error("Error getting track audio analysis", e);
+                }
 
                 Image image = track.Album.Images.Last();
                 if (image.Url != _albumArtUrl)
@@ -142,7 +188,7 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
                         ContextType.Artist => (await _spotify.Artists.Get(contextId)).Name,
                         ContextType.Album => (await _spotify.Albums.Get(contextId)).Name,
                         ContextType.Playlist => (await _spotify.Playlists.Get(contextId)).Name,
-                        _ => ""
+                        _ => string.Empty
                     };
 
                     _contextId = contextId;
@@ -151,8 +197,8 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
             else
             {
                 DataModel.Player.ContextType = ContextType.None;
-                DataModel.Player.ContextName = "";
-                _contextId = "";
+                DataModel.Player.ContextName = string.Empty;
+                _contextId = string.Empty;
             }
         }
 
@@ -176,10 +222,9 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
                         DarkMuted = _colorQuantizer.FindColorVariation(skClrs, ColorType.DarkMuted, true),
                     };
                 }
-                catch (Exception exception)
+                catch (Exception e)
                 {
-                    _logger.Error("Failed to get album art colors: " + exception.ToString());
-                    throw;
+                    _logger.Error("Failed to get album art colors", e);
                 }
             }
 
