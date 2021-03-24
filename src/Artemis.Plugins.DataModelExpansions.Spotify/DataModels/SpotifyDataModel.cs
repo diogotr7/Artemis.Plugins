@@ -1,5 +1,7 @@
-﻿using Artemis.Core.DataModelExpansions;
+﻿using Artemis.Core;
+using Artemis.Core.DataModelExpansions;
 using SkiaSharp;
+using SpotifyAPI.Web;
 using System;
 using System.ComponentModel;
 
@@ -31,6 +33,7 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify.DataModels
         public TimeSpan Progress { get; set; }
         public SpotifyTrackFeaturesDataModel Features { get; set; } = new SpotifyTrackFeaturesDataModel();
         public TrackColorsDataModel Colors { get; set; } = new TrackColorsDataModel();
+        public SpotifyTrackAnalysisDataModel Analysis { get; set; } = new SpotifyTrackAnalysisDataModel();
     }
 
     public class SpotifyTrackFeaturesDataModel : DataModel
@@ -121,5 +124,11 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify.DataModels
         Off,
         Context,
         Track
+    }
+
+    public class SpotifyTrackAnalysisDataModel : DataModel
+    {
+        public Section CurrentSection { get; internal set; }
+        public Segment CurrentSegment { get; internal set; }
     }
 }

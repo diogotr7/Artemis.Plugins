@@ -1,5 +1,5 @@
 ﻿using Artemis.Core.DataModelExpansions;
-using OBS.WebSocket.NET.Types;
+using OBSWebsocketDotNet.Types;
 
 namespace Artemis.Plugins.DataModelExpansions.OBS.DataModels
 {
