@@ -117,12 +117,11 @@ namespace Artemis.Plugins.LayerBrushes.Ambilight
             const int sampleSize = 9;
             const int sampleDepth = 3;
 
-            var renderBounds = Layer.Bounds;
-            var widthScale = pixmap.Width / renderBounds.Width;
-            var heightScale = pixmap.Height / renderBounds.Height;
-
             lock (pixmapLock)
             {
+                var renderBounds = Layer.Bounds;
+                var widthScale = pixmap.Width / renderBounds.Width;
+                var heightScale = pixmap.Height / renderBounds.Height;
                 int x = (int)(renderPoint.X * widthScale);
                 int y = (int)(renderPoint.Y * heightScale);
                 int width = (int)(led.Rectangle.Width * widthScale);
