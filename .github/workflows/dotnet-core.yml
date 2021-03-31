@@ -109,3 +109,9 @@ jobs:
         with:
           name: Ambilight
           path: .\Plugins\src\Artemis.Plugins.LayerBrushes.Ambilight\bin\x64\Release\net5.0-windows\publish
+
+      - name: Upload Aida64
+        uses: actions/upload-artifact@v2
+        with:
+          name: Aida64
+          path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.Aida64\bin\x64\Release\net5.0-windows\publish
