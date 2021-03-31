@@ -22,20 +22,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Page Include="Properties\DesignTimeResources.xaml" Condition="'$(DesignTime)'=='true' OR ('$(SolutionPath)'!='' AND Exists('$(SolutionPath)') AND '$(BuildingInsideVisualStudio)'!='true' AND '$(BuildingInsideExpressionBlend)'!='true')">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-      <ContainsDesignTimeResources>true</ContainsDesignTimeResources>
-    </Page>
-  </ItemGroup>
-
-  <ItemGroup>
     <Reference Include="Artemis.Core">
-      <HintPath>..\..\..\Artemis\src\Artemis.UI\bin\x64\Debug\net5.0-windows\Artemis.Core.dll</HintPath>
+      <HintPath>..\..\..\Artemis\src\Artemis.UI\bin\net5.0-windows\Artemis.Core.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Artemis.UI.Shared">
-      <HintPath>..\..\..\Artemis\src\Artemis.UI\bin\x64\Debug\net5.0-windows\Artemis.UI.Shared.dll</HintPath>
+      <HintPath>..\..\..\Artemis\src\Artemis.UI\bin\net5.0-windows\Artemis.UI.Shared.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
