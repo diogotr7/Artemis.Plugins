@@ -10,7 +10,7 @@ using System.Xml;
 
 namespace Artemis.Plugins.DataModelExpansions.Aida64
 {
-    public class PluginDataModelExpansion : DataModelExpansion<Aida64DataModel>
+    public class Aida64DataModelExpansion : DataModelExpansion<Aida64DataModel>
     {
         private const string SHARED_MEMORY = "AIDA64_SensorValues";
 
@@ -58,10 +58,28 @@ namespace Artemis.Plugins.DataModelExpansions.Aida64
         {
             foreach (var item in _aidaElements)
             {
-                AidaElementDataModel dm = DataModel.DynamicChild<AidaElementDataModel>(item.Id)
-                    ?? DataModel.AddDynamicChild(new AidaElementDataModel(), item.Id, item.Label);
+                DataModel dm = DataModel.DynamicChild<DataModel>(item.Id);
+                if (dm == null)
+                {
+                    if (float.TryParse(item.Value, out var floatValue))
+                    {
+                        DataModel.AddDynamicChild(new AidaFloatElementDataModel(floatValue), item.Id, item.Label);
+                    }
+                    else
+                    {
+                        DataModel.AddDynamicChild(new AidaElementDataModel(item.Value), item.Id, item.Label);
+                    }
+                }
 
-                dm.Value = item.Value;
+                switch (dm)
+                {
+                    case AidaFloatElementDataModel floatDataModel:
+                        floatDataModel.Value = float.Parse(item.Value);
+                        break;
+                    case AidaElementDataModel elementDataModel:
+                        elementDataModel.Value = item.Value;
+                        break;
+                }
             }
         }
 

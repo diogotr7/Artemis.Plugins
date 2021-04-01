@@ -11,5 +11,19 @@ namespace Artemis.Plugins.DataModelExpansions.Aida64.DataModels
     public class AidaElementDataModel : DataModel
     {
         public string Value { get; set; }
+
+        public AidaElementDataModel(string val)
+        {
+            Value = val;
+        }
+    }
+
+    public class AidaFloatElementDataModel : DataModel
+    {
+        public float Value { get; set; }
+        public AidaFloatElementDataModel(float val)
+        {
+            Value = val;
+        }
     }
 }
