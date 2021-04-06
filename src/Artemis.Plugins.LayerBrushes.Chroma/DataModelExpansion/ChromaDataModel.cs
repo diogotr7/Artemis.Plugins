@@ -9,6 +9,7 @@ namespace Artemis.Plugins.LayerBrushes.Chroma.DataModelExpansion
         public string CurrentApplication { get; internal set; }
         public List<string> ApplicationList { get; internal set; }
         public List<int> PidList { get; internal set; }
+        public string[] PriorityList { get; internal set; }
     }
 
     public class ChromaDeviceDataModel : DataModel { }

@@ -19,6 +19,7 @@ namespace Artemis.Plugins.LayerBrushes.Chroma.DataModelExpansion
         {
             _chroma.MatrixUpdated += UpdateMatrix;
             _chroma.AppListUpdated += UpdateAppList;
+            DataModel.PriorityList = RazerChromaUtils.GetRazerPriorityList();
         }
 
         public override void Disable()
