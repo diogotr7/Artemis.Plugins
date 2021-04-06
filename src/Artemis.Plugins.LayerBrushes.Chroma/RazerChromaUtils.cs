@@ -96,8 +96,23 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
         {
             var localMachine = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32);
             var razerChroma = localMachine.OpenSubKey(@"Software\Razer Chroma SDK");
-            var names = razerChroma.GetValue("PriorityList") as string;
-            return names.Split(';');
+            var razerChromaPriorityList = razerChroma.GetValue("PriorityList");
+            if (razerChromaPriorityList != null && razerChromaPriorityList is string s)
+            {
+                return s.Split(';');
+            }
+
+            var apps = razerChroma.OpenSubKey("Apps");
+            if (apps != null)
+            {
+                var appsPriorityList = apps.GetValue("PriorityList");
+                if (appsPriorityList is string st)
+                {
+                    return st.Split(';');
+                }
+            }
+
+            return Array.Empty<string>();
         }
     }
 }

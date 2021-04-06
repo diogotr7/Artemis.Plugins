@@ -1,4 +1,5 @@
 ﻿using Artemis.Core.DataModelExpansions;
+using Serilog;
 using SkiaSharp;
 using System;
 using System.Linq;
@@ -7,19 +8,29 @@ namespace Artemis.Plugins.LayerBrushes.Chroma.DataModelExpansion
 {
     public class ChromaDataModelExpansion : DataModelExpansion<ChromaDataModel>
     {
+        private readonly ILogger _logger;
         private readonly ChromaPluginService _chroma;
         private readonly object _lock = new object();
 
-        public ChromaDataModelExpansion(ChromaPluginService chroma)
+        public ChromaDataModelExpansion(ChromaPluginService chroma, ILogger logger)
         {
             _chroma = chroma;
+            _logger = logger;
         }
 
         public override void Enable()
         {
             _chroma.MatrixUpdated += UpdateMatrix;
             _chroma.AppListUpdated += UpdateAppList;
-            DataModel.PriorityList = RazerChromaUtils.GetRazerPriorityList();
+            try
+            {
+                DataModel.PriorityList = RazerChromaUtils.GetRazerPriorityList();
+            }
+            catch(Exception e)
+            {
+                _logger.Error("Error setting priority list.", e);
+                DataModel.PriorityList = Array.Empty<string>();
+            }
         }
 
         public override void Disable()
