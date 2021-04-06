@@ -154,7 +154,10 @@ namespace Artemis.Plugins.LayerBrushes.Ambilight
                     {
                         var bruhX = x + horizontalSteps * horizontalStep;
                         var bruhY = y + verticalSteps * verticalStep;
-                        SKColor color = pixmap.GetPixelColor(bruhX, bruhY);
+                        SKColor color = pixmap.GetPixelColor(
+                            Math.Min(bruhX, pixmap.Width - 1),
+                            Math.Min(bruhY, pixmap.Height - 1)
+                            );
                         r += color.Red;
                         g += color.Green;
                         b += color.Blue;
