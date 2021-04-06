@@ -1,4 +1,4 @@
-﻿using Artemis.Core;
+using Artemis.Core;
 using Artemis.Core.LayerBrushes;
 using Artemis.Plugins.LayerBrushes.Ambilight.PropertyGroups;
 using SkiaSharp;
@@ -139,8 +139,8 @@ namespace Artemis.Plugins.LayerBrushes.Ambilight
                 var renderBounds = Layer.Bounds;
                 var widthScale = pixmap.Width / renderBounds.Width;
                 var heightScale = pixmap.Height / renderBounds.Height;
-                int x = (int)(renderPoint.X * widthScale);
-                int y = (int)(renderPoint.Y * heightScale);
+                int x = (int)Math.Max((renderPoint.X * widthScale), 0);
+                int y = (int)Math.Max((renderPoint.Y * heightScale), 0);
                 int width = (int)(led.Rectangle.Width * widthScale);
                 int height = (int)(led.Rectangle.Height * heightScale);
 
