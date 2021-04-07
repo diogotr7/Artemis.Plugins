@@ -12,6 +12,10 @@ jobs:
         with:
           dotnet-version: '5.0.x'
 
+      #https://github.com/NuGet/Home/issues/10586
+      - name: nuget bug go brrr
+        run: dotnet nuget list source
+
       - name: Clone RGB.NET
         uses: actions/checkout@v2
         with:
