@@ -13,8 +13,9 @@ jobs:
           dotnet-version: '5.0.x'
 
       #https://github.com/NuGet/Home/issues/10586
+      #https://github.com/actions/virtual-environments/issues/3038
       - name: nuget bug go brrr
-        run: dotnet nuget list source
+        run: dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org
 
       - name: Clone RGB.NET
         uses: actions/checkout@v2
