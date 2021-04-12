@@ -11,6 +11,7 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify.DataModels
     {
         public SpotifyPlayerDataModel Player { get; set; } = new SpotifyPlayerDataModel();
         public SpotifyTrackDataModel Track { get; set; } = new SpotifyTrackDataModel();
+        public SpotifyDeviceDataModel Device { get; set; } = new SpotifyDeviceDataModel();
     }
 
     public class SpotifyPlayerDataModel : DataModel
@@ -130,5 +131,11 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify.DataModels
     {
         public Section CurrentSection { get; internal set; }
         public Segment CurrentSegment { get; internal set; }
+    }
+
+    public class SpotifyDeviceDataModel : DataModel
+    {
+        public string Name { get; set; }
+        public string Type { get; set; }
     }
 }

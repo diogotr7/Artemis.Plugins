@@ -171,6 +171,8 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
 
         private async Task UpdatePlayerInfo(CurrentlyPlayingContext playing)
         {
+            DataModel.Device.Name = playing.Device.Name;
+            DataModel.Device.Type = playing.Device.Type;
             DataModel.Player.Shuffle = playing.ShuffleState;
             DataModel.Player.RepeatState = Enum.Parse<RepeatState>(playing.RepeatState, true);
             DataModel.Player.Volume = playing.Device.VolumePercent ?? -1;
