@@ -13,10 +13,25 @@ namespace Artemis.Plugins.DataModelExpansions.OBS.DataModels
         public ulong TotalStreamBytes { get; set; }
         public ulong TotalStreamFrames { get; set; }
         public bool Recording { get; set; }
-        public bool Paused { get; set; }
         public int TotalRecordTime { get; set; }
         public int TotalTecordBytes { get; set; }
         public int TotalRecordFrames { get; set; }
         public OBSStats Stats { get; set; }
+
+        internal void Reset()
+        {
+            IsConnected = default;
+            CurrentProfile = default;
+            CurrentScene = default;
+            Streaming = default;
+            TotalStreamTime = default;
+            TotalStreamBytes = default;
+            TotalStreamFrames = default;
+            Recording = default;
+            TotalRecordTime = default;
+            TotalTecordBytes = default;
+            TotalRecordFrames = default;
+            Stats = new OBSStats();
+        }
     }
 }

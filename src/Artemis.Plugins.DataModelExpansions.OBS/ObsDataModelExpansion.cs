@@ -62,6 +62,8 @@ namespace Artemis.Plugins.DataModelExpansions.OBS
                 return;
 
             Disconnect();
+
+            DataModel.Reset();
         }
 
         private void Connect()
@@ -98,7 +100,6 @@ namespace Artemis.Plugins.DataModelExpansions.OBS
             DataModel.TotalStreamBytes = heartbeat.TotalStreamBytes;
             DataModel.TotalStreamFrames = heartbeat.TotalStreamFrames;
             DataModel.Recording = heartbeat.Recording;
-            //DataModel.Paused = heartbeat.Paused;
             DataModel.TotalRecordTime = heartbeat.TotalRecordTime;
             DataModel.TotalTecordBytes = heartbeat.TotalTecordBytes;
             DataModel.TotalRecordFrames = heartbeat.TotalRecordFrames;
