@@ -2,6 +2,7 @@
 using Artemis.Core.DataModelExpansions;
 using Serilog;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Management;
 
@@ -29,6 +30,8 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
         private ManagementObjectSearcher SensorSearcher;
         private ManagementObjectSearcher HardwareSearcher;
 
+        private readonly Dictionary<string, DynamicChild<SensorDynamicDataModel>> _cache = new();
+
         public override void Enable()
         {
             foreach (string scope in Scopes)
@@ -52,8 +55,8 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
                 SensorSearcher = new ManagementObjectSearcher(HardwareMonitorScope, SensorQuery);
                 HardwareSearcher = new ManagementObjectSearcher(HardwareMonitorScope, HardwareQuery);
 
-                System.Collections.Generic.List<Sensor> sensors = Sensor.FromCollection(SensorSearcher.Get());
-                System.Collections.Generic.List<Hardware> hardwares = Hardware.FromCollection(HardwareSearcher.Get());
+                List<Sensor> sensors = Sensor.FromCollection(SensorSearcher.Get());
+                List<Hardware> hardwares = Hardware.FromCollection(HardwareSearcher.Get());
 
                 if (sensors.Count == 0 || hardwares.Count == 0)
                 {
@@ -66,7 +69,7 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
                 {
                     //loop through the hardware,
                     //and find all the sensors that hardware has
-                    System.Collections.Generic.IEnumerable<Sensor> children = sensors.Where(s => s.Parent == hw.Identifier);
+                    IEnumerable<Sensor> children = sensors.Where(s => s.Parent == hw.Identifier);
 
                     //if we don't find any sensors, skip and do the next hardware
                     if (!children.Any())
@@ -114,6 +117,8 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
                                 dataModel,
                                 sensorOfType.Name
                             );
+
+                            _cache.Add(sensorOfType.Identifier, datamodel);
                         }
                     }
                 }
@@ -127,6 +132,7 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
 
         public override void Disable()
         {
+            _cache.Clear();
             SensorSearcher?.Dispose();
             HardwareSearcher?.Dispose();
         }
@@ -135,24 +141,13 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
 
         private void UpdateData(double deltaTime)
         {
-            return;
-            System.Collections.Generic.Dictionary<string, Sensor> sensors = Sensor.GetDictionary(SensorSearcher.Get());
-            foreach ((string hardwareId, var hardwareDataModel) in DataModel.DynamicChildren)
+            foreach (var sensor in Sensor.FromCollection(SensorSearcher.Get()))
             {
-                foreach ((string sensorTypeId, var sensorTypeDataModel) in (hardwareDataModel.BaseValue as DataModel).DynamicChildren)
+                if (_cache.TryGetValue(sensor.Identifier, out var dynamicChild))
                 {
-                    foreach ((string sensorId, var sensorDataModel) in (sensorTypeDataModel.BaseValue as DataModel).DynamicChildren)
-                    {
-                        if (sensorDataModel.BaseValue is SensorDynamicDataModel s)
-                        {
-                            if (sensors.TryGetValue(s.Identifier, out Sensor sensor))
-                            {
-                                s.CurrentValue = sensor?.Value ?? -1;
-                                s.Minimum = sensor?.Min ?? -1;
-                                s.Maximum = sensor?.Max ?? -1;
-                            }
-                        }
-                    }
+                    dynamicChild.Value.CurrentValue = sensor?.Value ?? -1;
+                    dynamicChild.Value.Minimum = sensor?.Min ?? -1;
+                    dynamicChild.Value.Maximum = sensor?.Max ?? -1;
                 }
             }
         }
