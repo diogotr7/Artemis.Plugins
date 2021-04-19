@@ -2,7 +2,6 @@
 using Artemis.Core.DataModelExpansions;
 using Serilog;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Management;
 
@@ -30,8 +29,6 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
         private ManagementObjectSearcher SensorSearcher;
         private ManagementObjectSearcher HardwareSearcher;
 
-        private readonly Dictionary<string, DynamicChild<SensorDynamicDataModel>> _cache = new();
-
         public override void Enable()
         {
             foreach (string scope in Scopes)
@@ -55,8 +52,8 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
                 SensorSearcher = new ManagementObjectSearcher(HardwareMonitorScope, SensorQuery);
                 HardwareSearcher = new ManagementObjectSearcher(HardwareMonitorScope, HardwareQuery);
 
-                List<Sensor> sensors = Sensor.FromCollection(SensorSearcher.Get());
-                List<Hardware> hardwares = Hardware.FromCollection(HardwareSearcher.Get());
+                System.Collections.Generic.List<Sensor> sensors = Sensor.FromCollection(SensorSearcher.Get());
+                System.Collections.Generic.List<Hardware> hardwares = Hardware.FromCollection(HardwareSearcher.Get());
 
                 if (sensors.Count == 0 || hardwares.Count == 0)
                 {
@@ -69,7 +66,7 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
                 {
                     //loop through the hardware,
                     //and find all the sensors that hardware has
-                    IEnumerable<Sensor> children = sensors.Where(s => s.Parent == hw.Identifier);
+                    System.Collections.Generic.IEnumerable<Sensor> children = sensors.Where(s => s.Parent == hw.Identifier);
 
                     //if we don't find any sensors, skip and do the next hardware
                     if (!children.Any())
@@ -97,35 +94,26 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
                         foreach (Sensor sensorOfType in sensorsOfType.OrderBy(s => s.Name))
                         {
                             //this switch is only useful for the unit of each sensor
-                            string unit = sensorsOfType.Key switch
+                            SensorDynamicDataModel dataModel = sensorsOfType.Key switch
                             {
-                                SensorType.Temperature => "°C",
-                                SensorType.Load => "%",
-                                SensorType.Level => "%",
-                                SensorType.Voltage => "V",
-                                SensorType.SmallData => "MB",
-                                SensorType.Data => "GB",
-                                SensorType.Power => "W",
-                                SensorType.Fan => "RPM",
-                                SensorType.Throughput => "B/s",
-                                SensorType.Clock => "MHz",
-                                SensorType.Factor => "MHz",
-                                _ => "",
+                                SensorType.Temperature => new TemperatureDynamicDataModel(sensorOfType.Identifier),
+                                SensorType.Load => new PercentageDynamicDataModel(sensorOfType.Identifier),
+                                SensorType.Level => new PercentageDynamicDataModel(sensorOfType.Identifier),
+                                SensorType.Voltage => new VoltageDynamicDataModel(sensorOfType.Identifier),
+                                SensorType.SmallData => new SmallDataDynamicDataModel(sensorOfType.Identifier),
+                                SensorType.Data => new BigDataDynamicDataModel(sensorOfType.Identifier),
+                                SensorType.Power => new PowerDynamicDataModel(sensorOfType.Identifier),
+                                SensorType.Fan => new FanDynamicDataModel(sensorOfType.Identifier),
+                                SensorType.Throughput => new ThroughputDynamicDataModel(sensorOfType.Identifier),
+                                SensorType.Clock => new ClockDynamicDataModel(sensorOfType.Identifier),
+                                _ => new SensorDynamicDataModel(sensorOfType.Identifier),
                             };
 
-                            DataModelPropertyAttribute attribute = new()
-                            {
-                                Affix = unit,
-                                Name = sensorOfType.Name
-                            };
-
-                            DynamicChild<SensorDynamicDataModel> datamodel = sensorTypeDataModel.AddDynamicChild(
+                            var datamodel = sensorTypeDataModel.AddDynamicChild(
                                 (sensorIdCounter++).ToString(),
-                                new SensorDynamicDataModel(sensorOfType.Identifier),
-                                attribute
+                                dataModel,
+                                sensorOfType.Name
                             );
-
-                            _cache.Add(sensorOfType.Identifier, datamodel);
                         }
                     }
                 }
@@ -147,14 +135,24 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
 
         private void UpdateData(double deltaTime)
         {
-            Dictionary<string, Sensor> sensors = Sensor.GetDictionary(SensorSearcher.Get());
-            foreach ((_, var sensor) in sensors)
+            return;
+            System.Collections.Generic.Dictionary<string, Sensor> sensors = Sensor.GetDictionary(SensorSearcher.Get());
+            foreach ((string hardwareId, var hardwareDataModel) in DataModel.DynamicChildren)
             {
-                if (_cache.TryGetValue(sensor.Identifier, out var dynamicChild))
+                foreach ((string sensorTypeId, var sensorTypeDataModel) in (hardwareDataModel.BaseValue as DataModel).DynamicChildren)
                 {
-                    dynamicChild.Value.CurrentValue = sensor?.Value ?? -1;
-                    dynamicChild.Value.Minimum = sensor?.Min ?? -1;
-                    dynamicChild.Value.Maximum = sensor?.Max ?? -1;
+                    foreach ((string sensorId, var sensorDataModel) in (sensorTypeDataModel.BaseValue as DataModel).DynamicChildren)
+                    {
+                        if (sensorDataModel.BaseValue is SensorDynamicDataModel s)
+                        {
+                            if (sensors.TryGetValue(s.Identifier, out Sensor sensor))
+                            {
+                                s.CurrentValue = sensor?.Value ?? -1;
+                                s.Minimum = sensor?.Min ?? -1;
+                                s.Maximum = sensor?.Max ?? -1;
+                            }
+                        }
+                    }
                 }
             }
         }
