@@ -12,9 +12,9 @@ namespace Artemis.Plugins.LayerBrushes.Chroma.DataModelExpansion
     {
         private readonly ILogger _logger;
         private readonly ChromaPluginService _chroma;
-        private readonly object _lock = new object();
-        private readonly Dictionary<LedId, ChromaLedDataModel> _colorsCache = new();
-        private readonly Dictionary<RzDeviceType, ChromaDeviceDataModel> _deviceTypeCache = new();
+        private readonly object _lock = new();
+        private readonly Dictionary<LedId, DynamicChild<SKColor>> _colorsCache = new();
+        private readonly Dictionary<RzDeviceType, DynamicChild<ChromaDeviceDataModel>> _deviceTypeCache = new();
 
         public ChromaDataModelExpansion(ChromaPluginService chroma, ILogger logger)
         {
@@ -62,9 +62,9 @@ namespace Artemis.Plugins.LayerBrushes.Chroma.DataModelExpansion
                 if (!_chroma.Matrices.TryGetValue(rzDeviceType, out SKColor[,] colors))
                     return;
 
-                if (!_deviceTypeCache.TryGetValue(rzDeviceType, out ChromaDeviceDataModel deviceDataModel))
+                if (!_deviceTypeCache.TryGetValue(rzDeviceType, out var deviceDataModel))
                 {
-                    deviceDataModel = DataModel.AddDynamicChild(new ChromaDeviceDataModel(), rzDeviceType.ToString());
+                    deviceDataModel = DataModel.AddDynamicChild(rzDeviceType.ToString(), new ChromaDeviceDataModel());
                     _deviceTypeCache.Add(rzDeviceType, deviceDataModel);
                 }
 
@@ -76,13 +76,13 @@ namespace Artemis.Plugins.LayerBrushes.Chroma.DataModelExpansion
                         if (ledId == LedId.Invalid)
                             continue;
 
-                        if (!_colorsCache.TryGetValue(ledId, out ChromaLedDataModel ledDataModel))
+                        if (!_colorsCache.TryGetValue(ledId, out var ledDataModel))
                         {
-                            ledDataModel = deviceDataModel.AddDynamicChild(new ChromaLedDataModel(), ledId.ToString());
+                            ledDataModel = deviceDataModel.Value.AddDynamicChild<SKColor>(ledId.ToString(), default);
                             _colorsCache.Add(ledId, ledDataModel);
                         }
 
-                        ledDataModel.Color = colors[row, col];
+                        ledDataModel.Value = colors[row, col];
                     }
                 }
             }

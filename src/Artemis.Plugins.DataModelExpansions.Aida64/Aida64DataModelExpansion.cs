@@ -58,25 +58,25 @@ namespace Artemis.Plugins.DataModelExpansions.Aida64
         {
             foreach (var item in _aidaElements)
             {
-                DataModel dm = DataModel.DynamicChild<DataModel>(item.Id);
+                DynamicChild dm = DataModel.GetDynamicChild(item.Id);
                 if (dm == null)
                 {
                     if (float.TryParse(item.Value, out var floatValue))
                     {
-                        DataModel.AddDynamicChild(new AidaFloatElementDataModel(floatValue), item.Id, item.Label);
+                        DataModel.AddDynamicChild(item.Id, floatValue);
                     }
                     else
                     {
-                        DataModel.AddDynamicChild(new AidaElementDataModel(item.Value), item.Id, item.Label);
+                        DataModel.AddDynamicChild(item.Id, item.Value);
                     }
                 }
 
                 switch (dm)
                 {
-                    case AidaFloatElementDataModel floatDataModel:
+                    case DynamicChild<float> floatDataModel:
                         floatDataModel.Value = float.Parse(item.Value);
                         break;
-                    case AidaElementDataModel elementDataModel:
+                    case DynamicChild<string> elementDataModel:
                         elementDataModel.Value = item.Value;
                         break;
                 }

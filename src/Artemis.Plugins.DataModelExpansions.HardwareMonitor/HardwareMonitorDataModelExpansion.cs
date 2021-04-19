@@ -73,11 +73,11 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
                         continue;
 
                     HardwareDynamicDataModel hwDataModel = DataModel.AddDynamicChild(
-                        new HardwareDynamicDataModel(),
                         $"{hw.HardwareType}{hardwareIdCounter++}",
+                        new HardwareDynamicDataModel(),
                         hw.Name,
                         hw.HardwareType.ToString()
-                    );
+                    ).Value;
 
                     //group sensors by type for easier UI navigation.
                     //this is also the way the UI of the HardwareMonitor
@@ -85,9 +85,9 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
                     foreach (IGrouping<SensorType, Sensor> sensorsOfType in children.GroupBy(s => s.SensorType))
                     {
                         SensorTypeDynamicDataModel sensorTypeDataModel = hwDataModel.AddDynamicChild(
-                            new SensorTypeDynamicDataModel(),
-                            sensorsOfType.Key.ToString()
-                        );
+                            sensorsOfType.Key.ToString(),
+                            new SensorTypeDynamicDataModel()
+                        ).Value;
 
                         int sensorIdCounter = 0;
                         //for each type of sensor, we add all the sensors we found
@@ -109,9 +109,9 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
                                 _ => new SensorDynamicDataModel(sensorOfType.Identifier),
                             };
 
-                            sensorTypeDataModel.AddDynamicChild(
-                                dataModel,
+                            var datamodel = sensorTypeDataModel.AddDynamicChild(
                                 (sensorIdCounter++).ToString(),
+                                dataModel,
                                 sensorOfType.Name
                             );
                         }
@@ -135,14 +135,15 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
 
         private void UpdateData(double deltaTime)
         {
+            return;
             System.Collections.Generic.Dictionary<string, Sensor> sensors = Sensor.GetDictionary(SensorSearcher.Get());
-            foreach ((string hardwareId, DataModel hardwareDataModel) in DataModel.DynamicDataModels)
+            foreach ((string hardwareId, var hardwareDataModel) in DataModel.DynamicChildren)
             {
-                foreach ((string sensorTypeId, DataModel sensorTypeDataModel) in hardwareDataModel.DynamicDataModels)
+                foreach ((string sensorTypeId, var sensorTypeDataModel) in (hardwareDataModel.BaseValue as DataModel).DynamicChildren)
                 {
-                    foreach ((string sensorId, DataModel sensorDataModel) in sensorTypeDataModel.DynamicDataModels)
+                    foreach ((string sensorId, var sensorDataModel) in (sensorTypeDataModel.BaseValue as DataModel).DynamicChildren)
                     {
-                        if (sensorDataModel is SensorDynamicDataModel s)
+                        if (sensorDataModel.BaseValue is SensorDynamicDataModel s)
                         {
                             if (sensors.TryGetValue(s.Identifier, out Sensor sensor))
                             {

@@ -37,16 +37,6 @@ namespace Artemis.Plugins.DataModelExpansions.StandaloneHardwareMonitor
         public override void Disable()
         {
             _computer?.Close();
-
-            static void DeleteDateModels(DataModel datamodel)
-            {
-                foreach (var dm in datamodel.DynamicDataModels)
-                    DeleteDateModels(dm.Value);
-
-                datamodel.ClearDynamicChildren();
-            }
-
-            DeleteDateModels(DataModel);
         }
 
         public override void Update(double deltaTime)
@@ -62,12 +52,12 @@ namespace Artemis.Plugins.DataModelExpansions.StandaloneHardwareMonitor
                 if (!hw.Sensors.Any())
                     continue;
 
-                HardwareDynamicDataModel hwDataModel = DataModel.AddDynamicChild(
-                    new HardwareDynamicDataModel(),
+               HardwareDynamicDataModel hwDataModel = DataModel.AddDynamicChild(
                     $"{hw.HardwareType}{hardwareIdCounter++}",
+                    new HardwareDynamicDataModel(),
                     hw.Name,
                     hw.HardwareType.ToString()
-                );
+                ).Value;
 
                 //group sensors by type for easier UI navigation.
                 //this is also the way the UI of the HardwareMonitor
@@ -75,9 +65,9 @@ namespace Artemis.Plugins.DataModelExpansions.StandaloneHardwareMonitor
                 foreach (var sensorsOfType in hw.Sensors.GroupBy(s => s.SensorType))
                 {
                     SensorTypeDynamicDataModel sensorTypeDataModel = hwDataModel.AddDynamicChild(
-                        new SensorTypeDynamicDataModel(),
-                        sensorsOfType.Key.ToString()
-                    );
+                        sensorsOfType.Key.ToString(),
+                        new SensorTypeDynamicDataModel()
+                    ).Value;
 
                     int sensorIdCounter = 0;
                     //for each type of sensor, we add all the sensors we found
@@ -99,8 +89,8 @@ namespace Artemis.Plugins.DataModelExpansions.StandaloneHardwareMonitor
                         };
 
                         sensorTypeDataModel.AddDynamicChild(
-                            dataModel,
                             (sensorIdCounter++).ToString(),
+                            dataModel,
                             sensorOfType.Name
                         );
                     }
