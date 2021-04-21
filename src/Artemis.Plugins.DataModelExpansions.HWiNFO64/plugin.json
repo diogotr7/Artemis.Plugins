@@ -1,0 +1,8 @@
+{
+  "Guid": "0333e3d6-efbe-4328-851c-2981a69fcd89",
+  "Name": "HWiNFO64",
+  "Icon": "Chip",
+  "Description": "Provides hardware statistics like load, voltage and temperature for system components. Requires HWiNFO64 to be running in the background.",
+  "Version": "1.0.0.0",
+  "Main": "Artemis.Plugins.DataModelExpansions.HWiNFO64.dll"
+}
