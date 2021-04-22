@@ -1,8 +1,0 @@
-{
-  "Guid": "ef3d454c-e690-40a5-be11-f168c0dfa791",
-  "Name": "Ambilight",
-  "Icon": "Mirror",
-  "Description": "Provides screen-mirroring effects.",
-  "Version": "1.0.0.0",
-  "Main": "Artemis.Plugins.LayerBrushes.Ambilight.dll"
-}
