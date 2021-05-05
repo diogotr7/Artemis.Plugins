@@ -3,13 +3,9 @@ using Artemis.UI.Shared;
 
 namespace Artemis.Plugins.DataModelExpansions.Discord
 {
-    public class PluginBootstrapper : IPluginBootstrapper
+    public class DiscordPluginBootstrapper : PluginBootstrapper
     {
-        public void Disable(Plugin plugin)
-        {
-        }
-
-        public void Enable(Plugin plugin)
+        public override void OnPluginLoaded(Plugin plugin)
         {
             plugin.ConfigurationDialog = new PluginConfigurationDialog<DiscordPluginConfigurationViewModel>();
         }

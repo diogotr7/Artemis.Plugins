@@ -3,13 +3,9 @@ using Artemis.UI.Shared;
 
 namespace Artemis.Plugins.DataModelExpansions.Spotify
 {
-    public class PluginBootstrapper : IPluginBootstrapper
+    public class SpotifyPluginBootstrapper : PluginBootstrapper
     {
-        public void Disable(Plugin plugin)
-        {
-        }
-
-        public void Enable(Plugin plugin)
+        public override void OnPluginLoaded(Plugin plugin)
         {
             plugin.ConfigurationDialog = new PluginConfigurationDialog<SpotifyConfigurationDialogViewModel>();
         }

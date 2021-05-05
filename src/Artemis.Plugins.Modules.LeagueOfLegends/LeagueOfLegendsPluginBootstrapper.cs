@@ -7,13 +7,9 @@ using System.Text;
 
 namespace Artemis.Plugins.Modules.LeagueOfLegends
 {
-    public class PluginBootstrapper : IPluginBootstrapper
+    public class LeagueOfLegendsPluginBootstrapper : PluginBootstrapper
     {
-        public void Disable(Plugin plugin)
-        {
-        }
-
-        public void Enable(Plugin plugin)
+        public override void OnPluginLoaded(Plugin plugin)
         {
             plugin.ConfigurationDialog = new PluginConfigurationDialog<LeagueOfLegendsConfigurationDialogViewModel>();
         }
