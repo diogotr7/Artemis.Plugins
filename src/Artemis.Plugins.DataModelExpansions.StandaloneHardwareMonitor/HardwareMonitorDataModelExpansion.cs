@@ -100,7 +100,11 @@ namespace Artemis.Plugins.DataModelExpansions.StandaloneHardwareMonitor
 
         private void UpdateHarware(double deltaTime)
         {
+            Profiler.StartMeasurement(nameof(UpdateHarware));
+
             _computer.Accept(_visitor);
+
+            Profiler.StopMeasurement(nameof(UpdateHarware));
         }
 
         private static bool IsUserAdministrator()

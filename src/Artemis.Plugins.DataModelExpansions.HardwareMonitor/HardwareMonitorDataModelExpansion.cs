@@ -122,7 +122,7 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
                         }
                     }
                 }
-                AddTimedUpdate(TimeSpan.FromMilliseconds(500), UpdateData);
+                AddTimedUpdate(TimeSpan.FromMilliseconds(500), UpdateSensorsAndDataModel);
                 _logger.Information($"Successfully connected to WMI scope: {scope}");
                 return;
                 //success!
@@ -139,8 +139,9 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
 
         public override void Update(double deltaTime) { }
 
-        private void UpdateData(double deltaTime)
+        private void UpdateSensorsAndDataModel(double deltaTime)
         {
+            Profiler.StartMeasurement(nameof(UpdateSensorsAndDataModel));
             foreach (var sensor in Sensor.FromCollection(SensorSearcher.Get()))
             {
                 if (_cache.TryGetValue(sensor.Identifier, out var dynamicChild))
@@ -150,6 +151,7 @@ namespace Artemis.Plugins.DataModelExpansions.HardwareMonitor
                     dynamicChild.Value.Maximum = sensor?.Max ?? -1;
                 }
             }
+            Profiler.StopMeasurement(nameof(UpdateSensorsAndDataModel));
         }
     }
 }
