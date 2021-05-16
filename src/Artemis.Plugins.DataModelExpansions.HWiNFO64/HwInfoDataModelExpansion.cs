@@ -5,50 +5,54 @@ using System.Collections.Generic;
 using System.IO.MemoryMappedFiles;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.IO;
 
 namespace Artemis.Plugins.DataModelExpansions.HWiNFO64
 {
     public class HwInfoDataModelExpansion : DataModelExpansion<HwInfoDataModel>
     {
         private const string SHARED_MEMORY = @"Global\HWiNFO_SENS_SM2";
-        private readonly int sizeOfHwInfoRoot = Marshal.SizeOf<HwInfoRoot>();
-        private readonly int sizeOfHwInfoHardware = Marshal.SizeOf<HwInfoHardware>();
-        private readonly int sizeOfHwInfoSensor = Marshal.SizeOf<HwInfoSensor>();
+        private static readonly int sizeOfHwInfoRoot = Marshal.SizeOf<HwInfoRoot>();
+        private static readonly int sizeOfHwInfoHardware = Marshal.SizeOf<HwInfoHardware>();
+        private static readonly int sizeOfHwInfoSensor = Marshal.SizeOf<HwInfoSensor>();
 
-        private MemoryMappedFile memoryMappedFile;
-        private MemoryMappedViewStream rootStream;
-        private MemoryMappedViewStream hardwareStream;
-        private MemoryMappedViewStream sensorStream;
+        private MemoryMappedFile _memoryMappedFile;
+        private MemoryMappedViewStream _rootStream;
+        private MemoryMappedViewStream _hardwareStream;
+        private MemoryMappedViewStream _sensorStream;
 
-        private HwInfoRoot hwInfoRoot;
-        private HwInfoHardware[] hardwares;
-        private HwInfoSensor[] sensors;
+        private HwInfoRoot _hwInfoRoot;
+        private HwInfoHardware[] _hardwares;
+        private HwInfoSensor[] _sensors;
 
         private readonly Dictionary<ulong, DynamicChild<SensorDynamicDataModel>> _cache = new();
+
+        private readonly byte[] _hardwareBuffer = new byte[sizeOfHwInfoHardware];
+        private readonly byte[] _sensorBuffer = new byte[sizeOfHwInfoSensor];
 
         public override void Enable()
         {
             try
             {
-                memoryMappedFile = MemoryMappedFile.OpenExisting(SHARED_MEMORY, MemoryMappedFileRights.Read);
+                _memoryMappedFile = MemoryMappedFile.OpenExisting(SHARED_MEMORY, MemoryMappedFileRights.Read);
 
-                rootStream = memoryMappedFile.CreateViewStream(
+                _rootStream = _memoryMappedFile.CreateViewStream(
                     0,
                     sizeOfHwInfoRoot,
                     MemoryMappedFileAccess.Read);
 
                 var hwinfoRootBytes = new byte[sizeOfHwInfoRoot];
-                rootStream.Read(hwinfoRootBytes, 0, sizeOfHwInfoRoot);
-                hwInfoRoot = BytesToStruct<HwInfoRoot>(hwinfoRootBytes);
+                _rootStream.Read(hwinfoRootBytes, 0, sizeOfHwInfoRoot);
+                _hwInfoRoot = BytesToStruct<HwInfoRoot>(hwinfoRootBytes);
 
-                hardwareStream = memoryMappedFile.CreateViewStream(
-                    hwInfoRoot.HardwareSectionOffset,
-                    hwInfoRoot.HardwareCount * sizeOfHwInfoHardware,
+                _hardwareStream = _memoryMappedFile.CreateViewStream(
+                    _hwInfoRoot.HardwareSectionOffset,
+                    _hwInfoRoot.HardwareCount * sizeOfHwInfoHardware,
                     MemoryMappedFileAccess.Read);
 
-                sensorStream = memoryMappedFile.CreateViewStream(
-                    hwInfoRoot.SensorSectionOffset,
-                    hwInfoRoot.SensorCount * sizeOfHwInfoSensor,
+                _sensorStream = _memoryMappedFile.CreateViewStream(
+                    _hwInfoRoot.SensorSectionOffset,
+                    _hwInfoRoot.SensorCount * sizeOfHwInfoSensor,
                     MemoryMappedFileAccess.Read);
             }
             catch
@@ -57,8 +61,8 @@ namespace Artemis.Plugins.DataModelExpansions.HWiNFO64
                 throw;
             }
 
-            hardwares = new HwInfoHardware[hwInfoRoot.HardwareCount];
-            sensors = new HwInfoSensor[hwInfoRoot.SensorCount];
+            _hardwares = new HwInfoHardware[_hwInfoRoot.HardwareCount];
+            _sensors = new HwInfoSensor[_hwInfoRoot.SensorCount];
 
             UpdateHardwares();
 
@@ -66,19 +70,19 @@ namespace Artemis.Plugins.DataModelExpansions.HWiNFO64
 
             PopulateDynamicDataModels();
 
-            AddTimedUpdate(TimeSpan.FromMilliseconds(hwInfoRoot.PollingPeriod), UpdataDataModelFromSensors);
+            AddTimedUpdate(TimeSpan.FromMilliseconds(_hwInfoRoot.PollingPeriod), UpdateSensorsAndDataModel);
         }
 
         public override void Disable()
         {
-            memoryMappedFile?.Dispose();
-            rootStream?.Dispose();
-            hardwareStream?.Dispose();
-            sensorStream?.Dispose();
+            _memoryMappedFile?.Dispose();
+            _rootStream?.Dispose();
+            _hardwareStream?.Dispose();
+            _sensorStream?.Dispose();
             _cache.Clear();
-            hwInfoRoot = default;
-            hardwares = null;
-            sensors = null;
+            _hwInfoRoot = default;
+            _hardwares = null;
+            _sensors = null;
         }
 
         public override void Update(double deltaTime)
@@ -86,11 +90,13 @@ namespace Artemis.Plugins.DataModelExpansions.HWiNFO64
             //updates are done only as often as HWiNFO64 polls to save resources.
         }
 
-        private void UpdataDataModelFromSensors(double deltaTime)
+        private void UpdateSensorsAndDataModel(double deltaTime)
         {
+            Profiler.StartMeasurement(nameof(UpdateSensorsAndDataModel));
+
             UpdateSensors();
 
-            foreach (var item in sensors)
+            foreach (var item in _sensors)
             {
                 if (_cache.TryGetValue(item.Id, out var child))
                 {
@@ -100,15 +106,17 @@ namespace Artemis.Plugins.DataModelExpansions.HWiNFO64
                     child.Value.Maximum = item.ValueMax;
                 }
             }
+
+            Profiler.StopMeasurement(nameof(UpdateSensorsAndDataModel));
         }
 
         private void PopulateDynamicDataModels()
         {
-            for (int i = 0; i < hardwares.Length; i++)
+            for (int i = 0; i < _hardwares.Length; i++)
             {
-                HwInfoHardware hw = hardwares[i];
+                HwInfoHardware hw = _hardwares[i];
 
-                IEnumerable<HwInfoSensor> children = sensors.Where(re => re.ParentIndex == i);
+                IEnumerable<HwInfoSensor> children = _sensors.Where(re => re.ParentIndex == i);
 
                 if (!children.Any())
                     continue;
@@ -148,27 +156,25 @@ namespace Artemis.Plugins.DataModelExpansions.HWiNFO64
 
         private void UpdateHardwares()
         {
-            hardwareStream.Seek(0, System.IO.SeekOrigin.Begin);
-            byte[] bytes = new byte[sizeOfHwInfoHardware];
+            _hardwareStream.Seek(0, System.IO.SeekOrigin.Begin);
 
-            for (int i = 0; i < hwInfoRoot.HardwareCount; i++)
+            for (int i = 0; i < _hwInfoRoot.HardwareCount; i++)
             {
-                hardwareStream.Read(bytes, 0, sizeOfHwInfoHardware);
+                _hardwareStream.Read(_hardwareBuffer, 0, sizeOfHwInfoHardware);
 
-                hardwares[i] = BytesToStruct<HwInfoHardware>(bytes);
+                _hardwares[i] = BytesToStruct<HwInfoHardware>(_hardwareBuffer);
             }
         }
 
         private void UpdateSensors()
         {
-            sensorStream.Seek(0, System.IO.SeekOrigin.Begin);
-            var bytes = new byte[sizeOfHwInfoSensor];
+            _sensorStream.Seek(0, SeekOrigin.Begin);
 
-            for (int i = 0; i < hwInfoRoot.SensorCount; i++)
+            for (int i = 0; i < _hwInfoRoot.SensorCount; i++)
             {
-                sensorStream.Read(bytes, 0, sizeOfHwInfoSensor);
+                _sensorStream.Read(_sensorBuffer, 0, sizeOfHwInfoSensor);
 
-                sensors[i] = BytesToStruct<HwInfoSensor>(bytes);
+                _sensors[i] = BytesToStruct<HwInfoSensor>(_sensorBuffer);
             }
         }
 
