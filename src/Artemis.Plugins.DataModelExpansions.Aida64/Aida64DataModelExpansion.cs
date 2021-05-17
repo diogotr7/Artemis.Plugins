@@ -62,16 +62,15 @@ namespace Artemis.Plugins.DataModelExpansions.Aida64
         {
             foreach (var item in _aidaElements)
             {
-                DynamicChild dm = DataModel.GetDynamicChild(item.Id);
-                if (dm == null)
+                if (!DataModel.TryGetDynamicChild(item.Id, out var dm))
                 {
                     if (float.TryParse(item.Value, out var floatValue))
                     {
-                        DataModel.AddDynamicChild(item.Id, floatValue);
+                        dm = DataModel.AddDynamicChild(item.Id, floatValue);
                     }
                     else
                     {
-                        DataModel.AddDynamicChild(item.Id, item.Value);
+                        dm = DataModel.AddDynamicChild(item.Id, item.Value);
                     }
                 }
 
