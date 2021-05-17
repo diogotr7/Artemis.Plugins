@@ -35,7 +35,7 @@ namespace Artemis.Plugins.DataModelExpansions.Aida64
                 throw;
             }
 
-            AddTimedUpdate(TimeSpan.FromSeconds(1), UpdateSensorsAndDataModel);
+            AddTimedUpdate(TimeSpan.FromSeconds(1), UpdateSensorsAndDataModel, nameof(UpdateSensorsAndDataModel));
         }
 
         public override void Update(double deltaTime)
@@ -50,12 +50,8 @@ namespace Artemis.Plugins.DataModelExpansions.Aida64
 
         private void UpdateSensorsAndDataModel(double deltaTime)
         {
-            Profiler.StartMeasurement(nameof(UpdateSensorsAndDataModel));
-
             ReadAidaSensors();
             UpdateDataModels();
-
-            Profiler.StopMeasurement(nameof(UpdateSensorsAndDataModel));
         }
 
         private void UpdateDataModels()

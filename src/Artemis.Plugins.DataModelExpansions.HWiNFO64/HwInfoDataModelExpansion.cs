@@ -70,7 +70,7 @@ namespace Artemis.Plugins.DataModelExpansions.HWiNFO64
 
             PopulateDynamicDataModels();
 
-            AddTimedUpdate(TimeSpan.FromMilliseconds(_hwInfoRoot.PollingPeriod), UpdateSensorsAndDataModel);
+            AddTimedUpdate(TimeSpan.FromMilliseconds(_hwInfoRoot.PollingPeriod), UpdateSensorsAndDataModel, nameof(UpdateSensorsAndDataModel));
         }
 
         public override void Disable()
@@ -92,8 +92,6 @@ namespace Artemis.Plugins.DataModelExpansions.HWiNFO64
 
         private void UpdateSensorsAndDataModel(double deltaTime)
         {
-            Profiler.StartMeasurement(nameof(UpdateSensorsAndDataModel));
-
             UpdateSensors();
 
             foreach (var item in _sensors)
@@ -106,8 +104,6 @@ namespace Artemis.Plugins.DataModelExpansions.HWiNFO64
                     child.Value.Maximum = item.ValueMax;
                 }
             }
-
-            Profiler.StopMeasurement(nameof(UpdateSensorsAndDataModel));
         }
 
         private void PopulateDynamicDataModels()

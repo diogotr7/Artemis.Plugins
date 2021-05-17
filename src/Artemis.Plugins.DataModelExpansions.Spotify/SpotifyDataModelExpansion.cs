@@ -56,7 +56,7 @@ namespace Artemis.Plugins.DataModelExpansions.Spotify
                 _logger.Error("Failed spotify authentication, login in the settings dialog:" + e.ToString());
             }
 
-            AddTimedUpdate(TimeSpan.FromSeconds(2), UpdatePlayback);
+            AddTimedUpdate(TimeSpan.FromSeconds(2), UpdatePlayback, nameof(UpdatePlayback));
         }
 
         public override void Disable()

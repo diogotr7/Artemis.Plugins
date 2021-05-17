@@ -31,7 +31,7 @@ namespace Artemis.Plugins.DataModelExpansions.StandaloneHardwareMonitor
             _computer.Open();
 
             UpdateDynamicDataModels();
-            AddTimedUpdate(TimeSpan.FromSeconds(1), UpdateHarware);
+            AddTimedUpdate(TimeSpan.FromSeconds(1), UpdateHarware, nameof(UpdateHarware));
         }
 
         public override void Disable()
