@@ -26,8 +26,6 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
 
         public override string Description => "Services needed for Chroma games to send lighting";
 
-        public override bool RequiresElevation => true;
-
         public override List<PluginPrerequisiteAction> InstallActions { get; }
 
         public override List<PluginPrerequisiteAction> UninstallActions { get; }
