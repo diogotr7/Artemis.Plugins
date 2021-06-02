@@ -30,6 +30,8 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
 
         public override List<PluginPrerequisiteAction> UninstallActions { get; }
 
+        public override bool RequiresElevation => true;
+
         public override bool IsMet()
         {
             const string registryPath = @"SOFTWARE\WOW6432Node\Razer Chroma SDK";
