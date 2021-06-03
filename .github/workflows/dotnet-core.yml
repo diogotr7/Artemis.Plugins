@@ -48,19 +48,19 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Discord
-          path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.Discord\bin\x64\Release\net5.0-windows\publish
+          path: .\Plugins\src\Artemis.Plugins.Modules.Discord\bin\x64\Release\net5.0-windows\publish
 
       - name: Upload OBS
         uses: actions/upload-artifact@v2
         with:
           name: OBS
-          path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.OBS\bin\x64\Release\net5.0-windows\publish
+          path: .\Plugins\src\Artemis.Plugins.Modules.OBS\bin\x64\Release\net5.0-windows\publish
 
       - name: Upload Spotify
         uses: actions/upload-artifact@v2
         with:
           name: Spotify
-          path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.Spotify\bin\x64\Release\net5.0-windows\publish
+          path: .\Plugins\src\Artemis.Plugins.Modules.Spotify\bin\x64\Release\net5.0-windows\publish
 
       - name: Upload Chroma
         uses: actions/upload-artifact@v2
