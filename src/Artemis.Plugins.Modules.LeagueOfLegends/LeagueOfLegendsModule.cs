@@ -33,7 +33,6 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             UpdateDuringActivationOverride = false;
 
             _colors = settings.GetSetting("ChampionColors", new Dictionary<Champion, SKColor>(DefaultChampionColors.Colors));
-            DataModel.Player.colorDictionary = _colors.Value;
         }
 
         public override void Enable()
@@ -45,7 +44,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             };
             httpClient = new HttpClient(httpClientHandler);
             httpClient.Timeout = TimeSpan.FromMilliseconds(80);
-            
+            DataModel.Player.colorDictionary = _colors.Value;
             AddTimedUpdate(TimeSpan.FromMilliseconds(100), UpdateData);
         }
 
