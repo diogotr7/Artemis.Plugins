@@ -44,29 +44,11 @@ jobs:
         #msbuild is dumb so we have to upload one at a time :)
         #https://github.com/dotnet/sdk/issues/7238
 
-      - name: Upload Aida64
-        uses: actions/upload-artifact@v2
-        with:
-          name: Aida64
-          path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.Aida64\bin\x64\Release\net5.0-windows\publish
-
       - name: Upload Discord
         uses: actions/upload-artifact@v2
         with:
           name: Discord
           path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.Discord\bin\x64\Release\net5.0-windows\publish
-
-      - name: Upload HardwareMonitor
-        uses: actions/upload-artifact@v2
-        with:
-          name: HardwareMonitor
-          path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.HardwareMonitor\bin\x64\Release\net5.0-windows\publish
-
-      - name: Upload HWiNFO64
-        uses: actions/upload-artifact@v2
-        with:
-          name: HWiNFO64
-          path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.HWiNFO64\bin\x64\Release\net5.0-windows\publish
 
       - name: Upload OBS
         uses: actions/upload-artifact@v2
@@ -79,12 +61,6 @@ jobs:
         with:
           name: Spotify
           path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.Spotify\bin\x64\Release\net5.0-windows\publish
-
-      - name: Upload Standalone Hardware Monitor
-        uses: actions/upload-artifact@v2
-        with:
-          name: StandaloneHardwareMonitor
-          path: .\Plugins\src\Artemis.Plugins.DataModelExpansions.StandaloneHardwareMonitor\bin\x64\Release\net5.0-windows\publish
 
       - name: Upload Chroma
         uses: actions/upload-artifact@v2

@@ -13,8 +13,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.LayerBrushe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.Modules.LeagueOfLegends", "Artemis.Plugins.Modules.LeagueOfLegends\Artemis.Plugins.Modules.LeagueOfLegends.csproj", "{55A728EE-76D6-492E-A45C-FADAC7FDECEE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.DataModelExpansions.HardwareMonitor", "Artemis.Plugins.DataModelExpansions.HardwareMonitor\Artemis.Plugins.DataModelExpansions.HardwareMonitor.csproj", "{17AC4F31-51F2-4FC6-9AB4-1D72B1FE6023}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.LayerBrushes.Chroma", "Artemis.Plugins.LayerBrushes.Chroma\Artemis.Plugins.LayerBrushes.Chroma.csproj", "{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.DataModelExpansions.Spotify", "Artemis.Plugins.DataModelExpansions.Spotify\Artemis.Plugins.DataModelExpansions.Spotify.csproj", "{09090D32-10C0-42BD-AE9B-F2CA381C875E}"
@@ -25,13 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.Modules.Fal
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.LayerBrushes.Particle", "Artemis.Plugins.LayerBrushes.Particle\Artemis.Plugins.LayerBrushes.Particle.csproj", "{058E7B0B-141C-4169-9A7C-A18680C3BBCD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.DataModelExpansions.StandaloneHardwareMonitor", "Artemis.Plugins.DataModelExpansions.StandaloneHardwareMonitor\Artemis.Plugins.DataModelExpansions.StandaloneHardwareMonitor.csproj", "{C5D4A7C9-4B7C-494B-BA36-62695F7B6E0E}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.DataModelExpansions.Discord", "Artemis.Plugins.DataModelExpansions.Discord\Artemis.Plugins.DataModelExpansions.Discord.csproj", "{ED13A1B2-81A3-41A7-8F19-AD4A38BF3931}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.DataModelExpansions.Aida64", "Artemis.Plugins.DataModelExpansions.Aida64\Artemis.Plugins.DataModelExpansions.Aida64.csproj", "{F205514F-B31B-4A85-BFD4-2C5EF73770C1}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.DataModelExpansions.HWiNFO64", "Artemis.Plugins.DataModelExpansions.HWiNFO64\Artemis.Plugins.DataModelExpansions.HWiNFO64.csproj", "{934DBDC3-EB9F-4E46-AC81-78E0F20A66D5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,10 +39,6 @@ Global
 		{55A728EE-76D6-492E-A45C-FADAC7FDECEE}.Debug|x64.Build.0 = Debug|x64
 		{55A728EE-76D6-492E-A45C-FADAC7FDECEE}.Release|x64.ActiveCfg = Release|x64
 		{55A728EE-76D6-492E-A45C-FADAC7FDECEE}.Release|x64.Build.0 = Release|x64
-		{17AC4F31-51F2-4FC6-9AB4-1D72B1FE6023}.Debug|x64.ActiveCfg = Debug|x64
-		{17AC4F31-51F2-4FC6-9AB4-1D72B1FE6023}.Debug|x64.Build.0 = Debug|x64
-		{17AC4F31-51F2-4FC6-9AB4-1D72B1FE6023}.Release|x64.ActiveCfg = Release|x64
-		{17AC4F31-51F2-4FC6-9AB4-1D72B1FE6023}.Release|x64.Build.0 = Release|x64
 		{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61}.Debug|x64.ActiveCfg = Debug|x64
 		{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61}.Debug|x64.Build.0 = Debug|x64
 		{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61}.Release|x64.ActiveCfg = Release|x64
@@ -71,22 +59,10 @@ Global
 		{058E7B0B-141C-4169-9A7C-A18680C3BBCD}.Debug|x64.Build.0 = Debug|x64
 		{058E7B0B-141C-4169-9A7C-A18680C3BBCD}.Release|x64.ActiveCfg = Release|x64
 		{058E7B0B-141C-4169-9A7C-A18680C3BBCD}.Release|x64.Build.0 = Release|x64
-		{C5D4A7C9-4B7C-494B-BA36-62695F7B6E0E}.Debug|x64.ActiveCfg = Debug|x64
-		{C5D4A7C9-4B7C-494B-BA36-62695F7B6E0E}.Debug|x64.Build.0 = Debug|x64
-		{C5D4A7C9-4B7C-494B-BA36-62695F7B6E0E}.Release|x64.ActiveCfg = Release|x64
-		{C5D4A7C9-4B7C-494B-BA36-62695F7B6E0E}.Release|x64.Build.0 = Release|x64
 		{ED13A1B2-81A3-41A7-8F19-AD4A38BF3931}.Debug|x64.ActiveCfg = Debug|x64
 		{ED13A1B2-81A3-41A7-8F19-AD4A38BF3931}.Debug|x64.Build.0 = Debug|x64
 		{ED13A1B2-81A3-41A7-8F19-AD4A38BF3931}.Release|x64.ActiveCfg = Release|x64
 		{ED13A1B2-81A3-41A7-8F19-AD4A38BF3931}.Release|x64.Build.0 = Release|x64
-		{F205514F-B31B-4A85-BFD4-2C5EF73770C1}.Debug|x64.ActiveCfg = Debug|x64
-		{F205514F-B31B-4A85-BFD4-2C5EF73770C1}.Debug|x64.Build.0 = Debug|x64
-		{F205514F-B31B-4A85-BFD4-2C5EF73770C1}.Release|x64.ActiveCfg = Release|x64
-		{F205514F-B31B-4A85-BFD4-2C5EF73770C1}.Release|x64.Build.0 = Release|x64
-		{934DBDC3-EB9F-4E46-AC81-78E0F20A66D5}.Debug|x64.ActiveCfg = Debug|x64
-		{934DBDC3-EB9F-4E46-AC81-78E0F20A66D5}.Debug|x64.Build.0 = Debug|x64
-		{934DBDC3-EB9F-4E46-AC81-78E0F20A66D5}.Release|x64.ActiveCfg = Release|x64
-		{934DBDC3-EB9F-4E46-AC81-78E0F20A66D5}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -94,16 +70,12 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{DDB60A1E-BA5F-45FA-9FF8-D038B503C1FA} = {B28A4ED3-D452-43C6-95A4-DA9D828E1B45}
 		{55A728EE-76D6-492E-A45C-FADAC7FDECEE} = {4F6A7057-E0EE-4584-9785-87EA6B362429}
-		{17AC4F31-51F2-4FC6-9AB4-1D72B1FE6023} = {02703C39-EEAE-42DF-BC48-0252E7E08007}
 		{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61} = {B28A4ED3-D452-43C6-95A4-DA9D828E1B45}
 		{09090D32-10C0-42BD-AE9B-F2CA381C875E} = {02703C39-EEAE-42DF-BC48-0252E7E08007}
 		{390B0800-9119-4070-B9B3-CC71DE42BD2F} = {02703C39-EEAE-42DF-BC48-0252E7E08007}
 		{EA3D651A-1487-40D2-88DC-C6C5FBAB42FA} = {4F6A7057-E0EE-4584-9785-87EA6B362429}
 		{058E7B0B-141C-4169-9A7C-A18680C3BBCD} = {B28A4ED3-D452-43C6-95A4-DA9D828E1B45}
-		{C5D4A7C9-4B7C-494B-BA36-62695F7B6E0E} = {02703C39-EEAE-42DF-BC48-0252E7E08007}
 		{ED13A1B2-81A3-41A7-8F19-AD4A38BF3931} = {02703C39-EEAE-42DF-BC48-0252E7E08007}
-		{F205514F-B31B-4A85-BFD4-2C5EF73770C1} = {02703C39-EEAE-42DF-BC48-0252E7E08007}
-		{934DBDC3-EB9F-4E46-AC81-78E0F20A66D5} = {02703C39-EEAE-42DF-BC48-0252E7E08007}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D87FE810-F20D-476A-8FE6-41BD3AC75D49}

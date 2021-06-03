@@ -1,9 +1,0 @@
-{
-  "Guid": "86cd04cb-2cc2-4a59-a215-71bfd39f6d83",
-  "Name": "Hardware Monitor",
-  "Icon": "Chip",
-  "RequiresAdmin" : "true",
-  "Description": "Provides hardware statistics like load, voltage and temperature for system components. Standalone, but requires admin privileges",
-  "Version": "1.0.0.0",
-  "Main": "Artemis.Plugins.DataModelExpansions.StandaloneHardwareMonitor.dll"
-}
