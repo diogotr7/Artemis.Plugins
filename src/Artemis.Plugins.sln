@@ -3,27 +3,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{4F6A7057-E0EE-4584-9785-87EA6B362429}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "LayerBrushes", "LayerBrushes", "{B28A4ED3-D452-43C6-95A4-DA9D828E1B45}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataModelExpansions", "DataModelExpansions", "{02703C39-EEAE-42DF-BC48-0252E7E08007}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.LayerBrushes.Gif", "Artemis.Plugins.LayerBrushes.Gif\Artemis.Plugins.LayerBrushes.Gif.csproj", "{DDB60A1E-BA5F-45FA-9FF8-D038B503C1FA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.Modules.LeagueOfLegends", "Artemis.Plugins.Modules.LeagueOfLegends\Artemis.Plugins.Modules.LeagueOfLegends.csproj", "{55A728EE-76D6-492E-A45C-FADAC7FDECEE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.LayerBrushes.Chroma", "Artemis.Plugins.LayerBrushes.Chroma\Artemis.Plugins.LayerBrushes.Chroma.csproj", "{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.DataModelExpansions.Spotify", "Artemis.Plugins.DataModelExpansions.Spotify\Artemis.Plugins.DataModelExpansions.Spotify.csproj", "{09090D32-10C0-42BD-AE9B-F2CA381C875E}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.DataModelExpansions.OBS", "Artemis.Plugins.DataModelExpansions.OBS\Artemis.Plugins.DataModelExpansions.OBS.csproj", "{390B0800-9119-4070-B9B3-CC71DE42BD2F}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.Modules.Fallout4", "Artemis.Plugins.Modules.Fallout4\Artemis.Plugins.Modules.Fallout4.csproj", "{EA3D651A-1487-40D2-88DC-C6C5FBAB42FA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.LayerBrushes.Particle", "Artemis.Plugins.LayerBrushes.Particle\Artemis.Plugins.LayerBrushes.Particle.csproj", "{058E7B0B-141C-4169-9A7C-A18680C3BBCD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.DataModelExpansions.Discord", "Artemis.Plugins.DataModelExpansions.Discord\Artemis.Plugins.DataModelExpansions.Discord.csproj", "{ED13A1B2-81A3-41A7-8F19-AD4A38BF3931}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Artemis.Plugins.Modules.Discord", "Artemis.Plugins.Modules.Discord\Artemis.Plugins.Modules.Discord.csproj", "{69EC267A-EDA1-4166-AC28-011E28ECE78F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Artemis.Plugins.Modules.Spotify", "Artemis.Plugins.Modules.Spotify\Artemis.Plugins.Modules.Spotify.csproj", "{E403010D-EAF8-4D29-B33A-EF58E9341BE7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Artemis.Plugins.Modules.OBS", "Artemis.Plugins.Modules.OBS\Artemis.Plugins.Modules.OBS.csproj", "{D006F4BF-1724-4FF1-AD9F-A21605DDCBC4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,14 +37,6 @@ Global
 		{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61}.Debug|x64.Build.0 = Debug|x64
 		{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61}.Release|x64.ActiveCfg = Release|x64
 		{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61}.Release|x64.Build.0 = Release|x64
-		{09090D32-10C0-42BD-AE9B-F2CA381C875E}.Debug|x64.ActiveCfg = Debug|x64
-		{09090D32-10C0-42BD-AE9B-F2CA381C875E}.Debug|x64.Build.0 = Debug|x64
-		{09090D32-10C0-42BD-AE9B-F2CA381C875E}.Release|x64.ActiveCfg = Release|x64
-		{09090D32-10C0-42BD-AE9B-F2CA381C875E}.Release|x64.Build.0 = Release|x64
-		{390B0800-9119-4070-B9B3-CC71DE42BD2F}.Debug|x64.ActiveCfg = Debug|x64
-		{390B0800-9119-4070-B9B3-CC71DE42BD2F}.Debug|x64.Build.0 = Debug|x64
-		{390B0800-9119-4070-B9B3-CC71DE42BD2F}.Release|x64.ActiveCfg = Release|x64
-		{390B0800-9119-4070-B9B3-CC71DE42BD2F}.Release|x64.Build.0 = Release|x64
 		{EA3D651A-1487-40D2-88DC-C6C5FBAB42FA}.Debug|x64.ActiveCfg = Debug|x64
 		{EA3D651A-1487-40D2-88DC-C6C5FBAB42FA}.Debug|x64.Build.0 = Debug|x64
 		{EA3D651A-1487-40D2-88DC-C6C5FBAB42FA}.Release|x64.ActiveCfg = Release|x64
@@ -59,23 +45,21 @@ Global
 		{058E7B0B-141C-4169-9A7C-A18680C3BBCD}.Debug|x64.Build.0 = Debug|x64
 		{058E7B0B-141C-4169-9A7C-A18680C3BBCD}.Release|x64.ActiveCfg = Release|x64
 		{058E7B0B-141C-4169-9A7C-A18680C3BBCD}.Release|x64.Build.0 = Release|x64
-		{ED13A1B2-81A3-41A7-8F19-AD4A38BF3931}.Debug|x64.ActiveCfg = Debug|x64
-		{ED13A1B2-81A3-41A7-8F19-AD4A38BF3931}.Debug|x64.Build.0 = Debug|x64
-		{ED13A1B2-81A3-41A7-8F19-AD4A38BF3931}.Release|x64.ActiveCfg = Release|x64
-		{ED13A1B2-81A3-41A7-8F19-AD4A38BF3931}.Release|x64.Build.0 = Release|x64
+		{69EC267A-EDA1-4166-AC28-011E28ECE78F}.Debug|x64.ActiveCfg = Debug|x64
+		{69EC267A-EDA1-4166-AC28-011E28ECE78F}.Debug|x64.Build.0 = Debug|x64
+		{69EC267A-EDA1-4166-AC28-011E28ECE78F}.Release|x64.ActiveCfg = Release|x64
+		{69EC267A-EDA1-4166-AC28-011E28ECE78F}.Release|x64.Build.0 = Release|x64
+		{E403010D-EAF8-4D29-B33A-EF58E9341BE7}.Debug|x64.ActiveCfg = Debug|x64
+		{E403010D-EAF8-4D29-B33A-EF58E9341BE7}.Debug|x64.Build.0 = Debug|x64
+		{E403010D-EAF8-4D29-B33A-EF58E9341BE7}.Release|x64.ActiveCfg = Release|x64
+		{E403010D-EAF8-4D29-B33A-EF58E9341BE7}.Release|x64.Build.0 = Release|x64
+		{D006F4BF-1724-4FF1-AD9F-A21605DDCBC4}.Debug|x64.ActiveCfg = Debug|x64
+		{D006F4BF-1724-4FF1-AD9F-A21605DDCBC4}.Debug|x64.Build.0 = Debug|x64
+		{D006F4BF-1724-4FF1-AD9F-A21605DDCBC4}.Release|x64.ActiveCfg = Release|x64
+		{D006F4BF-1724-4FF1-AD9F-A21605DDCBC4}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{DDB60A1E-BA5F-45FA-9FF8-D038B503C1FA} = {B28A4ED3-D452-43C6-95A4-DA9D828E1B45}
-		{55A728EE-76D6-492E-A45C-FADAC7FDECEE} = {4F6A7057-E0EE-4584-9785-87EA6B362429}
-		{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61} = {B28A4ED3-D452-43C6-95A4-DA9D828E1B45}
-		{09090D32-10C0-42BD-AE9B-F2CA381C875E} = {02703C39-EEAE-42DF-BC48-0252E7E08007}
-		{390B0800-9119-4070-B9B3-CC71DE42BD2F} = {02703C39-EEAE-42DF-BC48-0252E7E08007}
-		{EA3D651A-1487-40D2-88DC-C6C5FBAB42FA} = {4F6A7057-E0EE-4584-9785-87EA6B362429}
-		{058E7B0B-141C-4169-9A7C-A18680C3BBCD} = {B28A4ED3-D452-43C6-95A4-DA9D828E1B45}
-		{ED13A1B2-81A3-41A7-8F19-AD4A38BF3931} = {02703C39-EEAE-42DF-BC48-0252E7E08007}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D87FE810-F20D-476A-8FE6-41BD3AC75D49}

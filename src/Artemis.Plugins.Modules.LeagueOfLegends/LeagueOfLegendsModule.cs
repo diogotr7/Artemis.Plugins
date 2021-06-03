@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Artemis.Plugins.Modules.LeagueOfLegends
 {
-    public class LeagueOfLegendsModule : ProfileModule<LeagueOfLegendsDataModel>
+    public class LeagueOfLegendsModule : Module<LeagueOfLegendsDataModel>
     {
         private const string URI = "https://127.0.0.1:2999/liveclientdata/allgamedata";
         private HttpClientHandler httpClientHandler;
@@ -24,19 +24,20 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
 
         public LeagueOfLegendsModule(PluginSettings settings)
         {
-            _colors = settings.GetSetting("ChampionColors", new Dictionary<Champion, SKColor>(DefaultChampionColors.Colors));
-        }
-
-        public override void Enable()
-        {
             DisplayName = "League Of Legends";
             DisplayIcon = "LeagueOfLegendsIcon.svg";
-            DefaultPriorityCategory = ModulePriorityCategory.Application;
             ActivationRequirements.Add(new ProcessActivationRequirement("League Of Legends"));
 
             //mock live game api
             //ActivationRequirements.Add(new ProcessActivationRequirement("node"));
+            UpdateDuringActivationOverride = false;
 
+            _colors = settings.GetSetting("ChampionColors", new Dictionary<Champion, SKColor>(DefaultChampionColors.Colors));
+            DataModel.Player.colorDictionary = _colors.Value;
+        }
+
+        public override void Enable()
+        {
             httpClientHandler = new HttpClientHandler
             {
                 //we need this to not make the user install Riot's certificate on their computer
@@ -44,9 +45,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             };
             httpClient = new HttpClient(httpClientHandler);
             httpClient.Timeout = TimeSpan.FromMilliseconds(80);
-
-            UpdateDuringActivationOverride = false;
-            DataModel.Player.colorDictionary = _colors.Value;
+            
             AddTimedUpdate(TimeSpan.FromMilliseconds(100), UpdateData);
         }
 
@@ -67,8 +66,6 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         }
 
         public override void Update(double deltaTime) { }
-
-        public override void Render(double deltaTime, SKCanvas canvas, SKImageInfo canvasInfo) { }
 
         private async Task UpdateData(double deltaTime)
         {

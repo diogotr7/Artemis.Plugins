@@ -13,7 +13,7 @@ using Timer = System.Timers.Timer;
 
 namespace Artemis.Plugins.Modules.Fallout4
 {
-    public class Fallout4Module : ProfileModule<Fallout4DataModel>
+    public class Fallout4Module : Module<Fallout4DataModel>
     {
         private readonly byte[] _heartbeatPacket = new byte[5];
         private readonly Dictionary<uint, (DataType DataType, object Data)> _database = new Dictionary<uint, (DataType DataType, object Data)>();
@@ -23,13 +23,16 @@ namespace Artemis.Plugins.Modules.Fallout4
         private bool first;
         private int dictCount;
 
-        public override void Enable()
+        public Fallout4Module()
         {
             DisplayName = "Fallout 4";
             DisplayIcon = "Radioactive";
-            DefaultPriorityCategory = ModulePriorityCategory.Application;
             ActivationRequirements.Add(new ProcessActivationRequirement("Fallout4"));
             UpdateDuringActivationOverride = false;
+        }
+
+        public override void Enable()
+        {
             heartbeatTimer.Elapsed += SendHeartbeat;
         }
 
@@ -142,8 +145,6 @@ namespace Artemis.Plugins.Modules.Fallout4
                     break;
             }
         }
-
-        public override void Render(double deltaTime, SKCanvas canvas, SKImageInfo canvasInfo) { }
 
         private void SendHeartbeat(object sender, System.Timers.ElapsedEventArgs e)
         {

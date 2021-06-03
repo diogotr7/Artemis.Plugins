@@ -2,7 +2,7 @@
 using SkiaSharp;
 using System.Collections.Generic;
 
-namespace Artemis.Plugins.LayerBrushes.Chroma.DataModelExpansion
+namespace Artemis.Plugins.LayerBrushes.Chroma.Module
 {
     public class ChromaDataModel : DataModel
     {

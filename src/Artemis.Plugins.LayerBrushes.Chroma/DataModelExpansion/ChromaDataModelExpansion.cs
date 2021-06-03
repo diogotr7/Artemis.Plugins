@@ -1,4 +1,5 @@
 ﻿using Artemis.Core.DataModelExpansions;
+using Artemis.Core.Modules;
 using RGB.NET.Core;
 using Serilog;
 using SkiaSharp;
@@ -6,9 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Artemis.Plugins.LayerBrushes.Chroma.DataModelExpansion
+namespace Artemis.Plugins.LayerBrushes.Chroma.Module
 {
-    public class ChromaDataModelExpansion : DataModelExpansion<ChromaDataModel>
+    public class ChromaDataModelExpansion : Module<ChromaDataModel>
     {
         private readonly ILogger _logger;
         private readonly ChromaPluginService _chroma;

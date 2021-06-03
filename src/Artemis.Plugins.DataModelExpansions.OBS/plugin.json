@@ -1,8 +1,0 @@
-{
-  "Guid": "56b422de-c9d5-4488-b1f3-97064decaab5",
-  "Name": "Open Broadcaster Software",
-  "Icon": "OBS.svg",
-  "Description": "Provides OBS information like streaming and recording status, current scene, skipped frames, etc.",
-  "Version": "1.0.0.0",
-  "Main": "Artemis.Plugins.DataModelExpansions.OBS.dll"
-}
