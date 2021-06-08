@@ -30,11 +30,12 @@
       <HintPath>..\..\..\Artemis\src\Artemis.UI\bin\net5.0-windows\Artemis.UI.Shared.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="RazerSdkWrapper">
-      <HintPath>RazerSdkWrapper.dll</HintPath>
-    </Reference>
     <Reference Include="RGB.NET.Core">
       <HintPath>..\..\..\RGB.NET\bin\net5.0\RGB.NET.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="RazerSdkWrapper">
+      <HintPath>RazerSdkWrapper.dll</HintPath>
     </Reference>
     <!-- TODO: Replace with PackageReferences when moving to Nuget -->
 
