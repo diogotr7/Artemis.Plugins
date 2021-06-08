@@ -49,7 +49,7 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
             InstallActions = new ()
             {
                 new DownloadFileAction("Download Chroma SDK installer", downloadUrl, installerFilename),
-                new ExecuteFileAction("Install Chroma SDK", installerFilename),
+                new ExecuteFileAction("Install Chroma SDK", installerFilename, elevate: true),
                 new DeleteFileAction("Cleanup Chroma SDK installer", installerFilename)
             };
 
