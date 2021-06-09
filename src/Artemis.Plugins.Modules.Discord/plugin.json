@@ -4,5 +4,5 @@
   "Icon": "Discord",
   "Description": "Plugin to get useful data from a local discord client",
   "Version": "1.0.0.0",
-  "Main": "Artemis.Plugins.DataModelExpansions.Discord.dll"
+  "Main": "Artemis.Plugins.Modules.Discord.dll"
 }
