@@ -13,8 +13,10 @@ using Timer = System.Timers.Timer;
 
 namespace Artemis.Plugins.Modules.Fallout4
 {
+    [PluginFeature(AlwaysEnabled = true, Name ="Fallout 4", Icon ="Radioactive")]
     public class Fallout4Module : Module<Fallout4DataModel>
     {
+        public override List<IModuleActivationRequirement> ActivationRequirements { get; } = new() { new ProcessActivationRequirement("Fallout4") };
         private readonly byte[] _heartbeatPacket = new byte[5];
         private readonly Dictionary<uint, (DataType DataType, object Data)> _database = new Dictionary<uint, (DataType DataType, object Data)>();
         private readonly Timer heartbeatTimer = new Timer(5000);
@@ -25,9 +27,6 @@ namespace Artemis.Plugins.Modules.Fallout4
 
         public Fallout4Module()
         {
-            DisplayName = "Fallout 4";
-            DisplayIcon = "Radioactive";
-            ActivationRequirements.Add(new ProcessActivationRequirement("Fallout4"));
             UpdateDuringActivationOverride = false;
         }
 

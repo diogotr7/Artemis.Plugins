@@ -40,15 +40,11 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
 
         public ChromaSdkPluginPrerequisite(Plugin plugin)
         {
-            string downloadUrl = GetDownloadUrlAsync().Result;
             string installerFilename = Path.Combine(plugin.Directory.FullName, "ChromaSdkSetup.exe");
-
-            if (downloadUrl == null)
-                throw new Exception();
 
             InstallActions = new ()
             {
-                new DownloadFileAction("Download Chroma SDK installer", downloadUrl, installerFilename),
+                new DownloadFileAction("Download Chroma SDK installer", GetDownloadUrlAsync, installerFilename),
                 new ExecuteFileAction("Install Chroma SDK", installerFilename, elevate: true),
                 new DeleteFileAction("Cleanup Chroma SDK installer", installerFilename)
             };

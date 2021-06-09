@@ -14,8 +14,11 @@ using System.Threading.Tasks;
 
 namespace Artemis.Plugins.Modules.LeagueOfLegends
 {
+    [PluginFeature(AlwaysEnabled = true, Icon = "LeagueOfLegendsIcon.svg", Name = "League Of Legends")]
     public class LeagueOfLegendsModule : Module<LeagueOfLegendsDataModel>
     {
+        public override List<IModuleActivationRequirement> ActivationRequirements { get; } = new() { new ProcessActivationRequirement("League Of Legends") };
+
         private const string URI = "https://127.0.0.1:2999/liveclientdata/allgamedata";
         private HttpClientHandler httpClientHandler;
         private HttpClient httpClient;
@@ -24,12 +27,6 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
 
         public LeagueOfLegendsModule(PluginSettings settings)
         {
-            DisplayName = "League Of Legends";
-            DisplayIcon = "LeagueOfLegendsIcon.svg";
-            ActivationRequirements.Add(new ProcessActivationRequirement("League Of Legends"));
-
-            //mock live game api
-            //ActivationRequirements.Add(new ProcessActivationRequirement("node"));
             UpdateDuringActivationOverride = false;
 
             _colors = settings.GetSetting("ChampionColors", new Dictionary<Champion, SKColor>(DefaultChampionColors.Colors));

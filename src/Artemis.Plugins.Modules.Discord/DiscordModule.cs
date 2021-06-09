@@ -18,8 +18,11 @@ using System.Threading.Tasks;
 
 namespace Artemis.Plugins.Modules.Discord
 {
+    [PluginFeature(AlwaysEnabled = true)]
     public class DiscordModule : Module<DiscordDataModel>
     {
+        public override List<IModuleActivationRequirement> ActivationRequirements { get; } = new();
+
         private readonly JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings
         {
             ContractResolver = new DefaultContractResolver

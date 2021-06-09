@@ -11,6 +11,8 @@ namespace Artemis.Plugins.LayerBrushes.Chroma.Module
 {
     public class ChromaDataModelExpansion : Module<ChromaDataModel>
     {
+        public override List<IModuleActivationRequirement> ActivationRequirements { get; } = new();
+
         private readonly ILogger _logger;
         private readonly ChromaPluginService _chroma;
         private readonly object _lock = new();

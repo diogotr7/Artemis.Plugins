@@ -1,17 +1,20 @@
-﻿using Artemis.Core.Modules;
+﻿using Artemis.Core;
+using Artemis.Core.Modules;
 using Artemis.Core.Services;
 using Artemis.Plugins.Modules.OBS.DataModels;
 using OBSWebsocketDotNet;
 using OBSWebsocketDotNet.Types;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Artemis.Plugins.Modules.OBS
 {
+    [PluginFeature(AlwaysEnabled = true)]
     public class ObsModule : Module<ObsDataModel>
     {
-        private readonly IProcessMonitorService _processMonitorService;
+        public override List<IModuleActivationRequirement> ActivationRequirements { get; } = new() { new ProcessActivationRequirement(PROCESS_NAME) };
 
         private const string OBS_URI = "ws://127.0.0.1:4444";
         private const string OBS_PASSWORD = "";
@@ -19,52 +22,22 @@ namespace Artemis.Plugins.Modules.OBS
 
         private OBSWebsocket _obs;
 
-        public ObsModule(IProcessMonitorService processMonitorService)
+        public override void ModuleActivated(bool isOverride)
         {
-            _processMonitorService = processMonitorService;
-        }
-
-        public override void Enable()
-        {
-            //subscribe to events
-            _processMonitorService.ProcessStarted += OnProcessStarted;
-            _processMonitorService.ProcessStopped += OnProcessStopped;
-
-            //if obs is already running, try connecting
-            if (_processMonitorService.GetRunningProcesses().Any(p => p.ProcessName == PROCESS_NAME))
-                Task.Run(Connect);
-        }
-
-        public override void Disable()
-        {
-            _processMonitorService.ProcessStarted -= OnProcessStarted;
-            _processMonitorService.ProcessStopped -= OnProcessStopped;
-
-            Disconnect();
-        }
-
-        public override void Update(double deltaTime)
-        {
-
-        }
-
-        private void OnProcessStarted(object sender, ProcessEventArgs e)
-        {
-            if (e.Process.ProcessName != PROCESS_NAME)
-                return;
-
             Connect();
         }
 
-        private void OnProcessStopped(object sender, ProcessEventArgs e)
+        public override void ModuleDeactivated(bool isOverride)
         {
-            if (e.Process.ProcessName != PROCESS_NAME)
-                return;
-
             Disconnect();
-
             DataModel.Reset();
         }
+
+        public override void Enable() { }
+
+        public override void Disable() { }
+
+        public override void Update(double deltaTime) { }
 
         private void Connect()
         {
@@ -80,6 +53,15 @@ namespace Artemis.Plugins.Modules.OBS
             {
                 DataModel.IsConnected = false;
                 //logger
+            }
+        }
+
+        private void Disconnect()
+        {
+            if (_obs != null)
+            {
+                _obs.Heartbeat -= UpdateHeartbeat;
+                _obs.Disconnect();
             }
         }
 
@@ -104,15 +86,6 @@ namespace Artemis.Plugins.Modules.OBS
             DataModel.TotalTecordBytes = heartbeat.TotalTecordBytes;
             DataModel.TotalRecordFrames = heartbeat.TotalRecordFrames;
             DataModel.Stats = heartbeat.Stats;
-        }
-
-        private void Disconnect()
-        {
-            if (_obs != null)
-            {
-                _obs.Heartbeat -= UpdateHeartbeat;
-                _obs.Disconnect();
-            }
         }
     }
 }

@@ -7,6 +7,7 @@ using SkiaSharp;
 using SpotifyAPI.Web;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -14,8 +15,11 @@ using System.Threading.Tasks;
 
 namespace Artemis.Plugins.Modules.Spotify
 {
+    [PluginFeature(AlwaysEnabled = true)]
     public class SpotifyModule : Module<SpotifyDataModel>
     {
+        public override List<IModuleActivationRequirement> ActivationRequirements { get; } = new();
+
         #region Constructor and readonly fields
         private readonly ILogger _logger;
         private readonly IColorQuantizerService _colorQuantizer;
