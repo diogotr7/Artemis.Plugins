@@ -1,4 +1,4 @@
-﻿using Artemis.Core.DataModelExpansions;
+﻿using Artemis.Core.Modules;
 
 namespace Artemis.Plugins.Modules.Fallout4.DataModels
 {

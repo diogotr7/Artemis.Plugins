@@ -1,4 +1,4 @@
-﻿using Artemis.Core.DataModelExpansions;
+﻿using Artemis.Core.Modules;
 using OBSWebsocketDotNet.Types;
 
 namespace Artemis.Plugins.Modules.OBS.DataModels
