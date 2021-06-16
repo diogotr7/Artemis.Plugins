@@ -30,7 +30,9 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         {
             UpdateDuringActivationOverride = false;
 
-            _colors = settings.GetSetting("ChampionColors", new Dictionary<Champion, SKColor>(DefaultChampionColors.Colors));
+            //create a copy here
+            _colors = settings.GetSetting("ChampionColors", DefaultChampionColors.GetNewDictionary());
+            DefaultChampionColors.EnsureAllChampionsPresent(_colors.Value);
             AddDefaultProfile(DefaultCategoryName.Games, Path.Combine("Profiles", "Default.json"));
         }
 
