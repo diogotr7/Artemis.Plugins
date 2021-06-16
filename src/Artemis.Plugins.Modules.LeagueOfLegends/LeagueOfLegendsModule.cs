@@ -8,6 +8,7 @@ using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -30,6 +31,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             UpdateDuringActivationOverride = false;
 
             _colors = settings.GetSetting("ChampionColors", new Dictionary<Champion, SKColor>(DefaultChampionColors.Colors));
+            AddDefaultProfile(DefaultCategoryName.Games, Path.Combine("Profiles", "Default.json"));
         }
 
         public override void Enable()
