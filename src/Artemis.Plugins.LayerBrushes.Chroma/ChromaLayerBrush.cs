@@ -65,7 +65,7 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
 
         public override SKColor GetColor(ArtemisLed led, SKPoint renderPoint)
         {
-            if (_chroma.CurrentApp is null || _chroma.CurrentApp == "" ||_chroma.CurrentApp == "Artemis.UI.exe" || !_colors.TryGetValue(led.RgbLed.Id, out SKColor clr))
+            if (string.IsNullOrWhiteSpace(_chroma.CurrentApp) || _chroma.CurrentApp == "Artemis.UI.exe" || !_colors.TryGetValue(led.RgbLed.Id, out SKColor clr))
                 return SKColor.Empty;
 
             return clr;
