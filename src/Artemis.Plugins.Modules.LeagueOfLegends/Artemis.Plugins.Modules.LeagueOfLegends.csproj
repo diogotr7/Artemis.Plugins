@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MaterialDesignThemes" Version="4.0.0" PrivateAssets="All" />
+    <PackageReference Include="MaterialDesignThemes" Version="4.1.0" PrivateAssets="All" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" ExcludeAssets="Runtime" />
     <PackageReference Include="SkiaSharp" Version="2.80.2" PrivateAssets="All" />
     <PackageReference Include="Stylet" Version="1.3.6" PrivateAssets="All" />
