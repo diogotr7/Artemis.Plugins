@@ -26,8 +26,8 @@
                         Width="150"
                         HorizontalAlignment="Center"
                         Style="{StaticResource MaterialDesignFlatMidBgButton}" 
-                        Command="{s:Action Reset}">
-                    RESET
+                        Command="{s:Action OpenWikiLink}">
+                    HELP
                 </Button>
 
                 <Button Margin="10"

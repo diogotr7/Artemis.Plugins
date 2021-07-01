@@ -1,6 +1,5 @@
 using Artemis.Core;
 using Artemis.Core.Modules;
-using Artemis.Core.Modules;
 using Artemis.Plugins.Modules.Discord.DataModels;
 using Artemis.Plugins.Modules.Discord.Enums;
 using Newtonsoft.Json;

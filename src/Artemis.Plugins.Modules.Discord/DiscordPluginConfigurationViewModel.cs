@@ -1,58 +1,56 @@
 ﻿using Artemis.Core;
 using Artemis.UI.Shared;
+using Stylet;
 
 namespace Artemis.Plugins.Modules.Discord
 {
     public class DiscordPluginConfigurationViewModel : PluginConfigurationViewModel
     {
-        private string _clientId;
-        private string _clientSecret;
         private readonly PluginSetting<string> _clientIdSetting;
         private readonly PluginSetting<string> _clientSecretSetting;
-        private readonly PluginSetting<SavedToken> _tokenSetting;
+        private string _clientId;
+        private string _clientSecret;
 
-        public string ClientSecret
+        public DiscordPluginConfigurationViewModel(
+            Plugin plugin,
+            PluginSettings pluginSettings,
+            IModelValidator<DiscordPluginConfigurationViewModel> validator)
+            : base(plugin, validator)
         {
-            get => _clientSecret;
-            set => SetAndNotify(ref _clientSecret, value);
+            _clientIdSetting = pluginSettings.GetSetting<string>("DiscordClientId", null);
+            _clientSecretSetting = pluginSettings.GetSetting<string>("DiscordClientSecret", null);
+
+            ClientId = _clientIdSetting.Value;
+            ClientSecret = _clientSecretSetting.Value;
         }
+
         public string ClientId
         {
             get => _clientId;
             set => SetAndNotify(ref _clientId, value);
         }
 
-        public DiscordPluginConfigurationViewModel(Plugin plugin, PluginSettings pluginSettings) : base(plugin)
+        public string ClientSecret
         {
-            _clientIdSetting = pluginSettings.GetSetting<string>("DiscordClientId", null);
-            _clientSecretSetting = pluginSettings.GetSetting<string>("DiscordClientSecret", null);
-            _tokenSetting = pluginSettings.GetSetting<SavedToken>("DiscordToken", null);
-
-            _clientId = _clientIdSetting.Value;
-            _clientSecret = _clientSecretSetting.Value;
+            get => _clientSecret;
+            set => SetAndNotify(ref _clientSecret, value);
         }
 
         public void Save()
         {
+            if (!Validate())
+                return;
+
             _clientIdSetting.Value = _clientId.Trim();
             _clientIdSetting.Save();
+
             _clientSecretSetting.Value = _clientSecret.Trim();
             _clientSecretSetting.Save();
         }
 
-        public void Reset()
+        public void OpenWikiLink()
         {
-            ClientSecret = null;
-            ClientId = null;
-
-            _clientSecretSetting.Value = null;
-            _clientSecretSetting.Save();
-
-            _clientIdSetting.Value = null;
-            _clientIdSetting.Save();
-
-            _tokenSetting.Value = null;
-            _tokenSetting.Save();
+            Utilities.OpenUrl("https://wiki.artemis-rgb.com/en/guides/user/plugins/discord");
         }
     }
 }
