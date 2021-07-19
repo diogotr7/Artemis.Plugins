@@ -6,15 +6,12 @@ using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums;
 using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.EventArgs;
 using Artemis.Plugins.Modules.LeagueOfLegends.GameDataModels;
 using Artemis.Plugins.Modules.LeagueOfLegends.Utils;
-using Newtonsoft.Json;
 using Serilog;
 using SkiaSharp;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -25,47 +22,38 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
     {
         public override List<IModuleActivationRequirement> ActivationRequirements { get; } = new() { new ProcessActivationRequirement("League Of Legends") };
 
-        private const string URI = "https://127.0.0.1:2999/liveclientdata/allgamedata";
-        private const string champPortraitURIStringToFormat = "http://ddragon.leagueoflegends.com/cdn/img/champion/tiles/{0}.jpg";
+        private readonly ConcurrentDictionary<string, ChampionColorsDataModel> championColorCache = new();
+        private readonly PluginSetting<Dictionary<Champion, SKColor>> _colors;
         private readonly IColorQuantizerService _colorQuantizer;
         private readonly ILogger _logger;
 
-        private HttpClientHandler httpClientHandler;
+        private LolClient lolClient;
         private HttpClient httpClient;
         private float _lastEventTime;
-        private readonly PluginSetting<Dictionary<Champion, SKColor>> _colors;
-        private readonly ConcurrentDictionary<string, ChampionColorsDataModel> championColorCache
-                    = new ConcurrentDictionary<string, ChampionColorsDataModel>();
 
         public LeagueOfLegendsModule(PluginSettings settings, ILogger logger, IColorQuantizerService colorQuantizer)
         {
-            UpdateDuringActivationOverride = false;
-
             _logger = logger;
-            //create a copy here
+            _colorQuantizer = colorQuantizer;
             _colors = settings.GetSetting("ChampionColors", DefaultChampionColors.GetNewDictionary());
             DefaultChampionColors.EnsureAllChampionsPresent(_colors.Value);
+
+            UpdateDuringActivationOverride = false;
             AddDefaultProfile(DefaultCategoryName.Games, Path.Combine("Profiles", "Default.json"));
-            _colorQuantizer = colorQuantizer;
         }
 
         public override void Enable()
         {
-            httpClientHandler = new HttpClientHandler
-            {
-                //we need this to not make the user install Riot's certificate on their computer
-                ServerCertificateCustomValidationCallback = (_, __, ___, ____) => true
-            };
-            httpClient = new HttpClient(httpClientHandler);
-            httpClient.Timeout = TimeSpan.FromMilliseconds(1500);
+            lolClient = new LolClient();
+            httpClient = new HttpClient();
             DataModel.Player.colorDictionary = _colors.Value;
             AddTimedUpdate(TimeSpan.FromMilliseconds(100), UpdateData);
         }
 
         public override void Disable()
         {
+            lolClient?.Dispose();
             httpClient?.Dispose();
-            httpClientHandler?.Dispose();
         }
 
         public override void ModuleActivated(bool isOverride)
@@ -83,30 +71,15 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
 
         private async Task UpdateData(double deltaTime)
         {
-            string jsonData = "";
-
             try
             {
-                using HttpResponseMessage response = await httpClient.GetAsync(URI);
-                if (response.IsSuccessStatusCode)
-                {
-                    using HttpContent content = response.Content;
-                    jsonData = await content.ReadAsStringAsync();
-                }
+                DataModel.RootGameData = await lolClient.GetAllDataAsync();
             }
             catch
             {
-                DataModel.RootGameData = default;
+                DataModel.RootGameData = new();
                 return;
             }
-
-            if (string.IsNullOrWhiteSpace(jsonData) || jsonData.Contains("error"))
-            {
-                DataModel.RootGameData = default;
-                return;
-            }
-
-            DataModel.RootGameData = JsonConvert.DeserializeObject<RootGameData>(jsonData);
 
             try
             {
@@ -117,15 +90,22 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
                 return;
             }
 
-            #region events
+            FireOffEvents();
+        }
+
+        private void FireOffEvents()
+        {
             if (DataModel.RootGameData.Events.Events.Length == 0)
             {
                 _lastEventTime = 0f;
                 return;
             }
 
-            foreach (LolEvent e in DataModel.RootGameData.Events.Events.Where(ev => ev.EventTime > _lastEventTime))
+            foreach (LolEvent e in DataModel.RootGameData.Events.Events)
             {
+                if (e.EventTime <= _lastEventTime)
+                    continue;
+
                 switch (e)
                 {
                     case AceEvent aceEvent:
@@ -226,12 +206,10 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
                         break;
                 }
 
-                Console.WriteLine();
+                _lastEventTime = e.EventTime;
             }
-
-            _lastEventTime = DataModel.RootGameData.Events.Events.Last().EventTime;
-            #endregion
         }
+
         private async Task UpdateChampionColors(string internalChampionName, int skinId)
         {
             string champSkinKey = $"{internalChampionName}_{skinId}";
