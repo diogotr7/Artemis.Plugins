@@ -3,6 +3,7 @@ using Artemis.Core.Modules;
 using Artemis.Core.Services;
 using Artemis.Plugins.Modules.LeagueOfLegends.DataModels;
 using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums;
+using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.EventArgs;
 using Artemis.Plugins.Modules.LeagueOfLegends.GameData;
 using Artemis.Plugins.Modules.LeagueOfLegends.Utils;
 using Newtonsoft.Json;

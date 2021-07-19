@@ -1,6 +1,8 @@
-﻿namespace Artemis.Plugins.Modules.LeagueOfLegends.GameData
+﻿using Artemis.Core;
+
+namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels.EventArgs
 {
-    public class ChampionKillEvent : LolEvent
+    public class ChampionKillEventArgs : DataModelEventArgs
     {
         public string KillerName { get; set; }
         public string VictimName { get; set; }

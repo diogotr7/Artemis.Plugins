@@ -1,5 +1,6 @@
 ﻿using Artemis.Core;
 using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums;
+using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.EventArgs;
 using Artemis.Plugins.Modules.LeagueOfLegends.GameData;
 using Artemis.Plugins.Modules.LeagueOfLegends.Utils;
 
