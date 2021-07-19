@@ -10,11 +10,11 @@
         public string Position { get; set; }
         public string RawChampionName { get; set; }
         public float RespawnTimer { get; set; }
-        public Runes Runes { get; set; }
-        public Scores Scores { get; set; }
+        public Runes Runes { get; set; } = new();
+        public Scores Scores { get; set; } = new();
         public int SkinID { get; set; }
         public string SummonerName { get; set; }
-        public SummonerSpells SummonerSpells { get; set; }
+        public SummonerSpells SummonerSpells { get; set; } = new();
         public string Team { get; set; }
     }
 }

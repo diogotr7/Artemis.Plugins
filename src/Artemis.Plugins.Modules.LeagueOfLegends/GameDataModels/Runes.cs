@@ -2,8 +2,8 @@
 {
     public class Runes
     {
-        public Rune Keystone { get; set; }
-        public Rune PrimaryRuneTree { get; set; }
-        public Rune SecondaryRuneTree { get; set; }
+        public Rune Keystone { get; set; } = new();
+        public Rune PrimaryRuneTree { get; set; } = new();
+        public Rune SecondaryRuneTree { get; set; } = new();
     }
 }

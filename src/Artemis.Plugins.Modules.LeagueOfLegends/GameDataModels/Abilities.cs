@@ -2,10 +2,10 @@
 {
     public class Abilities
     {
-        public Passive Passive { get; set; }
-        public Ability Q { get; set; }
-        public Ability W { get; set; }
-        public Ability E { get; set; }
-        public Ability R { get; set; }
+        public Passive Passive { get; set; } = new();
+        public Ability Q { get; set; } = new();
+        public Ability W { get; set; } = new();
+        public Ability E { get; set; } = new();
+        public Ability R { get; set; } = new();
     }
 }
