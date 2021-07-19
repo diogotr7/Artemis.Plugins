@@ -1,4 +1,6 @@
-﻿namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums
+﻿using Artemis.Plugins.Modules.LeagueOfLegends.Utils;
+
+namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums
 {
     public enum ResourceType
     {

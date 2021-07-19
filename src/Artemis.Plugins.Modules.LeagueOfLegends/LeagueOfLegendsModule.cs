@@ -4,6 +4,7 @@ using Artemis.Core.Services;
 using Artemis.Plugins.Modules.LeagueOfLegends.DataModels;
 using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums;
 using Artemis.Plugins.Modules.LeagueOfLegends.GameData;
+using Artemis.Plugins.Modules.LeagueOfLegends.Utils;
 using Newtonsoft.Json;
 using Serilog;
 using SkiaSharp;
@@ -232,19 +233,19 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         }
         private async Task UpdateChampionColors(string internalChampionName, int skinId)
         {
-            string champSkinKey = internalChampionName + "_" + skinId;
-            string formattedChampPortraitURIString = String.Format(champPortraitURIStringToFormat, champSkinKey);
+            string champSkinKey = $"{internalChampionName}_{skinId}";
+            string champSkinUri = $"http://ddragon.leagueoflegends.com/cdn/img/champion/tiles/{champSkinKey}.jpg";
             if (!championColorCache.ContainsKey(champSkinKey))
             {
                 try
                 {
-                    using HttpResponseMessage response = await httpClient.GetAsync(formattedChampPortraitURIString);
+                    using HttpResponseMessage response = await httpClient.GetAsync(champSkinUri);
                     using Stream stream = await response.Content.ReadAsStreamAsync();
                     using SKBitmap skbm = SKBitmap.Decode(stream);
                     SKColor[] skClrs = _colorQuantizer.Quantize(skbm.Pixels, 256);
                     championColorCache[champSkinKey] = new ChampionColorsDataModel
                     {
-                        Default = _colors.Value[ParseEnum<Champion>.TryParseOr(DataModel.Player.Champion, Champion.Unknown)], // This is just to keep the manually created enum available just in case.
+                        Default = _colors.Value[DataModel.Player.Champion],
                         Vibrant = _colorQuantizer.FindColorVariation(skClrs, ColorType.Vibrant, true),
                         LightVibrant = _colorQuantizer.FindColorVariation(skClrs, ColorType.LightVibrant, true),
                         DarkVibrant = _colorQuantizer.FindColorVariation(skClrs, ColorType.DarkVibrant, true),
@@ -255,7 +256,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
                 }
                 catch (Exception exception)
                 {
-                    _logger.Error("Failed to get champion art colors: " + formattedChampPortraitURIString + "\n" + exception.ToString());
+                    _logger.Error("Failed to get champion art colors: " + champSkinUri + "\n" + exception.ToString());
                     throw;
                 }
             }

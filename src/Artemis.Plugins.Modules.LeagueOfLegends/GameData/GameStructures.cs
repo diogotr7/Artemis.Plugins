@@ -155,7 +155,7 @@
         public LolEvent[] Events { get; set; }
     }
 
-    public struct GameData
+    public struct GameStats
     {
         public string GameMode { get; set; }
         public float GameTime { get; set; }
@@ -169,6 +169,6 @@
         public ActivePlayer ActivePlayer { get; set; }
         public AllPlayer[] AllPlayers { get; set; }
         public EventList Events { get; set; }
-        public GameData GameData { get; set; }
+        public GameStats GameData { get; set; }
     }
 }

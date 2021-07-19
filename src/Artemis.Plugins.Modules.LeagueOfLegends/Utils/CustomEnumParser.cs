@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Artemis.Plugins.Modules.LeagueOfLegends
+namespace Artemis.Plugins.Modules.LeagueOfLegends.Utils
 {
     //adapted from https://stackoverflow.com/questions/30526757
     [AttributeUsage(AttributeTargets.All, AllowMultiple = false)]
