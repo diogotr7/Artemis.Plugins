@@ -81,14 +81,8 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
                 return;
             }
 
-            try
-            {
+            if (DataModel.Player.InternalChampionName != null)
                 await UpdateChampionColors(DataModel.Player.InternalChampionName, DataModel.Player.SkinID);
-            }
-            catch
-            {
-                return;
-            }
 
             FireOffEvents();
         }
