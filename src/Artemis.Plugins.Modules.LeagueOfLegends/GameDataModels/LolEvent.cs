@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using static JsonSubTypes.JsonSubtypes;
 
-namespace Artemis.Plugins.Modules.LeagueOfLegends.GameData
+namespace Artemis.Plugins.Modules.LeagueOfLegends.GameDataModels
 {
     [JsonConverter(typeof(JsonSubtypes), "EventName")]
     [KnownSubType(typeof(AceEvent), "Ace")]

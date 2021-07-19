@@ -1,4 +1,4 @@
-﻿namespace Artemis.Plugins.Modules.LeagueOfLegends.GameData
+﻿namespace Artemis.Plugins.Modules.LeagueOfLegends.GameDataModels
 {
     public class InhibRespawnedEvent : LolEvent
     {
