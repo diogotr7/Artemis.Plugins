@@ -1,4 +1,5 @@
 ﻿using Artemis.Core;
+using Artemis.Core.Modules;
 using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums;
 using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.EventArgs;
 using Artemis.Plugins.Modules.LeagueOfLegends.GameDataModels;
@@ -6,27 +7,32 @@ using Artemis.Plugins.Modules.LeagueOfLegends.Utils;
 
 namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
 {
-    public class MatchDataModel : ChildDataModel
+    public class MatchDataModel : DataModel
     {
-        public MatchDataModel(LeagueOfLegendsDataModel root) : base(root) { }
+        public MapTerrain MapTerrain { get; set; }
+        public GameMode GameMode { get; set; }
+        public float GameTime { get; set; }
+        public DataModelEvent<AceEventArgs> Ace { get; } = new();
+        public DataModelEvent<EpicCreatureKillEventArgs> BaronKill { get; } = new();
+        public DataModelEvent<ChampionKillEventArgs> ChampionKill { get; } = new();
+        public DataModelEvent<DragonKillEventArgs> DragonKill { get; } = new();
+        public DataModelEvent<FirstBloodEventArgs> FirstBlood { get; } = new();
+        public DataModelEvent FirstBrick { get; } = new();
+        public DataModelEvent<GameEndEventArgs> GameEnd { get; } = new();
+        public DataModelEvent GameStart { get; } = new();
+        public DataModelEvent<EpicCreatureKillEventArgs> HeraldKill { get; } = new();
+        public DataModelEvent<InhibKillEventArgs> InhibKill { get; } = new();
+        public DataModelEvent<InhibRespawnedEventArgs> InhibRespawned { get; } = new();
+        public DataModelEvent<InhibRespawningSoonEventArgs> InhibRespawningSoon { get; } = new();
+        public DataModelEvent MinionsSpawning { get; } = new();
+        public DataModelEvent<MultikillEventArgs> Multikill { get; } = new();
+        public DataModelEvent<TurretKillEventArgs> TurretKill { get; } = new();
 
-        public MapTerrain MapTerrain => ParseEnum<MapTerrain>.TryParseOr(RootGameData.GameData.MapTerrain, MapTerrain.Unknown);
-        public GameMode GameMode => ParseEnum<GameMode>.TryParseOr(RootGameData.GameData.GameMode, GameMode.Unknown);
-        public float GameTime => RootGameData.GameData.GameTime;
-        public DataModelEvent<AceEventArgs> Ace { get; set; } = new DataModelEvent<AceEventArgs>();
-        public DataModelEvent<EpicCreatureKillEventArgs> BaronKill { get; set; } = new DataModelEvent<EpicCreatureKillEventArgs>();
-        public DataModelEvent<ChampionKillEventArgs> ChampionKill { get; set; } = new DataModelEvent<ChampionKillEventArgs>();
-        public DataModelEvent<DragonKillEventArgs> DragonKill { get; set; } = new DataModelEvent<DragonKillEventArgs>();
-        public DataModelEvent<FirstBloodEventArgs> FirstBlood { get; set; } = new DataModelEvent<FirstBloodEventArgs>();
-        public DataModelEvent FirstBrick { get; set; } = new DataModelEvent();
-        public DataModelEvent<GameEndEventArgs> GameEnd { get; set; } = new DataModelEvent<GameEndEventArgs>();
-        public DataModelEvent GameStart { get; set; } = new DataModelEvent();
-        public DataModelEvent<EpicCreatureKillEventArgs> HeraldKill { get; set; } = new DataModelEvent<EpicCreatureKillEventArgs>();
-        public DataModelEvent<InhibKillEventArgs> InhibKill { get; set; } = new DataModelEvent<InhibKillEventArgs>();
-        public DataModelEvent<InhibRespawnedEventArgs> InhibRespawned { get; set; } = new DataModelEvent<InhibRespawnedEventArgs>();
-        public DataModelEvent<InhibRespawningSoonEventArgs> InhibRespawningSoon { get; set; } = new DataModelEvent<InhibRespawningSoonEventArgs>();
-        public DataModelEvent MinionsSpawning { get; set; } = new DataModelEvent();
-        public DataModelEvent<MultikillEventArgs> Multikill { get; set; } = new DataModelEvent<MultikillEventArgs>();
-        public DataModelEvent<TurretKillEventArgs> TurretKill { get; set; } = new DataModelEvent<TurretKillEventArgs>();
+        public void Apply(RootGameData rootGameData)
+        {
+            MapTerrain = ParseEnum<MapTerrain>.TryParseOr(rootGameData.GameData.MapTerrain, MapTerrain.Unknown);
+            GameMode = ParseEnum<GameMode>.TryParseOr(rootGameData.GameData.GameMode, GameMode.Unknown);
+            GameTime = rootGameData.GameData.GameTime;
+        }
     }
 }

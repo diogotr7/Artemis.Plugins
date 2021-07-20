@@ -9,6 +9,14 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
 {
     public class ChampionColorsDataModel
     {
+        public SKColor Default { get; set; }
+        public SKColor Vibrant { get; set; }
+        public SKColor LightVibrant { get; set; }
+        public SKColor DarkVibrant { get; set; }
+        public SKColor Muted { get; set; }
+        public SKColor LightMuted { get; set; }
+        public SKColor DarkMuted { get; set; }
+
         public ChampionColorsDataModel()
         {
             Default = new SKColor(128, 128, 128);
@@ -19,12 +27,5 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
             LightMuted = new SKColor(128, 128, 128);
             DarkMuted = new SKColor(128, 128, 128);
         }
-        public SKColor Default { get; set; }
-        public SKColor Vibrant { get; set; }
-        public SKColor LightVibrant { get; set; }
-        public SKColor DarkVibrant { get; set; }
-        public SKColor Muted { get; set; }
-        public SKColor LightMuted { get; set; }
-        public SKColor DarkMuted { get; set; }
     }
 }

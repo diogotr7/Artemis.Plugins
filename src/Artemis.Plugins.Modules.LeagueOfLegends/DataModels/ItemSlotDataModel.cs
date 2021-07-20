@@ -1,24 +1,33 @@
-﻿using Artemis.Plugins.Modules.LeagueOfLegends.GameDataModels;
+﻿using Artemis.Core.Modules;
+using Artemis.Plugins.Modules.LeagueOfLegends.GameDataModels;
 using System;
 
 namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
 {
-    public class ItemSlotDataModel
+    public class ItemSlotDataModel : DataModel
     {
-        private readonly Func<AllPlayer> allPlayer;
-        private readonly int itemIndex;
-        private Item Item => allPlayer().Items?.Length > itemIndex ? allPlayer().Items[itemIndex] : default;
-
-        public ItemSlotDataModel(Func<AllPlayer> accessor, int index)
-        {
-            allPlayer = accessor;
-            itemIndex = index;
-        }
-
-        public string Name => Item.DisplayName;
+        public string Name { get; set; }
         public bool HasItem => !string.IsNullOrWhiteSpace(Name);
-        public bool CanUse => Item.CanUse;
-        public bool Consumable => Item.Consumable;
-        public int Count => Item.Count;
+        public bool CanUse { get; set; }
+        public bool Consumable { get; set; }
+        public int Count { get; set; }
+
+        public void Apply(Item[] items, int index)
+        {
+            var item = Array.Find(items, i => i.Slot == index);
+            if (item == null)
+            {
+                Name = "";
+                CanUse = false;
+                Consumable = false;
+                Count = 0;
+                return;
+            }
+
+            Name = item.DisplayName;
+            CanUse = item.CanUse;
+            Consumable = item.Consumable;
+            Count = item.Count;
+        }
     }
 }

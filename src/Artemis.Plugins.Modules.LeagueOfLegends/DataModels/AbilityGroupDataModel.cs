@@ -1,18 +1,21 @@
-﻿namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
-{
-    public class AbilityGroupDataModel : ChildDataModel
-    {
-        public AbilityGroupDataModel(LeagueOfLegendsDataModel root) : base(root)
-        {
-            Q = new AbilityDataModel(() => RootGameData.ActivePlayer.Abilities.Q);
-            W = new AbilityDataModel(() => RootGameData.ActivePlayer.Abilities.W);
-            E = new AbilityDataModel(() => RootGameData.ActivePlayer.Abilities.E);
-            R = new AbilityDataModel(() => RootGameData.ActivePlayer.Abilities.R);
-        }
+﻿using Artemis.Core.Modules;
+using Artemis.Plugins.Modules.LeagueOfLegends.GameDataModels;
 
-        public AbilityDataModel Q { get; set; }
-        public AbilityDataModel W { get; set; }
-        public AbilityDataModel E { get; set; }
-        public AbilityDataModel R { get; set; }
+namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
+{
+    public class AbilityGroupDataModel : DataModel
+    {
+        public AbilityDataModel Q { get; } = new();
+        public AbilityDataModel W { get; } = new();
+        public AbilityDataModel E { get; } = new();
+        public AbilityDataModel R { get; } = new();
+
+        public void Apply(Abilities abilities)
+        {
+            Q.Apply(abilities.Q);
+            W.Apply(abilities.W);
+            E.Apply(abilities.E);
+            R.Apply(abilities.R);
+        }
     }
 }

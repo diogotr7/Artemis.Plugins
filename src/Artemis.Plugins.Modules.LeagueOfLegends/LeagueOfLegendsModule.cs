@@ -29,7 +29,8 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
 
         private LolClient lolClient;
         private HttpClient httpClient;
-        private float _lastEventTime;
+        private RootGameData gameData;
+        private float lastEventTime;
 
         public LeagueOfLegendsModule(PluginSettings settings, ILogger logger, IColorQuantizerService colorQuantizer)
         {
@@ -46,7 +47,6 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         {
             lolClient = new LolClient();
             httpClient = new HttpClient();
-            DataModel.Player.colorDictionary = _colors.Value;
             AddTimedUpdate(TimeSpan.FromMilliseconds(100), UpdateData);
         }
 
@@ -73,11 +73,11 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         {
             try
             {
-                DataModel.RootGameData = await lolClient.GetAllDataAsync();
+                gameData =  await lolClient.GetAllDataAsync();
+                DataModel.Apply(gameData);
             }
             catch
             {
-                DataModel.RootGameData = new();
                 return;
             }
 
@@ -89,15 +89,15 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
 
         private void FireOffEvents()
         {
-            if (DataModel.RootGameData.Events.Events.Length == 0)
+            if (gameData.Events.Events.Length == 0)
             {
-                _lastEventTime = 0f;
+                lastEventTime = 0f;
                 return;
             }
 
-            foreach (LolEvent e in DataModel.RootGameData.Events.Events)
+            foreach (LolEvent e in gameData.Events.Events)
             {
-                if (e.EventTime <= _lastEventTime)
+                if (e.EventTime <= lastEventTime)
                     continue;
 
                 switch (e)
@@ -200,7 +200,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
                         break;
                 }
 
-                _lastEventTime = e.EventTime;
+                lastEventTime = e.EventTime;
             }
         }
 
