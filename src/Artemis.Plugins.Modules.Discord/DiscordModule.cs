@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Serilog;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipes;
@@ -17,200 +18,87 @@ using System.Threading.Tasks;
 
 namespace Artemis.Plugins.Modules.Discord
 {
-    [PluginFeature(AlwaysEnabled = true)]
+    [PluginFeature(Name = "Discord", Icon = "Discord")]
     public class DiscordModule : Module<DiscordDataModel>
     {
-        public override List<IModuleActivationRequirement> ActivationRequirements { get; } = new();
-
-        private readonly JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings
-        {
-            ContractResolver = new DefaultContractResolver
-            {
-                NamingStrategy = new SnakeCaseNamingStrategy { ProcessDictionaryKeys = true }
-            }
-        };
-        private readonly HttpClient httpClient = new HttpClient();
-
-        private readonly PluginSetting<string> clientId;
-        private readonly PluginSetting<string> clientSecret;
-        private readonly PluginSetting<SavedToken> token;
-        private readonly ILogger _logger;
-
-        #region RPC Constants
         private static readonly string[] SCOPES = new string[]
         {
             "rpc",
             "identify",
             "rpc.notifications.read"
         };
-        private const string PIPE = "discord-ipc-0";
-        private const string RPC_VERSION = "1";
-        private const int HEADER_SIZE = 8;
-        #endregion
 
-        private NamedPipeClientStream _pipe;
-        private CancellationTokenSource _cancellationToken;
+        public override List<IModuleActivationRequirement> ActivationRequirements { get; }
+            = new() { new ProcessActivationRequirement("discord") };
+
+        private readonly HttpClient _httpClient = new();
+
+        private readonly PluginSetting<string> _clientId;
+        private readonly PluginSetting<string> _clientSecret;
+        private readonly PluginSetting<SavedToken> _token;
+        private readonly ILogger _logger;
+
+        private DiscordRpcClient discordClient;
 
         public DiscordModule(PluginSettings pluginSettings, ILogger logger)
         {
             _logger = logger;
-            clientId = pluginSettings.GetSetting<string>("DiscordClientId", null);
-            clientSecret = pluginSettings.GetSetting<string>("DiscordClientSecret", null);
-            token = pluginSettings.GetSetting<SavedToken>("DiscordToken", null);
+            _clientId = pluginSettings.GetSetting<string>("DiscordClientId", null);
+            _clientSecret = pluginSettings.GetSetting<string>("DiscordClientSecret", null);
+            _token = pluginSettings.GetSetting<SavedToken>("DiscordToken", null);
         }
 
         public override void Enable()
         {
-            if (clientId.Value == null || clientId.Value.Length != 18 ||
-                clientSecret.Value == null || clientSecret.Value.Length != 32)
+            if (_clientId.Value == null || _clientId.Value.Length != 18 ||
+                _clientSecret.Value == null || _clientSecret.Value.Length != 32)
                 throw new ArtemisPluginException("Client ID or secret invalid");
-
-            try
-            {
-                Connect();
-            }
-            catch (TimeoutException e)
-            {
-                throw new ArtemisPluginException("Failed to connect to Discord RPC", e);
-            }
-
-            SendPacket(new { v = RPC_VERSION, client_id = clientId.Value }, RpcPacketType.HANDSHAKE);
-            _cancellationToken = new CancellationTokenSource();
-            Task.Run(StartReadAsync, _cancellationToken.Token);
 
             AddTimedUpdate(TimeSpan.FromDays(1), TryRefreshTokenAsync);
         }
 
         public override void Disable()
         {
-            _cancellationToken?.Cancel();
-            _pipe?.Dispose();
         }
 
         public override void Update(double deltaTime)
         {
-            //nothing
         }
 
-        #region IPC
-        private void Connect()
+        public override void ModuleActivated(bool isOverride)
         {
-            _pipe = new NamedPipeClientStream(".", PIPE, PipeDirection.InOut, PipeOptions.None);
-            _pipe.Connect(500);
+            discordClient = new(_clientId.Value);
+            discordClient.EventReceived += OnDiscordEventReceived;
+            discordClient.Error += OnDiscordError;
         }
 
-        private void SendPacket(object obj, RpcPacketType opcode = RpcPacketType.FRAME)
+        public override void ModuleDeactivated(bool isOverride)
         {
-            string stringData = JsonConvert.SerializeObject(obj, _jsonSerializerSettings);
-            byte[] data = Encoding.UTF8.GetBytes(stringData);
-            int dataLength = data.Length;
-            byte[] sendBuff = new byte[dataLength + HEADER_SIZE];
-            BinaryWriter writer = new BinaryWriter(new MemoryStream(sendBuff));
-            writer.Write((int)opcode);
-            writer.Write(dataLength);
-            writer.Write(data);
-            _pipe.Write(sendBuff);
-
-            _logger.Verbose("Sent discord message: {stringData}", stringData);
+            discordClient?.Dispose();
         }
 
-        private async Task StartReadAsync()
+        private void OnDiscordError(object sender, Exception e)
         {
-            while (!_cancellationToken.IsCancellationRequested && (_pipe?.IsConnected == true))
-            {
-                try
-                {
-                    byte[] header = new byte[HEADER_SIZE];
-                    await _pipe.ReadAsync(header.AsMemory(0, header.Length), _cancellationToken.Token);
-                    RpcPacketType opCode = (RpcPacketType)BitConverter.ToInt32(header.AsSpan());
-                    int dataLength = BitConverter.ToInt32(header.AsSpan(4));
-
-                    if (dataLength == 0)//if this is zero it means the pipe closed
-                        break;
-
-                    byte[] dataBuffer = new byte[dataLength];
-                    await _pipe.ReadAsync(dataBuffer.AsMemory(0, dataBuffer.Length), _cancellationToken.Token);
-                    await ProcessPipeMessageAsync(opCode, Encoding.UTF8.GetString(dataBuffer));
-                }
-                catch (Exception exc)
-                {
-                    _logger.Error("Discord Pipe read error", exc);
-                    throw;
-                }
-            }
-            _logger.Information("Stopped reading from discord pipe");
+            _logger.Error("Discord Rpc client error", e);
         }
 
-        private async Task ProcessPipeMessageAsync(RpcPacketType opCode, string data)
-        {
-            if (opCode == RpcPacketType.PING)
-            {
-                SendPacket(data, RpcPacketType.PONG);
-                return;
-            }
-            if (opCode == RpcPacketType.HANDSHAKE)
-            {
-                if (string.IsNullOrEmpty(data))
-                {
-                    //probably close?
-                }
-                else
-                {
-                    //probably restart?
-                }
-                //SendPacket(new { v = RPC_VERSION, client_id = clientId.Value }, RpcPacketType.HANDSHAKE);
-                //happens when closing discord and artemis is open?
-                //TODO: investigate
-            }
-            if (opCode == RpcPacketType.CLOSE)
-            {
-                _logger.Error("Discord pipe connection closed: {data}", data);
-                return;
-            }
-
-            IDiscordMessage discordMessage;
-            try
-            {
-                discordMessage = JsonConvert.DeserializeObject<IDiscordMessage>(data, _jsonSerializerSettings);
-            }
-            catch (Exception exc)
-            {
-                _logger.Error(exc, "Error deserializing discord message: {data}", data);
-                return;
-            }
-
-            _logger.Verbose("Received discord message: {data}", data);
-
-            if (discordMessage is DiscordResponse discordResponse)
-            {
-                await ProcessDiscordResponseAsync(discordResponse);
-            }
-            else if (discordMessage is DiscordEvent discordEvent)
-            {
-                await ProcessDiscordEventAsync(discordEvent);
-            }
-            else
-            {
-                _logger.Error("Received unexpected discord message: {data}", data);
-            }
-        }
-        #endregion
-
-        #region Message handling
-        private async Task ProcessDiscordEventAsync(DiscordEvent discordEvent)
+        private async void OnDiscordEventReceived(object sender, DiscordEvent discordEvent)
         {
             switch (discordEvent)
             {
                 case DiscordEvent<ReadyData>:
-                    if (token.Value == null)
+                    if (_token.Value == null)
                     {
                         //We have no token saved. This means it's probably the first time
                         //the user is using the plugin. We need to ask for their permission
                         //to get a token from discord. 
                         //This token can be saved and reused (+ refreshed) later.
-                        SendPacket(new DiscordRequest(DiscordRpcCommand.AUTHORIZE)
-                            .WithArgument("client_id", clientId.Value)
-                            .WithArgument("scopes", SCOPES));
+                        var authorizeResponse = await discordClient.SendRequest<AuthorizeData>(
+                            new DiscordRequest(DiscordRpcCommand.AUTHORIZE)
+                                .WithArgument("client_id", _clientId.Value)
+                                .WithArgument("scopes", SCOPES));
+
+                        SaveToken(await GetAccessTokenAsync(authorizeResponse.Data.Code));
                     }
                     else
                     {
@@ -218,14 +106,36 @@ namespace Artemis.Plugins.Modules.Discord
                         //we need to check if it expired or not.
                         //If yes, refresh it.
                         //Then, authenticate.
-                        if (token.Value.ExpirationDate < DateTime.UtcNow)
+                        if (_token.Value.ExpirationDate < DateTime.UtcNow)
                         {
-                            SaveToken(await RefreshAccessTokenAsync(token.Value.RefreshToken));
+                            SaveToken(await RefreshAccessTokenAsync(_token.Value.RefreshToken));
                         }
-
-                        SendPacket(new DiscordRequest(DiscordRpcCommand.AUTHENTICATE)
-                                        .WithArgument("access_token", token.Value.AccessToken));
                     }
+
+                    var authenticateResponse =
+                        await discordClient.SendRequest<AuthenticateData>(
+                            new DiscordRequest(DiscordRpcCommand.AUTHENTICATE)
+                                .WithArgument("access_token", _token.Value.AccessToken));
+
+                    DataModel.User.Username = authenticateResponse.Data.User.Username;
+                    DataModel.User.Discriminator = authenticateResponse.Data.User.Discriminator;
+                    DataModel.User.Id = authenticateResponse.Data.User.Id;
+
+                    //Initial request for data, then use events after
+                    var voiceSettingsResponse =
+                        await discordClient.SendRequest<VoiceSettingsData>(
+                            new DiscordRequest(DiscordRpcCommand.GET_VOICE_SETTINGS));
+
+                    DataModel.VoiceSettings.Deafened = voiceSettingsResponse.Data.Deaf;
+                    DataModel.VoiceSettings.Muted = voiceSettingsResponse.Data.Mute;
+
+                    await UpdateVoiceChannelData();
+
+                    //Subscribe to these events as well
+                    await discordClient.SendRequestAsync(new DiscordSubscribe(DiscordRpcEvent.VOICE_SETTINGS_UPDATE));
+                    await discordClient.SendRequestAsync(new DiscordSubscribe(DiscordRpcEvent.NOTIFICATION_CREATE));
+                    await discordClient.SendRequestAsync(new DiscordSubscribe(DiscordRpcEvent.VOICE_CONNECTION_STATUS));
+                    await discordClient.SendRequestAsync(new DiscordSubscribe(DiscordRpcEvent.VOICE_CHANNEL_SELECT));
                     break;
                 case DiscordEvent<VoiceSettingsData> voice:
                     var voiceData = voice.Data;
@@ -280,8 +190,7 @@ namespace Artemis.Plugins.Modules.Discord
                     if (voiceSelect.Data.ChannelId is not null)//join voice channel
                     {
                         DataModel.VoiceConnection.Connected.Trigger();
-                        SendPacket(new DiscordRequest(DiscordRpcCommand.GET_SELECTED_VOICE_CHANNEL));
-                        SubscribeToSpeakingEvents(voiceSelect.Data.ChannelId);
+                        await UpdateVoiceChannelData();
                     }
                     else//leave voice channel
                     {
@@ -294,82 +203,54 @@ namespace Artemis.Plugins.Modules.Discord
             }
         }
 
-        private async Task ProcessDiscordResponseAsync(DiscordResponse discordResponse)
+        private async Task UpdateVoiceChannelData()
         {
-            switch (discordResponse)
-            {
-                //we should only receive the authorize event once from the client
-                //since after that the token should be refreshed
-                case DiscordResponse<AuthorizeData> authorize:
-                    //If we get here, it means it's the first time the user is using the plugin.
-                    //In this case, we need to ask for their permission for this app to be used
-                    //so we can get a token with the Code discord gives us. 
-                    //This token can then be reused.
+            var selectedVoiceChannelResponse =
+                await discordClient.SendRequest<SelectedVoiceChannelData>(
+                    new DiscordRequest(DiscordRpcCommand.GET_SELECTED_VOICE_CHANNEL));
 
-                    SaveToken(await GetAccessTokenAsync(authorize.Data.Code));
-                    SendPacket(new DiscordRequest(DiscordRpcCommand.AUTHENTICATE).WithArgument("access_token", token.Value.AccessToken));
-                    break;
-                case DiscordResponse<AuthenticateData> authenticate:
-                    DataModel.User.Username = authenticate.Data.User.Username;
-                    DataModel.User.Discriminator = authenticate.Data.User.Discriminator;
-                    DataModel.User.Id = authenticate.Data.User.Id;
-
-                    //Initial request for data, then use events after
-                    SendPacket(new DiscordRequest(DiscordRpcCommand.GET_VOICE_SETTINGS));
-                    SendPacket(new DiscordRequest(DiscordRpcCommand.GET_SELECTED_VOICE_CHANNEL));
-
-                    //Subscribe to these events as well
-                    SendPacket(new DiscordSubscribe(DiscordRpcEvent.VOICE_SETTINGS_UPDATE));
-                    SendPacket(new DiscordSubscribe(DiscordRpcEvent.NOTIFICATION_CREATE));
-                    SendPacket(new DiscordSubscribe(DiscordRpcEvent.VOICE_CONNECTION_STATUS));
-                    SendPacket(new DiscordSubscribe(DiscordRpcEvent.VOICE_CHANNEL_SELECT));
-                    break;
-                case DiscordResponse<VoiceSettingsData> voice:
-                    DataModel.VoiceSettings.Deafened = voice.Data.Deaf;
-                    DataModel.VoiceSettings.Muted = voice.Data.Mute;
-                    break;
-                case DiscordResponse<SubscribeData> subscribe:
-                    _logger.Verbose("Subscribed to event {event} successfully.", subscribe.Data.Event);
-                    break;
-                case DiscordResponse<SelectedVoiceChannelData> selectedVoiceChannel:
-                    //Data is null when the user leaves a voice channel
-                    if (selectedVoiceChannel.Data != null)
-                        SubscribeToSpeakingEvents(selectedVoiceChannel.Data.Id);
-                    break;
-                default:
-                    _logger.Error("Received unexpected discord response to command {commandType} with guid {guid}", discordResponse.Command, discordResponse.Nonce);
-                    break;
-            }
+            if (selectedVoiceChannelResponse.Data != null)
+                await SubscribeToSpeakingEventsAsync(selectedVoiceChannelResponse.Data.Id);
         }
 
-        private void SubscribeToSpeakingEvents(string id)
+        private async Task SubscribeToSpeakingEventsAsync(string id)
         {
-            SendPacket(new DiscordSubscribe(DiscordRpcEvent.SPEAKING_START).WithArgument("channel_id", id));
-            SendPacket(new DiscordSubscribe(DiscordRpcEvent.SPEAKING_STOP).WithArgument("channel_id", id));
+            await discordClient.SendRequestAsync(
+                new DiscordSubscribe(DiscordRpcEvent.SPEAKING_START)
+                .WithArgument("channel_id", id));
+            await discordClient.SendRequestAsync(
+                new DiscordSubscribe(DiscordRpcEvent.SPEAKING_STOP)
+                .WithArgument("channel_id", id));
         }
-        #endregion
 
         #region Authorization & Authentication
-        private async Task TryRefreshTokenAsync(double obj)
-        {
-            if (token.Value == null)
-                return;
-
-            if (token.Value.ExpirationDate < DateTime.UtcNow.AddDays(1))
-            {
-                SaveToken(await RefreshAccessTokenAsync(token.Value.RefreshToken));
-            }
-        }
-
         private void SaveToken(TokenResponse newToken)
         {
-            token.Value = new SavedToken
+            _token.Value = new SavedToken
             {
                 AccessToken = newToken.AccessToken,
                 RefreshToken = newToken.RefreshToken,
                 ExpirationDate = DateTime.UtcNow.AddSeconds(newToken.ExpiresIn)
             };
-            token.Save();
+            _token.Save();
+        }
+
+        private async Task TryRefreshTokenAsync(double obj)
+        {
+            if (_token.Value == null)
+                return;
+
+            if (_token.Value.ExpirationDate < DateTime.UtcNow.AddDays(1))
+            {
+                try
+                {
+                    SaveToken(await RefreshAccessTokenAsync(_token.Value.RefreshToken));
+                }
+                catch (Exception e)
+                {
+                    _logger.Error("Failed to refresh discord token.", e);
+                }
+            }
         }
 
         private async Task<TokenResponse> GetAccessTokenAsync(string challengeCode)
@@ -388,11 +269,11 @@ namespace Artemis.Plugins.Modules.Discord
             {
                 ["grant_type"] = grantType,
                 [secretType] = secret,
-                ["client_id"] = clientId.Value,
-                ["client_secret"] = clientSecret.Value
+                ["client_id"] = _clientId.Value,
+                ["client_secret"] = _clientSecret.Value
             };
 
-            using HttpResponseMessage response = await httpClient.PostAsync("https://discord.com/api/oauth2/token", new FormUrlEncodedContent(values));
+            using HttpResponseMessage response = await _httpClient.PostAsync("https://discord.com/api/oauth2/token", new FormUrlEncodedContent(values));
             string responseString = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode)
             {
@@ -400,7 +281,7 @@ namespace Artemis.Plugins.Modules.Discord
                 throw new UnauthorizedAccessException(responseString);
             }
 
-            return JsonConvert.DeserializeObject<TokenResponse>(responseString, _jsonSerializerSettings);
+            return JsonConvert.DeserializeObject<TokenResponse>(responseString);
         }
         #endregion
     }
