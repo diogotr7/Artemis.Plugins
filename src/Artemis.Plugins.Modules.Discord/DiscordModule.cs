@@ -31,21 +31,21 @@ namespace Artemis.Plugins.Modules.Discord
         public override List<IModuleActivationRequirement> ActivationRequirements { get; }
             = new() { new ProcessActivationRequirement("discord") };
 
-        private readonly HttpClient _httpClient = new();
-
         private readonly PluginSetting<string> _clientId;
         private readonly PluginSetting<string> _clientSecret;
         private readonly PluginSetting<SavedToken> _token;
         private readonly ILogger _logger;
+        private readonly HttpClient _httpClient;
 
         private DiscordRpcClient discordClient;
 
         public DiscordModule(PluginSettings pluginSettings, ILogger logger)
         {
-            _logger = logger;
             _clientId = pluginSettings.GetSetting<string>("DiscordClientId", null);
             _clientSecret = pluginSettings.GetSetting<string>("DiscordClientSecret", null);
             _token = pluginSettings.GetSetting<SavedToken>("DiscordToken", null);
+            _logger = logger;
+            _httpClient = new();
         }
 
         public override void Enable()
@@ -67,6 +67,9 @@ namespace Artemis.Plugins.Modules.Discord
 
         public override void ModuleActivated(bool isOverride)
         {
+            if (isOverride)
+                return;
+
             discordClient = new(_clientId.Value);
             discordClient.EventReceived += OnDiscordEventReceived;
             discordClient.Error += OnDiscordError;
@@ -74,6 +77,9 @@ namespace Artemis.Plugins.Modules.Discord
 
         public override void ModuleDeactivated(bool isOverride)
         {
+            if (isOverride)
+                return;
+
             discordClient?.Dispose();
         }
 

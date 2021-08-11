@@ -79,7 +79,7 @@ namespace Artemis.Plugins.Modules.Discord
                 {
                     headerBuffer = ArrayPool<byte>.Shared.Rent(HEADER_SIZE);
 
-                    await _pipe.ReadAsync(headerBuffer, 0, HEADER_SIZE, _cancellationTokenSource.Token);
+                    await _pipe.ReadAsyncCancellable(headerBuffer, 0, HEADER_SIZE, _cancellationTokenSource.Token);
 
                     var opCode = (RpcPacketType)BitConverter.ToInt32(headerBuffer.AsSpan(0, 4));
                     var dataLength = BitConverter.ToInt32(headerBuffer.AsSpan(4, 4));
@@ -89,7 +89,7 @@ namespace Artemis.Plugins.Modules.Discord
 
                     dataBuffer = ArrayPool<byte>.Shared.Rent(dataLength);
 
-                    await _pipe.ReadAsync(dataBuffer, 0, dataLength, _cancellationTokenSource.Token);
+                    await _pipe.ReadAsyncCancellable(dataBuffer, 0, dataLength, _cancellationTokenSource.Token);
 
                     await ProcessPipeMessageAsync(opCode, Encoding.UTF8.GetString(dataBuffer.AsSpan(0, dataLength)));
                 }
@@ -194,6 +194,9 @@ namespace Artemis.Plugins.Modules.Discord
 
             //and send the actual request to the discord client.
             await SendPacketAsync(JsonConvert.SerializeObject(request, _jsonSerializerSettings), RpcPacketType.FRAME);
+
+            var timeoutToken = new CancellationTokenSource(TimeSpan.FromMilliseconds(500));
+            timeoutToken.Token.Register(() => responseCompletionSource.TrySetException(new TimeoutException()));
 
             //this will wait until the response with the expected Guid is received
             //and processed by the read loop.
