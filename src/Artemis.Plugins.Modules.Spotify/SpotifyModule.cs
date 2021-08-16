@@ -25,7 +25,7 @@ namespace Artemis.Plugins.Modules.Spotify
         private readonly IColorQuantizerService _colorQuantizer;
         private readonly PluginSetting<PKCETokenResponse> _token;
         private readonly HttpClient _httpClient;
-        private readonly ConcurrentDictionary<string, TrackColorsDataModel> albumArtColorCache;
+        private readonly ConcurrentDictionary<string, ColorSwatch> albumArtColorCache;
 
         public SpotifyModule(PluginSettings settings, ILogger logger, IColorQuantizerService colorQuantizer)
         {
@@ -36,7 +36,7 @@ namespace Artemis.Plugins.Modules.Spotify
             {
                 Timeout = TimeSpan.FromSeconds(2)
             };
-            albumArtColorCache = new ConcurrentDictionary<string, TrackColorsDataModel>();
+            albumArtColorCache = new ConcurrentDictionary<string, ColorSwatch>();
         }
         #endregion
 
@@ -212,19 +212,11 @@ namespace Artemis.Plugins.Modules.Spotify
             {
                 try
                 {
-                    using HttpResponseMessage response = await _httpClient.GetAsync(albumArtUrl);
-                    using Stream stream = await response.Content.ReadAsStreamAsync();
+                    using Stream stream = await _httpClient.GetStreamAsync(albumArtUrl);
                     using SKBitmap skbm = SKBitmap.Decode(stream);
+
                     SKColor[] skClrs = _colorQuantizer.Quantize(skbm.Pixels, 256);
-                    albumArtColorCache[albumArtUrl] = new TrackColorsDataModel
-                    {
-                        Vibrant = _colorQuantizer.FindColorVariation(skClrs, ColorType.Vibrant, true),
-                        LightVibrant = _colorQuantizer.FindColorVariation(skClrs, ColorType.LightVibrant, true),
-                        DarkVibrant = _colorQuantizer.FindColorVariation(skClrs, ColorType.DarkVibrant, true),
-                        Muted = _colorQuantizer.FindColorVariation(skClrs, ColorType.Muted, true),
-                        LightMuted = _colorQuantizer.FindColorVariation(skClrs, ColorType.LightMuted, true),
-                        DarkMuted = _colorQuantizer.FindColorVariation(skClrs, ColorType.DarkMuted, true),
-                    };
+                    albumArtColorCache[albumArtUrl] = _colorQuantizer.FindAllColorVariations(skClrs, true);
                 }
                 catch (Exception e)
                 {

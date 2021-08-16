@@ -1,5 +1,6 @@
 ﻿using Artemis.Core;
 using Artemis.Core.Modules;
+using Artemis.Core.Services;
 using SkiaSharp;
 using SpotifyAPI.Web;
 using System;
@@ -32,8 +33,8 @@ namespace Artemis.Plugins.Modules.Spotify.DataModels
         public int Popularity { get; set; }
         public TimeSpan Duration { get; set; }
         public TimeSpan Progress { get; set; }
+        public ColorSwatch Colors { get; set; }
         public SpotifyTrackFeaturesDataModel Features { get; set; } = new SpotifyTrackFeaturesDataModel();
-        public TrackColorsDataModel Colors { get; set; } = new TrackColorsDataModel();
         public SpotifyTrackAnalysisDataModel Analysis { get; set; } = new SpotifyTrackAnalysisDataModel();
     }
 
@@ -72,16 +73,6 @@ namespace Artemis.Plugins.Modules.Spotify.DataModels
         public Mode Mode { get; set; }
 
         public int TimeSignature { get; set; }
-    }
-
-    public class TrackColorsDataModel : DataModel
-    {
-        public SKColor Vibrant { get; set; }
-        public SKColor LightVibrant { get; set; }
-        public SKColor DarkVibrant { get; set; }
-        public SKColor Muted { get; set; }
-        public SKColor LightMuted { get; set; }
-        public SKColor DarkMuted { get; set; }
     }
 
     public enum Key
