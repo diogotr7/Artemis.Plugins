@@ -20,9 +20,10 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
     [PluginFeature(AlwaysEnabled = true, Icon = "LeagueOfLegendsIcon.svg", Name = "League Of Legends")]
     public class LeagueOfLegendsModule : Module<LeagueOfLegendsDataModel>
     {
-        public override List<IModuleActivationRequirement> ActivationRequirements { get; } = new() { new ProcessActivationRequirement("League Of Legends") };
+        public override List<IModuleActivationRequirement> ActivationRequirements { get; }
+            = new() { new ProcessActivationRequirement("League Of Legends") };
 
-        private readonly ConcurrentDictionary<string, ChampionColorsDataModel> championColorCache = new();
+        private readonly ConcurrentDictionary<string, ColorSwatch> championColorCache = new();
         private readonly PluginSetting<Dictionary<Champion, SKColor>> _colors;
         private readonly IColorQuantizerService _colorQuantizer;
         private readonly ILogger _logger;
@@ -62,7 +63,8 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
 
         public override void ModuleDeactivated(bool isOverride)
         {
-            DataModel.Player.ChampionColors = new ChampionColorsDataModel();
+            //reset data.
+            DataModel.Apply(new RootGameData());
             if (!isOverride)
                 httpClient?.CancelPendingRequests();
         }
@@ -76,8 +78,9 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
                 gameData =  await lolClient.GetAllDataAsync();
                 DataModel.Apply(gameData);
             }
-            catch
+            catch(Exception e)
             {
+                _logger.Error("Error updating LoL game data", e);
                 return;
             }
 
@@ -212,30 +215,22 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
             {
                 try
                 {
-                    using HttpResponseMessage response = await httpClient.GetAsync(champSkinUri);
-                    using Stream stream = await response.Content.ReadAsStreamAsync();
+                    using Stream stream = await httpClient.GetStreamAsync(champSkinUri);
                     using SKBitmap skbm = SKBitmap.Decode(stream);
                     SKColor[] skClrs = _colorQuantizer.Quantize(skbm.Pixels, 256);
-                    championColorCache[champSkinKey] = new ChampionColorsDataModel
-                    {
-                        Default = _colors.Value[DataModel.Player.Champion],
-                        Vibrant = _colorQuantizer.FindColorVariation(skClrs, ColorType.Vibrant, true),
-                        LightVibrant = _colorQuantizer.FindColorVariation(skClrs, ColorType.LightVibrant, true),
-                        DarkVibrant = _colorQuantizer.FindColorVariation(skClrs, ColorType.DarkVibrant, true),
-                        Muted = _colorQuantizer.FindColorVariation(skClrs, ColorType.Muted, true),
-                        LightMuted = _colorQuantizer.FindColorVariation(skClrs, ColorType.LightMuted, true),
-                        DarkMuted = _colorQuantizer.FindColorVariation(skClrs, ColorType.DarkMuted, true),
-                    };
+                    championColorCache[champSkinKey] = _colorQuantizer.FindAllColorVariations(skClrs, true);
                 }
                 catch (Exception exception)
                 {
                     _logger.Error("Failed to get champion art colors: " + champSkinUri + "\n" + exception.ToString());
-                    throw;
                 }
             }
 
             if (championColorCache.TryGetValue(champSkinKey, out var colorDataModel))
                 DataModel.Player.ChampionColors = colorDataModel;
+
+            if (_colors.Value.TryGetValue(DataModel.Player.Champion, out var clr))
+                DataModel.Player.DefaultChampionColor = clr;
         }
     }
 }

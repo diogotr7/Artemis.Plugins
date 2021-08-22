@@ -6,7 +6,7 @@
     "MaterialIcon": "Sword",
     "FileIconId": "00000000-0000-0000-0000-000000000000",
     "IconType": 0,
-    "Order": 0,
+    "Order": 1,
     "IsSuspended": false,
     "ActivationBehaviour": 0,
     "ActivationCondition": null,
@@ -22,6 +22,7 @@
     "Id": "fd75a442-4575-40d5-abe2-b37779706f52",
     "Name": "League Of Legends",
     "IsFreshImport": false,
+    "LastSelectedProfileElement": "61817cb2-904e-4ead-ac9a-76394e09b046",
     "Folders": {
       "$type": "System.Collections.Generic.List`1[[Artemis.Storage.Entities.Profile.FolderEntity, Artemis.Storage]], System.Private.CoreLib",
       "$values": [
@@ -29,6 +30,7 @@
           "$type": "Artemis.Storage.Entities.Profile.FolderEntity, Artemis.Storage",
           "Order": 0,
           "Name": "Root folder",
+          "IsExpanded": false,
           "Suspended": false,
           "Profile": null,
           "ProfileId": "fd75a442-4575-40d5-abe2-b37779706f52",
@@ -68,6 +70,7 @@
           "$type": "Artemis.Storage.Entities.Profile.FolderEntity, Artemis.Storage",
           "Order": 1,
           "Name": "Events",
+          "IsExpanded": false,
           "Suspended": false,
           "Profile": null,
           "ProfileId": "fd75a442-4575-40d5-abe2-b37779706f52",
@@ -107,6 +110,7 @@
           "$type": "Artemis.Storage.Entities.Profile.FolderEntity, Artemis.Storage",
           "Order": 2,
           "Name": "Summoner Spells",
+          "IsExpanded": false,
           "Suspended": false,
           "Profile": null,
           "ProfileId": "fd75a442-4575-40d5-abe2-b37779706f52",
@@ -146,6 +150,7 @@
           "$type": "Artemis.Storage.Entities.Profile.FolderEntity, Artemis.Storage",
           "Order": 3,
           "Name": "Abiltiies",
+          "IsExpanded": false,
           "Suspended": false,
           "Profile": null,
           "ProfileId": "fd75a442-4575-40d5-abe2-b37779706f52",
@@ -185,6 +190,7 @@
           "$type": "Artemis.Storage.Entities.Profile.FolderEntity, Artemis.Storage",
           "Order": 4,
           "Name": "Health",
+          "IsExpanded": false,
           "Suspended": false,
           "Profile": null,
           "ProfileId": "fd75a442-4575-40d5-abe2-b37779706f52",
@@ -224,6 +230,7 @@
           "$type": "Artemis.Storage.Entities.Profile.FolderEntity, Artemis.Storage",
           "Order": 5,
           "Name": "Resource",
+          "IsExpanded": true,
           "Suspended": false,
           "Profile": null,
           "ProfileId": "fd75a442-4575-40d5-abe2-b37779706f52",
@@ -1007,7 +1014,7 @@
                         "$type": "Artemis.Storage.Entities.Profile.DataBindings.DirectDataBindingEntity, Artemis.Storage",
                         "SourcePath": {
                           "$type": "Artemis.Storage.Entities.Profile.DataModelPathEntity, Artemis.Storage",
-                          "Path": "Player.ChampionColor",
+                          "Path": "Player.DefaultChampionColor",
                           "DataModelId": "Artemis.Plugins.Modules.LeagueOfLegends.LeagueOfLegendsModule-a34dd13c",
                           "WrapperType": 0
                         },
@@ -6060,6 +6067,10 @@
           }
         }
       ]
+    },
+    "ScriptConfigurations": {
+      "$type": "System.Collections.Generic.List`1[[Artemis.Storage.Entities.General.ScriptConfigurationEntity, Artemis.Storage]], System.Private.CoreLib",
+      "$values": []
     }
   },
   "ProfileImage": null

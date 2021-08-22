@@ -1,4 +1,5 @@
 ﻿using Artemis.Core.Modules;
+using Artemis.Core.Services;
 using Artemis.Plugins.Modules.LeagueOfLegends.DataModels.Enums;
 using Artemis.Plugins.Modules.LeagueOfLegends.GameDataModels;
 using Artemis.Plugins.Modules.LeagueOfLegends.Utils;
@@ -13,7 +14,8 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends.DataModels
         public AbilityGroupDataModel Abilities { get; } = new();
         public PlayerStatsDataModel ChampionStats { get; } = new();
         public InventoryDataModel Inventory { get; } = new();
-        public ChampionColorsDataModel ChampionColors { get; set; } = new();
+        public ColorSwatch ChampionColors { get; set; } = new();
+        public SKColor DefaultChampionColor { get; set; }
         public string SummonerName { get; set; }
         public int Level { get; set; }
         public float Gold { get; set; }
