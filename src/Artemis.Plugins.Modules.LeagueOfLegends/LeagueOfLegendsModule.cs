@@ -23,7 +23,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         public override List<IModuleActivationRequirement> ActivationRequirements { get; }
             = new() { new ProcessActivationRequirement("League Of Legends") };
 
-        private readonly ConcurrentDictionary<string, ColorSwatch> championColorCache = new();
+        private readonly PluginSetting<ConcurrentDictionary<string, ColorSwatch>> _cache;
         private readonly PluginSetting<Dictionary<Champion, SKColor>> _colors;
         private readonly IColorQuantizerService _colorQuantizer;
         private readonly ILogger _logger;
@@ -37,6 +37,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         {
             _logger = logger;
             _colorQuantizer = colorQuantizer;
+            _cache = settings.GetSetting("ChampionImageCache", new ConcurrentDictionary<string, ColorSwatch>());
             _colors = settings.GetSetting("ChampionColors", DefaultChampionColors.GetNewDictionary());
             DefaultChampionColors.EnsureAllChampionsPresent(_colors.Value);
 
@@ -211,14 +212,11 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         {
             string champSkinKey = $"{internalChampionName}_{skinId}";
             string champSkinUri = $"http://ddragon.leagueoflegends.com/cdn/img/champion/tiles/{champSkinKey}.jpg";
-            if (!championColorCache.ContainsKey(champSkinKey))
+            if (!_cache.Value.ContainsKey(champSkinKey))
             {
                 try
                 {
-                    using Stream stream = await httpClient.GetStreamAsync(champSkinUri);
-                    using SKBitmap skbm = SKBitmap.Decode(stream);
-                    SKColor[] skClrs = _colorQuantizer.Quantize(skbm.Pixels, 256);
-                    championColorCache[champSkinKey] = _colorQuantizer.FindAllColorVariations(skClrs, true);
+                    _cache.Value[champSkinKey] = await GetChampionColorsFromUri(champSkinUri);
                 }
                 catch (Exception exception)
                 {
@@ -226,11 +224,19 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
                 }
             }
 
-            if (championColorCache.TryGetValue(champSkinKey, out var colorDataModel))
+            if (_cache.Value.TryGetValue(champSkinKey, out var colorDataModel))
                 DataModel.Player.ChampionColors = colorDataModel;
 
             if (_colors.Value.TryGetValue(DataModel.Player.Champion, out var clr))
                 DataModel.Player.DefaultChampionColor = clr;
+        }
+
+        private async Task<ColorSwatch> GetChampionColorsFromUri(string uri)
+        {
+            using Stream stream = await httpClient.GetStreamAsync(uri);
+            using SKBitmap skbm = SKBitmap.Decode(stream);
+            SKColor[] skClrs = _colorQuantizer.Quantize(skbm.Pixels, 256);
+            return _colorQuantizer.FindAllColorVariations(skClrs, true);
         }
     }
 }

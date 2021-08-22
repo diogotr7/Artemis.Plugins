@@ -24,19 +24,19 @@ namespace Artemis.Plugins.Modules.Spotify
         private readonly ILogger _logger;
         private readonly IColorQuantizerService _colorQuantizer;
         private readonly PluginSetting<PKCETokenResponse> _token;
+        private readonly PluginSetting<ConcurrentDictionary<string, ColorSwatch>> _cache;
         private readonly HttpClient _httpClient;
-        private readonly ConcurrentDictionary<string, ColorSwatch> albumArtColorCache;
 
         public SpotifyModule(PluginSettings settings, ILogger logger, IColorQuantizerService colorQuantizer)
         {
             _logger = logger;
             _colorQuantizer = colorQuantizer;
             _token = settings.GetSetting<PKCETokenResponse>(Constants.SPOTIFY_AUTH_SETTING);
+            _cache = settings.GetSetting<ConcurrentDictionary<string, ColorSwatch>>("AlbumArtCache", new());
             _httpClient = new HttpClient
             {
                 Timeout = TimeSpan.FromSeconds(2)
             };
-            albumArtColorCache = new ConcurrentDictionary<string, ColorSwatch>();
         }
         #endregion
 
@@ -57,7 +57,6 @@ namespace Artemis.Plugins.Modules.Spotify
             {
                 _logger.Error("Failed spotify authentication, login in the settings dialog:" + e.ToString());
             }
-
             AddTimedUpdate(TimeSpan.FromSeconds(2), UpdatePlayback, nameof(UpdatePlayback));
         }
 
@@ -208,15 +207,12 @@ namespace Artemis.Plugins.Modules.Spotify
 
         private async Task UpdateAlbumArtColors(string albumArtUrl)
         {
-            if (!albumArtColorCache.ContainsKey(albumArtUrl))
+            var uri = albumArtUrl.Split('/').Last();
+            if (!_cache.Value.ContainsKey(uri))
             {
                 try
                 {
-                    using Stream stream = await _httpClient.GetStreamAsync(albumArtUrl);
-                    using SKBitmap skbm = SKBitmap.Decode(stream);
-
-                    SKColor[] skClrs = _colorQuantizer.Quantize(skbm.Pixels, 256);
-                    albumArtColorCache[albumArtUrl] = _colorQuantizer.FindAllColorVariations(skClrs, true);
+                    _cache.Value[uri] = await GetAlbumColorsFromUri(albumArtUrl);
                 }
                 catch (Exception e)
                 {
@@ -224,8 +220,19 @@ namespace Artemis.Plugins.Modules.Spotify
                 }
             }
 
-            if (albumArtColorCache.TryGetValue(albumArtUrl, out var colorDataModel))
-                DataModel.Track.Colors = colorDataModel;
+            if (_cache.Value.TryGetValue(uri, out var dataModel))
+            {
+                //we might fail when getting the colors above so check again.
+                DataModel.Track.Colors = dataModel;
+            }
+        }
+
+        private async Task<ColorSwatch> GetAlbumColorsFromUri(string uri)
+        {
+            using Stream stream = await _httpClient.GetStreamAsync(uri);
+            using SKBitmap skbm = SKBitmap.Decode(stream);
+            SKColor[] skClrs = _colorQuantizer.Quantize(skbm.Pixels, 256);
+            return _colorQuantizer.FindAllColorVariations(skClrs, true);
         }
 
         private void UpdateBasicTrackInfo(FullTrack track)
