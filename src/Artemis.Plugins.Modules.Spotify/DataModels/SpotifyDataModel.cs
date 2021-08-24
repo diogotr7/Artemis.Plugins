@@ -36,6 +36,8 @@ namespace Artemis.Plugins.Modules.Spotify.DataModels
         public ColorSwatch Colors { get; set; }
         public SpotifyTrackFeaturesDataModel Features { get; set; } = new SpotifyTrackFeaturesDataModel();
         public SpotifyTrackAnalysisDataModel Analysis { get; set; } = new SpotifyTrackAnalysisDataModel();
+        [DataModelIgnore]
+        public string AlbumArtUrl { get; set; }
     }
 
     public class SpotifyTrackFeaturesDataModel : DataModel

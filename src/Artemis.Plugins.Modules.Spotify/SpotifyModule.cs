@@ -159,7 +159,7 @@ namespace Artemis.Plugins.Modules.Spotify
                     _logger.Error("Error getting track audio analysis", e);
                 }
 
-                Image image = track.Album.Images.Last();
+                Image image = track.Album.Images.First();
                 if (image.Url != _albumArtUrl)
                 {
                     await UpdateAlbumArtColors(image.Url);
@@ -225,6 +225,7 @@ namespace Artemis.Plugins.Modules.Spotify
                 //we might fail when getting the colors above so check again.
                 DataModel.Track.Colors = dataModel;
             }
+            DataModel.Track.AlbumArtUrl = albumArtUrl;
         }
 
         private async Task<ColorSwatch> GetAlbumColorsFromUri(string uri)
