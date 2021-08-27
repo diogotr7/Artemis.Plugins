@@ -13,7 +13,6 @@ namespace Artemis.Plugins.LayerBrushes.Gif
         private int[] durations;
         private int elapsed;
         private SKBitmap[] originals;
-        private SKBitmap[] bitmaps;
 
         public override void EnableLayerBrush()
         {
@@ -48,22 +47,11 @@ namespace Artemis.Plugins.LayerBrushes.Gif
                     originals[i] = new SKBitmap(new SKImageInfo(codec.Info.Width, codec.Info.Height));
                     codec.GetPixels(info, originals[i].GetPixels(), new SKCodecOptions(i));
                 }
-
-                bitmaps = new SKBitmap[frameCount];
-                for (int i = 0; i < frameCount; i++)
-                {
-                    bitmaps[i] = originals[i].Copy();
-                }
             }
         }
 
         public override void DisableLayerBrush()
         {
-            if (bitmaps != null)
-            {
-                foreach (SKBitmap bm in bitmaps)
-                    bm?.Dispose();
-            }
             if (originals != null)
             {
                 foreach (SKBitmap bm in originals)
@@ -83,6 +71,7 @@ namespace Artemis.Plugins.LayerBrushes.Gif
                 LoadGifData();
                 return;
             }
+
             if (elapsed > durations[currentFrame])
             {
                 currentFrame++;
@@ -99,11 +88,6 @@ namespace Artemis.Plugins.LayerBrushes.Gif
 
         public override void Render(SKCanvas canvas, SKRect bounds, SKPaint paint)
         {
-            if (bitmaps is null)
-            {
-                LoadGifData();
-                return;
-            }
             if (originals is null)
             {
                 LoadGifData();
@@ -115,11 +99,8 @@ namespace Artemis.Plugins.LayerBrushes.Gif
 
             lock (myLock)
             {
-                if (bitmaps[currentFrame].Height != bounds.Height || bitmaps[currentFrame].Width != bounds.Width)
-                {
-                    bitmaps[currentFrame] = originals[currentFrame].Resize(new SKImageInfo((int)bounds.Width, (int)bounds.Height), SKFilterQuality.High);
-                }
-                canvas.DrawBitmap(bitmaps[currentFrame], 0, 0);
+                var bitmap = originals[currentFrame];
+                canvas.DrawBitmap(bitmap, new SKRect(0, 0, bitmap.Width, bitmap.Height), bounds);
             }
         }
     }
