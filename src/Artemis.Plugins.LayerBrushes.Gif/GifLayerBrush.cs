@@ -7,7 +7,7 @@ namespace Artemis.Plugins.LayerBrushes.Gif
 {
     public class GifLayerBrush : LayerBrush<MainPropertyGroup>
     {
-        private readonly object myLock = new object();
+        private readonly object myLock = new();
         private int frameCount;
         private int currentFrame;
         private int[] durations;
@@ -17,11 +17,11 @@ namespace Artemis.Plugins.LayerBrushes.Gif
 
         public override void EnableLayerBrush()
         {
-            Properties.FileName.Updated += OnFileNameUpdated;
+            Properties.FileName.PropertyChanged += OnFileNamePropertyChanged;
             LoadGifData();
         }
 
-        private void OnFileNameUpdated(object sender, Core.LayerPropertyEventArgs e)
+        private void OnFileNamePropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             LoadGifData();
         }
@@ -70,7 +70,7 @@ namespace Artemis.Plugins.LayerBrushes.Gif
                     bm?.Dispose();
             }
 
-            Properties.FileName.Updated -= OnFileNameUpdated;
+            Properties.FileName.PropertyChanged -= OnFileNamePropertyChanged;
         }
 
         public override void Update(double deltaTime)
