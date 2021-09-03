@@ -23,7 +23,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         public override List<IModuleActivationRequirement> ActivationRequirements { get; }
             = new() { new ProcessActivationRequirement("League Of Legends") };
 
-        private readonly PluginSetting<ConcurrentDictionary<string, ColorSwatch>> _cache;
+        private readonly PluginSetting<Dictionary<string, ColorSwatch>> _cache;
         private readonly PluginSetting<Dictionary<Champion, SKColor>> _colors;
         private readonly IColorQuantizerService _colorQuantizer;
         private readonly ILogger _logger;
@@ -37,7 +37,7 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         {
             _logger = logger;
             _colorQuantizer = colorQuantizer;
-            _cache = settings.GetSetting("ChampionImageCache", new ConcurrentDictionary<string, ColorSwatch>());
+            _cache = settings.GetSetting("ChampionImageCache", new Dictionary<string, ColorSwatch>());
             _colors = settings.GetSetting("ChampionColors", DefaultChampionColors.GetNewDictionary());
             DefaultChampionColors.EnsureAllChampionsPresent(_colors.Value);
 
@@ -84,6 +84,9 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
                 _logger.Error("Error updating LoL game data", e);
                 return;
             }
+
+            if (_colors.Value.TryGetValue(DataModel.Player.Champion, out var clr))
+                DataModel.Player.DefaultChampionColor = clr;
 
             if (DataModel.Player.InternalChampionName != null)
                 await UpdateChampionColors(DataModel.Player.InternalChampionName, DataModel.Player.SkinID);
@@ -212,23 +215,29 @@ namespace Artemis.Plugins.Modules.LeagueOfLegends
         {
             string champSkinKey = $"{internalChampionName}_{skinId}";
             string champSkinUri = $"http://ddragon.leagueoflegends.com/cdn/img/champion/tiles/{champSkinKey}.jpg";
-            if (!_cache.Value.ContainsKey(champSkinKey))
+            lock (_cache)
             {
-                try
+                if (_cache.Value.TryGetValue(champSkinKey, out var swatch))
                 {
-                    _cache.Value[champSkinKey] = await GetChampionColorsFromUri(champSkinUri);
-                }
-                catch (Exception exception)
-                {
-                    _logger.Error("Failed to get champion art colors: " + champSkinUri + "\n" + exception.ToString());
+                    DataModel.Player.ChampionColors = swatch;
+                    return;
                 }
             }
 
-            if (_cache.Value.TryGetValue(champSkinKey, out var colorDataModel))
-                DataModel.Player.ChampionColors = colorDataModel;
-
-            if (_colors.Value.TryGetValue(DataModel.Player.Champion, out var clr))
-                DataModel.Player.DefaultChampionColor = clr;
+            try
+            {
+                var newSwatch = await GetChampionColorsFromUri(champSkinUri);
+                lock (_cache)
+                {
+                    _cache.Value[champSkinKey] = newSwatch;
+                    DataModel.Player.ChampionColors = newSwatch;
+                    _cache.Save();
+                }
+            }
+            catch (Exception exception)
+            {
+                _logger.Error("Failed to get champion art colors: " + champSkinUri + "\n" + exception.ToString());
+            }
         }
 
         private async Task<ColorSwatch> GetChampionColorsFromUri(string uri)

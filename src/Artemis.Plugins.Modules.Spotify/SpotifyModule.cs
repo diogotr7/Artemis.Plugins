@@ -24,7 +24,7 @@ namespace Artemis.Plugins.Modules.Spotify
         private readonly ILogger _logger;
         private readonly IColorQuantizerService _colorQuantizer;
         private readonly PluginSetting<PKCETokenResponse> _token;
-        private readonly PluginSetting<ConcurrentDictionary<string, ColorSwatch>> _cache;
+        private readonly PluginSetting<Dictionary<string, ColorSwatch>> _cache;
         private readonly HttpClient _httpClient;
 
         public SpotifyModule(PluginSettings settings, ILogger logger, IColorQuantizerService colorQuantizer)
@@ -32,7 +32,7 @@ namespace Artemis.Plugins.Modules.Spotify
             _logger = logger;
             _colorQuantizer = colorQuantizer;
             _token = settings.GetSetting<PKCETokenResponse>(Constants.SPOTIFY_AUTH_SETTING);
-            _cache = settings.GetSetting<ConcurrentDictionary<string, ColorSwatch>>("AlbumArtCache", new());
+            _cache = settings.GetSetting<Dictionary<string, ColorSwatch>>("AlbumArtCache", new());
             _httpClient = new HttpClient
             {
                 Timeout = TimeSpan.FromSeconds(2)
@@ -208,24 +208,31 @@ namespace Artemis.Plugins.Modules.Spotify
         private async Task UpdateAlbumArtColors(string albumArtUrl)
         {
             var uri = albumArtUrl.Split('/').Last();
-            if (!_cache.Value.ContainsKey(uri))
+            DataModel.Track.AlbumArtUrl = albumArtUrl;
+
+            lock (_cache)
             {
-                try
+                if (_cache.Value.TryGetValue(uri, out var swatch))
                 {
-                    _cache.Value[uri] = await GetAlbumColorsFromUri(albumArtUrl);
-                }
-                catch (Exception e)
-                {
-                    _logger.Error("Failed to get album art colors", e);
+                    DataModel.Track.Colors = swatch;
+                    return;
                 }
             }
 
-            if (_cache.Value.TryGetValue(uri, out var dataModel))
+            try
             {
-                //we might fail when getting the colors above so check again.
-                DataModel.Track.Colors = dataModel;
+                var newSwatch = await GetAlbumColorsFromUri(albumArtUrl);
+                lock (_cache)
+                {
+                    _cache.Value[uri] = newSwatch;
+                    DataModel.Track.Colors = newSwatch;
+                    _cache.Save();
+                }
             }
-            DataModel.Track.AlbumArtUrl = albumArtUrl;
+            catch (Exception e)
+            {
+                _logger.Error("Failed to get album art colors", e);
+            }
         }
 
         private async Task<ColorSwatch> GetAlbumColorsFromUri(string uri)
