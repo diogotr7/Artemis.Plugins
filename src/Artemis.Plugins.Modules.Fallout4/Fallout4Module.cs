@@ -18,7 +18,7 @@ namespace Artemis.Plugins.Modules.Fallout4
     {
         public override List<IModuleActivationRequirement> ActivationRequirements { get; } = new() { new ProcessActivationRequirement("Fallout4") };
         private readonly byte[] _heartbeatPacket = new byte[5];
-        private readonly Dictionary<uint, (DataType DataType, object Data)> _database = new Dictionary<uint, (DataType DataType, object Data)>();
+        private readonly Dictionary<uint, (FalloutDataType DataType, object Data)> _database = new Dictionary<uint, (FalloutDataType DataType, object Data)>();
         private readonly Timer heartbeatTimer = new Timer(5000);
         private TcpClient tcpClient;
         private NetworkStream stream;
@@ -69,8 +69,8 @@ namespace Artemis.Plugins.Modules.Fallout4
 
             BinaryReader headerReader = new BinaryReader(new MemoryStream(header), Encoding.UTF8);
 
-            uint expectedSize = headerReader.ReadUInt32();
-            byte commandType = headerReader.ReadByte();
+            var expectedSize = headerReader.ReadUInt32();
+            var commandType = (FalloutPacketType)headerReader.ReadByte();
 
             byte[] data = stream.FullRead(expectedSize);
 
@@ -78,21 +78,21 @@ namespace Artemis.Plugins.Modules.Fallout4
 
             switch (commandType)
             {
-                case 0://heartbeat
+                case FalloutPacketType.Heartbeat:
                     SendHeartbeat(null, null);
                     break;
-                case 1:
+                case FalloutPacketType.NewConnection:
                     string gameInfo = buffer.ReadNullTerminatedString();
                     heartbeatTimer.Start();
                     break;
-                case 3://data update
+                case FalloutPacketType.DataUpdate:
                     while (buffer.BaseStream.Position < buffer.BaseStream.Length)
                     {
-                        DataType updateDataType = (DataType)buffer.ReadByte();
+                        FalloutDataType updateDataType = (FalloutDataType)buffer.ReadByte();
                         uint updateId = buffer.ReadUInt32();
                         object value = null;
                         uint[] removeList = null;
-                        if (updateDataType == DataType.Map)
+                        if (updateDataType == FalloutDataType.Map)
                         {
                             Dictionary<uint, string> addList = Enumerable
                                 .Range(0, buffer.ReadUInt16())
@@ -110,14 +110,14 @@ namespace Artemis.Plugins.Modules.Fallout4
                         {
                             value = updateDataType switch
                             {
-                                DataType.Boolean => buffer.ReadBoolean(),
-                                DataType.SByte => buffer.ReadSByte(),
-                                DataType.Byte => buffer.ReadByte(),
-                                DataType.Int => buffer.ReadInt32(),
-                                DataType.UInt => buffer.ReadUInt32(),
-                                DataType.Float => buffer.ReadSingle(),
-                                DataType.String => buffer.ReadNullTerminatedString(),
-                                DataType.Array => Enumerable.Range(0, buffer.ReadUInt16()).Select(_ => buffer.ReadUInt32()).ToArray(),
+                                FalloutDataType.Boolean => buffer.ReadBoolean(),
+                                FalloutDataType.SByte => buffer.ReadSByte(),
+                                FalloutDataType.Byte => buffer.ReadByte(),
+                                FalloutDataType.Int => buffer.ReadInt32(),
+                                FalloutDataType.UInt => buffer.ReadUInt32(),
+                                FalloutDataType.Float => buffer.ReadSingle(),
+                                FalloutDataType.String => buffer.ReadNullTerminatedString(),
+                                FalloutDataType.Array => Enumerable.Range(0, buffer.ReadUInt16()).Select(_ => buffer.ReadUInt32()).ToArray(),
                                 _ => throw new ArgumentException()
                             };
                         }
