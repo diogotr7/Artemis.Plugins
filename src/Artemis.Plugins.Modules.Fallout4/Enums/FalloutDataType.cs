@@ -1,6 +1,6 @@
 ﻿namespace Artemis.Plugins.Modules.Fallout4.Enums
 {
-    internal enum FalloutDataType
+    public enum FalloutDataType
     {
         None = -1,
         Boolean,
