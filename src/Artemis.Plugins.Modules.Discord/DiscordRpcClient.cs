@@ -49,10 +49,7 @@ namespace Artemis.Plugins.Modules.Discord
             _pipe = new(".", PIPE, PipeDirection.InOut, PipeOptions.None);
 
             _pipe.Connect(500);
-            SendInitPacket().Wait();
             _readLoopTask = Task.Run(ReadLoop);
-            //send init packet, anything after this
-            //should be handled with events from EventReceived
         }
 
         public async Task<DiscordResponse<T>> SendRequest<T>(DiscordRequest request) where T : class
@@ -71,6 +68,8 @@ namespace Artemis.Plugins.Modules.Discord
 
         private async Task ReadLoop()
         {
+            await SendInitPacket();
+
             while (!_cancellationTokenSource.IsCancellationRequested && _pipe.IsConnected)
             {
                 byte[] headerBuffer = null;
@@ -134,8 +133,8 @@ namespace Artemis.Plugins.Modules.Discord
                 return;
             }
 
-            if (data.Contains("ERROR"))
-                throw new Exception();
+            if (data.Contains("\"evt\":\"ERROR\""))//this looks kinda stupid ¯\_(ツ)_/¯
+                throw new Exception($"Discord response contained an error: {data}");
 
             IDiscordMessage discordMessage;
             try
