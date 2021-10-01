@@ -253,16 +253,16 @@ namespace Artemis.Plugins.Modules.Discord
             if (_token.Value == null)
                 return;
 
-            if (_token.Value.ExpirationDate < DateTime.UtcNow.AddDays(1))
+            if (_token.Value.ExpirationDate >= DateTime.UtcNow.AddDays(1))
+                return;
+
+            try
             {
-                try
-                {
-                    SaveToken(await RefreshAccessTokenAsync(_token.Value.RefreshToken));
-                }
-                catch (Exception e)
-                {
-                    _logger.Error("Failed to refresh discord token.", e);
-                }
+                SaveToken(await RefreshAccessTokenAsync(_token.Value.RefreshToken));
+            }
+            catch (Exception e)
+            {
+                _logger.Error("Failed to refresh discord token.", e);
             }
         }
 

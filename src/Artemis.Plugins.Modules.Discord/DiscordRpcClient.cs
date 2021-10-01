@@ -195,7 +195,7 @@ namespace Artemis.Plugins.Modules.Discord
             //and send the actual request to the discord client.
             await SendPacketAsync(JsonConvert.SerializeObject(request, _jsonSerializerSettings), RpcPacketType.FRAME);
 
-            var timeoutToken = new CancellationTokenSource(TimeSpan.FromMilliseconds(500));
+            var timeoutToken = new CancellationTokenSource(TimeSpan.FromSeconds(1));
             timeoutToken.Token.Register(() => responseCompletionSource.TrySetException(new TimeoutException()));
 
             //this will wait until the response with the expected Guid is received
