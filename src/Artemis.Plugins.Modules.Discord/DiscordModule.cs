@@ -29,7 +29,6 @@ namespace Artemis.Plugins.Modules.Discord
         };
 
         public override List<IModuleActivationRequirement> ActivationRequirements { get; }
-            = new() { new ProcessActivationRequirement("discord") };
 
         private readonly PluginSetting<string> _clientId;
         private readonly PluginSetting<string> _clientSecret;
@@ -41,6 +40,14 @@ namespace Artemis.Plugins.Modules.Discord
 
         public DiscordModule(PluginSettings pluginSettings, ILogger logger)
         {
+            ActivationRequirementMode = ActivationRequirementType.Any;
+            ActivationRequirements = new()
+            {
+                new ProcessActivationRequirement("discord"),
+                new ProcessActivationRequirement("discordptb"),
+                new ProcessActivationRequirement("discordcanary"),
+            };
+
             _clientId = pluginSettings.GetSetting<string>("DiscordClientId", null);
             _clientSecret = pluginSettings.GetSetting<string>("DiscordClientSecret", null);
             _token = pluginSettings.GetSetting<SavedToken>("DiscordToken", null);
