@@ -52,9 +52,9 @@ namespace Artemis.Plugins.Modules.Discord
             _readLoopTask = Task.Run(ReadLoop);
         }
 
-        public async Task<DiscordResponse<T>> SendRequest<T>(DiscordRequest request) where T : class
+        public async Task<DiscordResponse<T>> SendRequestAsync<T>(DiscordRequest request, int timeoutMs = 1000) where T : class
         {
-            var response = await SendRequestAsync(request);
+            var response = await SendRequestAsync(request, timeoutMs);
 
             return (DiscordResponse<T>)response;
         }
@@ -184,7 +184,7 @@ namespace Artemis.Plugins.Modules.Discord
             }
         }
 
-        public async Task<DiscordResponse> SendRequestAsync(DiscordRequest request)
+        private async Task<DiscordResponse> SendRequestAsync(DiscordRequest request, int timeoutMs)
         {
             var responseCompletionSource = new TaskCompletionSource<DiscordResponse>();
 
@@ -194,7 +194,7 @@ namespace Artemis.Plugins.Modules.Discord
             //and send the actual request to the discord client.
             await SendPacketAsync(JsonConvert.SerializeObject(request, _jsonSerializerSettings), RpcPacketType.FRAME);
 
-            var timeoutToken = new CancellationTokenSource(TimeSpan.FromSeconds(1));
+            var timeoutToken = new CancellationTokenSource(TimeSpan.FromMilliseconds(timeoutMs));
             timeoutToken.Token.Register(() => responseCompletionSource.TrySetException(new TimeoutException()));
 
             //this will wait until the response with the expected Guid is received

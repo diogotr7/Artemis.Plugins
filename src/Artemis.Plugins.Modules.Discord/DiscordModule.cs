@@ -108,10 +108,11 @@ namespace Artemis.Plugins.Modules.Discord
                             //the user is using the plugin. We need to ask for their permission
                             //to get a token from discord. 
                             //This token can be saved and reused (+ refreshed) later.
-                            var authorizeResponse = await discordClient.SendRequest<AuthorizeData>(
+                            var authorizeResponse = await discordClient.SendRequestAsync<AuthorizeData>(
                                 new DiscordRequest(DiscordRpcCommand.AUTHORIZE)
                                     .WithArgument("client_id", _clientId.Value)
-                                    .WithArgument("scopes", SCOPES));
+                                    .WithArgument("scopes", SCOPES),
+                                timeoutMs: 15000);//high timeout so the user has time to click the button
 
                             SaveToken(await GetAccessTokenAsync(authorizeResponse.Data.Code));
                         }
@@ -128,7 +129,7 @@ namespace Artemis.Plugins.Modules.Discord
                         }
 
                         var authenticateResponse =
-                            await discordClient.SendRequest<AuthenticateData>(
+                            await discordClient.SendRequestAsync<AuthenticateData>(
                                 new DiscordRequest(DiscordRpcCommand.AUTHENTICATE)
                                     .WithArgument("access_token", _token.Value.AccessToken));
 
@@ -138,7 +139,7 @@ namespace Artemis.Plugins.Modules.Discord
 
                         //Initial request for data, then use events after
                         var voiceSettingsResponse =
-                            await discordClient.SendRequest<VoiceSettingsData>(
+                            await discordClient.SendRequestAsync<VoiceSettingsData>(
                                 new DiscordRequest(DiscordRpcCommand.GET_VOICE_SETTINGS));
 
                         DataModel.VoiceSettings.Deafened = voiceSettingsResponse.Data.Deaf;
@@ -147,10 +148,10 @@ namespace Artemis.Plugins.Modules.Discord
                         await UpdateVoiceChannelData();
 
                         //Subscribe to these events as well
-                        await discordClient.SendRequestAsync(new DiscordSubscribe(DiscordRpcEvent.VOICE_SETTINGS_UPDATE));
-                        await discordClient.SendRequestAsync(new DiscordSubscribe(DiscordRpcEvent.NOTIFICATION_CREATE));
-                        await discordClient.SendRequestAsync(new DiscordSubscribe(DiscordRpcEvent.VOICE_CONNECTION_STATUS));
-                        await discordClient.SendRequestAsync(new DiscordSubscribe(DiscordRpcEvent.VOICE_CHANNEL_SELECT));
+                        await discordClient.SendRequestAsync<SubscribeData>(new DiscordSubscribe(DiscordRpcEvent.VOICE_SETTINGS_UPDATE));
+                        await discordClient.SendRequestAsync<SubscribeData>(new DiscordSubscribe(DiscordRpcEvent.NOTIFICATION_CREATE));
+                        await discordClient.SendRequestAsync<SubscribeData>(new DiscordSubscribe(DiscordRpcEvent.VOICE_CONNECTION_STATUS));
+                        await discordClient.SendRequestAsync<SubscribeData>(new DiscordSubscribe(DiscordRpcEvent.VOICE_CHANNEL_SELECT));
                         break;
                     case DiscordEvent<VoiceSettingsData> voice:
                         var voiceData = voice.Data;
@@ -226,7 +227,7 @@ namespace Artemis.Plugins.Modules.Discord
         private async Task UpdateVoiceChannelData()
         {
             var selectedVoiceChannelResponse =
-                await discordClient.SendRequest<SelectedVoiceChannelData>(
+                await discordClient.SendRequestAsync<SelectedVoiceChannelData>(
                     new DiscordRequest(DiscordRpcCommand.GET_SELECTED_VOICE_CHANNEL));
 
             if (selectedVoiceChannelResponse.Data != null)
@@ -235,10 +236,10 @@ namespace Artemis.Plugins.Modules.Discord
 
         private async Task SubscribeToSpeakingEventsAsync(string id)
         {
-            await discordClient.SendRequestAsync(
+            await discordClient.SendRequestAsync<SubscribeData>(
                 new DiscordSubscribe(DiscordRpcEvent.SPEAKING_START)
                 .WithArgument("channel_id", id));
-            await discordClient.SendRequestAsync(
+            await discordClient.SendRequestAsync<SubscribeData>(
                 new DiscordSubscribe(DiscordRpcEvent.SPEAKING_STOP)
                 .WithArgument("channel_id", id));
         }
