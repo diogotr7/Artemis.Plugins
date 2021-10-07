@@ -92,7 +92,7 @@ namespace Artemis.Plugins.Modules.Discord
 
         private void OnDiscordError(object sender, Exception e)
         {
-            _logger.Error("Discord Rpc client error", e);
+            _logger.Error(e, "Discord Rpc client error");
         }
 
         private async void OnDiscordEventReceived(object sender, DiscordEvent discordEvent)
@@ -219,7 +219,7 @@ namespace Artemis.Plugins.Modules.Discord
             }
             catch (Exception e)
             {
-                _logger.Error("Error handling discord event.", e);
+                _logger.Error(e, "Error handling discord event.");
             }
         }
 
@@ -269,7 +269,7 @@ namespace Artemis.Plugins.Modules.Discord
             }
             catch (Exception e)
             {
-                _logger.Error("Failed to refresh discord token.", e);
+                _logger.Error(e, "Failed to refresh discord token.");
             }
         }
 
