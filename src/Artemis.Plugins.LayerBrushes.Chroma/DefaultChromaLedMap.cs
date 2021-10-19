@@ -142,7 +142,7 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
                 LedId.Invalid,
                 LedId.Invalid,
                 LedId.Keyboard_RightAlt,
-                LedId.Keyboard_RightGui,
+                LedId.Keyboard_Function,
                 LedId.Keyboard_Application,
                 LedId.Keyboard_RightCtrl,
                 LedId.Keyboard_ArrowLeft,
