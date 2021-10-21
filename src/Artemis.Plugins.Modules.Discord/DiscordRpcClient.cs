@@ -124,20 +124,20 @@ namespace Artemis.Plugins.Modules.Discord
                 Error?.Invoke(this, new DiscordRpcClientException($"Discord sent RpcPacketType.CLOSE: {data}"));
                 return;
             }
-            if (opCode == RpcPacketType.HANDSHAKE)
-            {
-                if (string.IsNullOrEmpty(data))
-                {
+            //if (opCode == RpcPacketType.HANDSHAKE)
+            //{
+                //if (string.IsNullOrEmpty(data))
+                //{
                     //probably close?
-                }
-                else
-                {
+                //}
+                //else
+                //{
                     //probably restart?
-                }
+                //}
                 //SendPacket(new { v = RPC_VERSION, client_id = clientId.Value }, RpcPacketType.HANDSHAKE);
                 //happens when closing discord and artemis is open?
                 //TODO: investigate
-            }
+            //}
 
             if (data.Contains("\"evt\":\"ERROR\""))//this looks kinda stupid ¯\_(ツ)_/¯
                 throw new DiscordRpcClientException($"Discord response contained an error: {data}");
