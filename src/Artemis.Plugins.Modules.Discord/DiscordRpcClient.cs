@@ -56,7 +56,10 @@ namespace Artemis.Plugins.Modules.Discord
         {
             var response = await SendRequestAsync(request, timeoutMs);
 
-            return (DiscordResponse<T>)response;
+            if (response is not DiscordResponse<T> typedResponse)
+                throw new DiscordRpcClientException("Discord response was not of the specified type.", new InvalidCastException());
+
+            return typedResponse;
         }
 
         private async Task SendInitPacket()
@@ -78,13 +81,16 @@ namespace Artemis.Plugins.Modules.Discord
                 {
                     headerBuffer = ArrayPool<byte>.Shared.Rent(HEADER_SIZE);
 
-                    await _pipe.ReadAsyncCancellable(headerBuffer, 0, HEADER_SIZE, _cancellationTokenSource.Token);
+                    var headerReadBytes = await _pipe.ReadAsyncCancellable(headerBuffer, 0, HEADER_SIZE, _cancellationTokenSource.Token);
+
+                    if (headerReadBytes < 4)
+                        throw new DiscordRpcClientException("Read less than 4 bytes for the header");
 
                     var opCode = (RpcPacketType)BitConverter.ToInt32(headerBuffer.AsSpan(0, 4));
                     var dataLength = BitConverter.ToInt32(headerBuffer.AsSpan(4, 4));
 
-                    if (dataLength == 0)//if this is zero it means the pipe closed
-                        break;
+                    if (dataLength == 0)
+                        throw new DiscordRpcClientException("Read zero bytes from the pipe");
 
                     dataBuffer = ArrayPool<byte>.Shared.Rent(dataLength);
 
@@ -113,6 +119,11 @@ namespace Artemis.Plugins.Modules.Discord
                 await SendPacketAsync(data, RpcPacketType.PONG);
                 return;
             }
+            if (opCode == RpcPacketType.CLOSE)
+            {
+                Error?.Invoke(this, new DiscordRpcClientException($"Discord sent RpcPacketType.CLOSE: {data}"));
+                return;
+            }
             if (opCode == RpcPacketType.HANDSHAKE)
             {
                 if (string.IsNullOrEmpty(data))
@@ -127,14 +138,9 @@ namespace Artemis.Plugins.Modules.Discord
                 //happens when closing discord and artemis is open?
                 //TODO: investigate
             }
-            if (opCode == RpcPacketType.CLOSE)
-            {
-                Error?.Invoke(this, new Exception($"Discord sent RpcPacketType.CLOSE: {data}"));
-                return;
-            }
 
             if (data.Contains("\"evt\":\"ERROR\""))//this looks kinda stupid ¯\_(ツ)_/¯
-                throw new Exception($"Discord response contained an error: {data}");
+                throw new DiscordRpcClientException($"Discord response contained an error: {data}");
 
             IDiscordMessage discordMessage;
             try
@@ -143,7 +149,7 @@ namespace Artemis.Plugins.Modules.Discord
             }
             catch (Exception exc)
             {
-                Error?.Invoke(this, new Exception($"Error deserializing discord message: {data}", exc));
+                Error?.Invoke(this, new DiscordRpcClientException($"Error deserializing discord message: {data}", exc));
                 return;
             }
 
@@ -157,7 +163,7 @@ namespace Artemis.Plugins.Modules.Discord
             }
             else
             {
-                Error?.Invoke(this, new Exception($"Discord message was neither response nor event: {data}"));
+                Error?.Invoke(this, new DiscordRpcClientException($"Discord message was neither response nor event: {data}"));
             }
         }
 
@@ -168,15 +174,17 @@ namespace Artemis.Plugins.Modules.Discord
             var buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
 
             if (!BitConverter.TryWriteBytes(new Span<byte>(buffer, 0, 4), (int)rpcPacketType))
-                throw new Exception("Error Writing rpc packet type.");
+                throw new DiscordRpcClientException("Error writing rpc packet type.");
+
             if (!BitConverter.TryWriteBytes(new Span<byte>(buffer, 4, 4), (int)stringByteLength))
-                throw new Exception("Error writing string byte length.");
+                throw new DiscordRpcClientException("Error writing string byte length.");
+
             if (Encoding.UTF8.GetBytes(stringData, 0, stringData.Length, buffer, HEADER_SIZE) != stringData.Length)
-                throw new Exception("Wrote wrong number of characters.");
+                throw new DiscordRpcClientException("Wrote wrong number of characters.");
 
             try
             {
-                await _pipe.WriteAsync(buffer, 0, bufferSize);
+                await _pipe.WriteAsync(buffer, 0, bufferSize, _cancellationTokenSource.Token);
             }
             finally
             {
@@ -208,6 +216,10 @@ namespace Artemis.Plugins.Modules.Discord
             {
                 tcs.SetResult(message);
                 _pendingRequests.Remove(message.Nonce);
+            }
+            else
+            {
+                Error?.Invoke(this, new DiscordRpcClientException("Received response with unknown guid"));
             }
         }
 
