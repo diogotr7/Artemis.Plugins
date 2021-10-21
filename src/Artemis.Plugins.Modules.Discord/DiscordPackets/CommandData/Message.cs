@@ -2,18 +2,9 @@
 
 namespace Artemis.Plugins.Modules.Discord
 {
-    public record NotificationCreateData
-    (
-        string ChannelId,
-        DiscordMessage Message,
-        string IconUrl,
-        string Title,
-        string Body
-    );
-
     //TODO: i have no idea what the hell they did with this data structure.
     //The docs don't seem to be correct.
-    public record DiscordMessage
+    public record Message
     (
         string Id,
         string Content,
@@ -22,7 +13,7 @@ namespace Artemis.Plugins.Modules.Discord
         DateTime? EditedTimestamp,
         bool Tts,
         int Type,
-        DiscordUser Author,
+        User Author,
         bool Pinned
 
     //"mentions": [],

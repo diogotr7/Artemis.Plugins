@@ -1,4 +1,4 @@
 ﻿namespace Artemis.Plugins.Modules.Discord
 {
-    public record AuthorizeData(string Code);
+    public record SpeakingStop(string UserId);
 }

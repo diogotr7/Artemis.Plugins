@@ -1,6 +1,6 @@
 ﻿namespace Artemis.Plugins.Modules.Discord
 {
-    public record VoiceChannelSelectData
+    public record VoiceChannelSelect
     (
         string GuildId,
         string ChannelId

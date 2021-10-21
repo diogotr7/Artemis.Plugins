@@ -2,7 +2,7 @@
 
 namespace Artemis.Plugins.Modules.Discord
 {
-    public record VoiceConnectionStatusData
+    public record VoiceConnectionStatus
     (
         string State,
         string Hostname,

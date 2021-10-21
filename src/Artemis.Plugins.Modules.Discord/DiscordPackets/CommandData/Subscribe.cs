@@ -2,7 +2,7 @@
 
 namespace Artemis.Plugins.Modules.Discord
 {
-    public record SubscribeData(
+    public record Subscribe(
         [JsonProperty("evt")]
         string Event
     );
