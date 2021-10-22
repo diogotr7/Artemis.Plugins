@@ -35,8 +35,8 @@ namespace Artemis.Plugins.Modules.Discord
         private readonly Dictionary<Guid, TaskCompletionSource<DiscordResponse>> _pendingRequests;
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly NamedPipeClientStream _pipe;
-        private readonly Task _readLoopTask;
         private readonly string _clientId;
+        private Task _readLoopTask;
 
         public event EventHandler<DiscordEvent> EventReceived;
         public event EventHandler<Exception> Error;
@@ -46,10 +46,13 @@ namespace Artemis.Plugins.Modules.Discord
             _clientId = clientId;
             _pendingRequests = new();
             _cancellationTokenSource = new();
-            _pipe = new(".", PIPE, PipeDirection.InOut, PipeOptions.None);
+            _pipe = new(".", PIPE, PipeDirection.InOut, PipeOptions.Asynchronous);
+        }
 
-            _pipe.Connect(500);
-            _readLoopTask = Task.Run(ReadLoop);
+        public void Connect(int timeoutMs = 500)
+        {
+            _pipe.Connect(timeoutMs);
+            _readLoopTask = Task.Run(ReadLoop, _cancellationTokenSource.Token);
         }
 
         public async Task<DiscordResponse<T>> SendRequestAsync<T>(DiscordRequest request, int timeoutMs = 1000) where T : class
@@ -81,7 +84,7 @@ namespace Artemis.Plugins.Modules.Discord
                 {
                     headerBuffer = ArrayPool<byte>.Shared.Rent(HEADER_SIZE);
 
-                    var headerReadBytes = await _pipe.ReadAsyncCancellable(headerBuffer, 0, HEADER_SIZE, _cancellationTokenSource.Token);
+                    var headerReadBytes = await _pipe.ReadAsync(headerBuffer.AsMemory(0, HEADER_SIZE), _cancellationTokenSource.Token);
 
                     if (headerReadBytes < 4)
                         throw new DiscordRpcClientException("Read less than 4 bytes for the header");
@@ -94,7 +97,7 @@ namespace Artemis.Plugins.Modules.Discord
 
                     dataBuffer = ArrayPool<byte>.Shared.Rent(dataLength);
 
-                    await _pipe.ReadAsyncCancellable(dataBuffer, 0, dataLength, _cancellationTokenSource.Token);
+                    await _pipe.ReadAsync(dataBuffer.AsMemory(0, dataLength), _cancellationTokenSource.Token);
 
                     await ProcessPipeMessageAsync(opCode, Encoding.UTF8.GetString(dataBuffer.AsSpan(0, dataLength)));
                 }
@@ -126,17 +129,17 @@ namespace Artemis.Plugins.Modules.Discord
             }
             //if (opCode == RpcPacketType.HANDSHAKE)
             //{
-                //if (string.IsNullOrEmpty(data))
-                //{
-                    //probably close?
-                //}
-                //else
-                //{
-                    //probably restart?
-                //}
-                //SendPacket(new { v = RPC_VERSION, client_id = clientId.Value }, RpcPacketType.HANDSHAKE);
-                //happens when closing discord and artemis is open?
-                //TODO: investigate
+            //if (string.IsNullOrEmpty(data))
+            //{
+            //probably close?
+            //}
+            //else
+            //{
+            //probably restart?
+            //}
+            //SendPacket(new { v = RPC_VERSION, client_id = clientId.Value }, RpcPacketType.HANDSHAKE);
+            //happens when closing discord and artemis is open?
+            //TODO: investigate
             //}
 
             if (data.Contains("\"evt\":\"ERROR\""))//this looks kinda stupid ¯\_(ツ)_/¯
@@ -203,7 +206,7 @@ namespace Artemis.Plugins.Modules.Discord
             await SendPacketAsync(JsonConvert.SerializeObject(request, _jsonSerializerSettings), RpcPacketType.FRAME);
 
             var timeoutToken = new CancellationTokenSource(TimeSpan.FromMilliseconds(timeoutMs));
-            timeoutToken.Token.Register(() => responseCompletionSource.TrySetException(new TimeoutException()));
+            timeoutToken.Token.Register(() => responseCompletionSource.TrySetException(new TimeoutException($"Discord request timed out after {timeoutMs}")));
 
             //this will wait until the response with the expected Guid is received
             //and processed by the read loop.
@@ -214,7 +217,9 @@ namespace Artemis.Plugins.Modules.Discord
         {
             if (_pendingRequests.TryGetValue(message.Nonce, out var tcs))
             {
-                tcs.SetResult(message);
+                if (!tcs.TrySetResult(message))
+                    Error?.Invoke(this, new DiscordRpcClientException("Failed to set task result. Perhaps the task timed out?"));
+
                 _pendingRequests.Remove(message.Nonce);
             }
             else
@@ -234,13 +239,12 @@ namespace Artemis.Plugins.Modules.Discord
                     try
                     {
                         _cancellationTokenSource.Cancel();
+                        _pipe.Dispose();
 
-                        //windows is stupid: https://stackoverflow.com/questions/52632448/namedpipeserverstream-readasync-does-not-exit-when-cancellationtoken-requests
                         try { _readLoopTask.Wait(); }
                         catch { }//catch everything
 
                         _cancellationTokenSource.Dispose();
-                        _pipe.Dispose();
                     }
                     catch
                     {

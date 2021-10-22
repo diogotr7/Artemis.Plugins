@@ -3,13 +3,11 @@ using Artemis.Core.Modules;
 using Artemis.Plugins.Modules.Discord.Authentication;
 using Artemis.Plugins.Modules.Discord.DataModels;
 using Artemis.Plugins.Modules.Discord.Enums;
-using Newtonsoft.Json;
 using Serilog;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Artemis.Plugins.Modules.Discord
@@ -30,6 +28,7 @@ namespace Artemis.Plugins.Modules.Discord
         private readonly PluginSetting<string> _clientId;
         private readonly PluginSetting<string> _clientSecret;
         private readonly DiscordAuthClient _authClient;
+        private readonly object _discordClientLock;
         private DiscordRpcClient discordClient;
 
         public DiscordModule(ILogger logger, PluginSettings pluginSettings)
@@ -49,6 +48,8 @@ namespace Artemis.Plugins.Modules.Discord
             var tokenSetting = pluginSettings.GetSetting<SavedToken>("DiscordToken", null);
 
             _authClient = new(_clientId, _clientSecret, tokenSetting);
+
+            _discordClientLock = new();
         }
 
         public override void Enable()
@@ -72,17 +73,23 @@ namespace Artemis.Plugins.Modules.Discord
         {
             if (isOverride)
                 return;
-
-            discordClient = new(_clientId.Value);
-            discordClient.EventReceived += OnDiscordEventReceived;
-            discordClient.Error += OnDiscordError;
+            lock (_discordClientLock)
+            {
+                discordClient = new(_clientId.Value);
+                discordClient.EventReceived += OnDiscordEventReceived;
+                discordClient.Error += OnDiscordError;
+                discordClient.Connect();
+            }
         }
 
         public override void ModuleDeactivated(bool isOverride)
         {
-            discordClient.EventReceived -= OnDiscordEventReceived;
-            discordClient.Error -= OnDiscordError;
-            discordClient?.Dispose();
+            lock (_discordClientLock)
+            {
+                discordClient.EventReceived -= OnDiscordEventReceived;
+                discordClient.Error -= OnDiscordError;
+                discordClient.Dispose();
+            }
         }
 
         private void OnDiscordError(object sender, Exception e)
