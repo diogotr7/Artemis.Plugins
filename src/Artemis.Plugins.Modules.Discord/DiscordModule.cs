@@ -45,7 +45,7 @@ namespace Artemis.Plugins.Modules.Discord
 
             _clientId = pluginSettings.GetSetting<string>("DiscordClientId", null);
             _clientSecret = pluginSettings.GetSetting<string>("DiscordClientSecret", null);
-            var tokenSetting = pluginSettings.GetSetting<SavedToken>("DiscordToken", null);
+            PluginSetting<SavedToken> tokenSetting = pluginSettings.GetSetting<SavedToken>("DiscordToken", null);
 
             _authClient = new(_clientId, _clientSecret, tokenSetting);
 
@@ -110,7 +110,7 @@ namespace Artemis.Plugins.Modules.Discord
                             //the user is using the plugin. We need to ask for their permission
                             //to get a token from discord. 
                             //This token can be saved and reused (+ refreshed) later.
-                            var authorizeResponse = await discordClient.SendRequestAsync<Authorize>(
+                            DiscordResponse<Authorize> authorizeResponse = await discordClient.SendRequestAsync<Authorize>(
                                 new DiscordRequest(DiscordRpcCommand.AUTHORIZE)
                                     .WithArgument("client_id", _clientId.Value)
                                     .WithArgument("scopes", SCOPES),
@@ -127,7 +127,7 @@ namespace Artemis.Plugins.Modules.Discord
                             await _authClient.RefreshAccessTokenAsync();
                         }
 
-                        var authenticateResponse = await discordClient.SendRequestAsync<Authenticate>(
+                        DiscordResponse<Authenticate> authenticateResponse = await discordClient.SendRequestAsync<Authenticate>(
                                 new DiscordRequest(DiscordRpcCommand.AUTHENTICATE)
                                     .WithArgument("access_token", _authClient.AccessToken)
                         );
@@ -137,7 +137,7 @@ namespace Artemis.Plugins.Modules.Discord
                         DataModel.User.Id = authenticateResponse.Data.User.Id;
 
                         //Initial request for data, then use events after
-                        var voiceSettingsResponse = await discordClient.SendRequestAsync<VoiceSettings>(
+                        DiscordResponse<VoiceSettings> voiceSettingsResponse = await discordClient.SendRequestAsync<VoiceSettings>(
                                 new DiscordRequest(DiscordRpcCommand.GET_VOICE_SETTINGS)
                         );
 
@@ -153,7 +153,7 @@ namespace Artemis.Plugins.Modules.Discord
                         await discordClient.SendRequestAsync<Subscribe>(new DiscordSubscribe(DiscordRpcEvent.VOICE_CHANNEL_SELECT));
                         break;
                     case DiscordEvent<VoiceSettings> voice:
-                        var voiceData = voice.Data;
+                        VoiceSettings voiceData = voice.Data;
                         DataModel.VoiceSettings.AutomaticGainControl = voiceData.AutomaticGainControl;
                         DataModel.VoiceSettings.EchoCancellation = voiceData.EchoCancellation;
                         DataModel.VoiceSettings.NoiseSuppression = voiceData.NoiseSuppression;
@@ -225,7 +225,7 @@ namespace Artemis.Plugins.Modules.Discord
 
         private async Task UpdateVoiceChannelData()
         {
-            var selectedVoiceChannelResponse =
+            DiscordResponse<SelectedVoiceChannel> selectedVoiceChannelResponse =
                 await discordClient.SendRequestAsync<SelectedVoiceChannel>(
                     new DiscordRequest(DiscordRpcCommand.GET_SELECTED_VOICE_CHANNEL));
 

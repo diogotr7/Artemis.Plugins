@@ -57,7 +57,7 @@ namespace Artemis.Plugins.Modules.Discord
 
         public async Task<DiscordResponse<T>> SendRequestAsync<T>(DiscordRequest request, int timeoutMs = 1000) where T : class
         {
-            var response = await SendRequestAsync(request, timeoutMs);
+            DiscordResponse response = await SendRequestAsync(request, timeoutMs);
 
             if (response is not DiscordResponse<T> typedResponse)
                 throw new DiscordRpcClientException("Discord response was not of the specified type.", new InvalidCastException());
@@ -67,7 +67,7 @@ namespace Artemis.Plugins.Modules.Discord
 
         private async Task SendInitPacket()
         {
-            var initPacket = JsonConvert.SerializeObject(new { v = RPC_VERSION, client_id = _clientId }, _jsonSerializerSettings);
+            string initPacket = JsonConvert.SerializeObject(new { v = RPC_VERSION, client_id = _clientId }, _jsonSerializerSettings);
 
             await SendPacketAsync(initPacket, RpcPacketType.HANDSHAKE);
         }
@@ -84,13 +84,13 @@ namespace Artemis.Plugins.Modules.Discord
                 {
                     headerBuffer = ArrayPool<byte>.Shared.Rent(HEADER_SIZE);
 
-                    var headerReadBytes = await _pipe.ReadAsync(headerBuffer.AsMemory(0, HEADER_SIZE), _cancellationTokenSource.Token);
+                    int headerReadBytes = await _pipe.ReadAsync(headerBuffer.AsMemory(0, HEADER_SIZE), _cancellationTokenSource.Token);
 
                     if (headerReadBytes < 4)
                         throw new DiscordRpcClientException("Read less than 4 bytes for the header");
 
-                    var opCode = (RpcPacketType)BitConverter.ToInt32(headerBuffer.AsSpan(0, 4));
-                    var dataLength = BitConverter.ToInt32(headerBuffer.AsSpan(4, 4));
+                    RpcPacketType opCode = (RpcPacketType)BitConverter.ToInt32(headerBuffer.AsSpan(0, 4));
+                    int dataLength = BitConverter.ToInt32(headerBuffer.AsSpan(4, 4));
 
                     if (dataLength == 0)
                         throw new DiscordRpcClientException("Read zero bytes from the pipe");
@@ -172,9 +172,9 @@ namespace Artemis.Plugins.Modules.Discord
 
         private async Task SendPacketAsync(string stringData, RpcPacketType rpcPacketType)
         {
-            var stringByteLength = Encoding.UTF8.GetByteCount(stringData);
-            var bufferSize = HEADER_SIZE + stringByteLength;
-            var buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
+            int stringByteLength = Encoding.UTF8.GetByteCount(stringData);
+            int bufferSize = HEADER_SIZE + stringByteLength;
+            byte[] buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
 
             if (!BitConverter.TryWriteBytes(new Span<byte>(buffer, 0, 4), (int)rpcPacketType))
                 throw new DiscordRpcClientException("Error writing rpc packet type.");
@@ -197,7 +197,7 @@ namespace Artemis.Plugins.Modules.Discord
 
         private async Task<DiscordResponse> SendRequestAsync(DiscordRequest request, int timeoutMs)
         {
-            var responseCompletionSource = new TaskCompletionSource<DiscordResponse>();
+            TaskCompletionSource<DiscordResponse> responseCompletionSource = new TaskCompletionSource<DiscordResponse>();
 
             //add this guid to the pending requests
             _pendingRequests.Add(request.Nonce, responseCompletionSource);
@@ -205,7 +205,7 @@ namespace Artemis.Plugins.Modules.Discord
             //and send the actual request to the discord client.
             await SendPacketAsync(JsonConvert.SerializeObject(request, _jsonSerializerSettings), RpcPacketType.FRAME);
 
-            var timeoutToken = new CancellationTokenSource(TimeSpan.FromMilliseconds(timeoutMs));
+            CancellationTokenSource timeoutToken = new CancellationTokenSource(TimeSpan.FromMilliseconds(timeoutMs));
             timeoutToken.Token.Register(() => responseCompletionSource.TrySetException(new TimeoutException($"Discord request timed out after {timeoutMs}")));
 
             //this will wait until the response with the expected Guid is received
@@ -215,7 +215,7 @@ namespace Artemis.Plugins.Modules.Discord
 
         private void HandlePendingRequest(DiscordResponse message)
         {
-            if (_pendingRequests.TryGetValue(message.Nonce, out var tcs))
+            if (_pendingRequests.TryGetValue(message.Nonce, out TaskCompletionSource<DiscordResponse> tcs))
             {
                 if (!tcs.TrySetResult(message))
                     Error?.Invoke(this, new DiscordRpcClientException("Failed to set task result. Perhaps the task timed out?"));

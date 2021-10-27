@@ -41,14 +41,14 @@ namespace Artemis.Plugins.Modules.Discord.Authentication
 
         public async Task<TokenResponse> GetAccessTokenAsync(string challengeCode)
         {
-            var token = await GetCredentialsAsync("authorization_code", "code", challengeCode);
+            TokenResponse token = await GetCredentialsAsync("authorization_code", "code", challengeCode);
             SaveToken(token);
             return token;
         }
 
         public async Task<TokenResponse> RefreshAccessTokenAsync()
         {
-            var token = await GetCredentialsAsync("refresh_token", "refresh_token", _token.Value.RefreshToken);
+            TokenResponse token = await GetCredentialsAsync("refresh_token", "refresh_token", _token.Value.RefreshToken);
             SaveToken(token);
             return token;
         }
