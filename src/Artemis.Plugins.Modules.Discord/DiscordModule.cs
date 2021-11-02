@@ -27,9 +27,11 @@ namespace Artemis.Plugins.Modules.Discord
         private readonly ILogger _logger;
         private readonly PluginSetting<string> _clientId;
         private readonly PluginSetting<string> _clientSecret;
-        private readonly DiscordAuthClient _authClient;
+        private readonly PluginSetting<SavedToken> _savedToken;
         private readonly object _discordClientLock;
+
         private DiscordRpcClient discordClient;
+        private DiscordAuthClient authClient;
 
         public DiscordModule(ILogger logger, PluginSettings pluginSettings)
         {
@@ -45,9 +47,7 @@ namespace Artemis.Plugins.Modules.Discord
 
             _clientId = pluginSettings.GetSetting<string>("DiscordClientId", null);
             _clientSecret = pluginSettings.GetSetting<string>("DiscordClientSecret", null);
-            PluginSetting<SavedToken> tokenSetting = pluginSettings.GetSetting<SavedToken>("DiscordToken", null);
-
-            _authClient = new(_clientId, _clientSecret, tokenSetting);
+            _savedToken = pluginSettings.GetSetting<SavedToken>("DiscordToken", null);
 
             _discordClientLock = new();
         }
@@ -58,7 +58,7 @@ namespace Artemis.Plugins.Modules.Discord
                 _clientSecret.Value == null || _clientSecret.Value.Length != 32)
                 throw new ArtemisPluginException("Client ID or secret invalid");
 
-            AddTimedUpdate(TimeSpan.FromDays(1), (_) => _authClient.TryRefreshTokenAsync());
+            AddTimedUpdate(TimeSpan.FromDays(1), (_) => authClient?.TryRefreshTokenAsync());
         }
 
         public override void Disable()
@@ -73,8 +73,10 @@ namespace Artemis.Plugins.Modules.Discord
         {
             if (isOverride)
                 return;
+
             lock (_discordClientLock)
             {
+                authClient = new(_clientId, _clientSecret, _savedToken);
                 discordClient = new(_clientId.Value);
                 discordClient.EventReceived += OnDiscordEventReceived;
                 discordClient.Error += OnDiscordError;
@@ -89,6 +91,7 @@ namespace Artemis.Plugins.Modules.Discord
                 discordClient.EventReceived -= OnDiscordEventReceived;
                 discordClient.Error -= OnDiscordError;
                 discordClient.Dispose();
+                authClient.Dispose();
             }
         }
 
@@ -104,7 +107,7 @@ namespace Artemis.Plugins.Modules.Discord
                 switch (discordEvent)
                 {
                     case DiscordEvent<Ready>:
-                        if (!_authClient.HasToken)
+                        if (!authClient.HasToken)
                         {
                             //We have no token saved. This means it's probably the first time
                             //the user is using the plugin. We need to ask for their permission
@@ -116,20 +119,20 @@ namespace Artemis.Plugins.Modules.Discord
                                     .WithArgument("scopes", SCOPES),
                                 timeoutMs: 30000);//high timeout so the user has time to click the button
 
-                            await _authClient.GetAccessTokenAsync(authorizeResponse.Data.Code);
+                            await authClient.GetAccessTokenAsync(authorizeResponse.Data.Code);
                         }
-                        if (!_authClient.IsTokenValid)
+                        if (!authClient.IsTokenValid)
                         {
                             //Now that we have a token for sure,
                             //we need to check if it expired or not.
                             //If yes, refresh it.
                             //Then, authenticate.
-                            await _authClient.RefreshAccessTokenAsync();
+                            await authClient.RefreshAccessTokenAsync();
                         }
 
                         DiscordResponse<Authenticate> authenticateResponse = await discordClient.SendRequestAsync<Authenticate>(
                                 new DiscordRequest(DiscordRpcCommand.AUTHENTICATE)
-                                    .WithArgument("access_token", _authClient.AccessToken)
+                                    .WithArgument("access_token", authClient.AccessToken)
                         );
 
                         DataModel.User.Username = authenticateResponse.Data.User.Username;
