@@ -1,5 +1,4 @@
 ﻿using Artemis.Core.Modules;
-using Artemis.Core.Modules;
 using RGB.NET.Core;
 using Serilog;
 using SkiaSharp;
