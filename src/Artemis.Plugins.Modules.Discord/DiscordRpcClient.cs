@@ -17,12 +17,6 @@ namespace Artemis.Plugins.Modules.Discord
         private const string PIPE = "discord-ipc-0";
         private const string RPC_VERSION = "1";
         private const int HEADER_SIZE = 8;
-        private static readonly string[] SCOPES = new string[]
-        {
-            "rpc",
-            "identify",
-            "rpc.notifications.read"
-        };
         private static readonly JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings
         {
             ContractResolver = new DefaultContractResolver

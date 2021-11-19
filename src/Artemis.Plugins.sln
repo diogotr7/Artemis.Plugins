@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30413.136
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.LayerBrushes.Gif", "Artemis.Plugins.LayerBrushes.Gif\Artemis.Plugins.LayerBrushes.Gif.csproj", "{DDB60A1E-BA5F-45FA-9FF8-D038B503C1FA}"
 EndProject
@@ -13,11 +13,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.Modules.Fal
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.LayerBrushes.Particle", "Artemis.Plugins.LayerBrushes.Particle\Artemis.Plugins.LayerBrushes.Particle.csproj", "{058E7B0B-141C-4169-9A7C-A18680C3BBCD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Artemis.Plugins.Modules.Discord", "Artemis.Plugins.Modules.Discord\Artemis.Plugins.Modules.Discord.csproj", "{69EC267A-EDA1-4166-AC28-011E28ECE78F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.Modules.Discord", "Artemis.Plugins.Modules.Discord\Artemis.Plugins.Modules.Discord.csproj", "{69EC267A-EDA1-4166-AC28-011E28ECE78F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Artemis.Plugins.Modules.Spotify", "Artemis.Plugins.Modules.Spotify\Artemis.Plugins.Modules.Spotify.csproj", "{E403010D-EAF8-4D29-B33A-EF58E9341BE7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.Modules.Spotify", "Artemis.Plugins.Modules.Spotify\Artemis.Plugins.Modules.Spotify.csproj", "{E403010D-EAF8-4D29-B33A-EF58E9341BE7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Artemis.Plugins.Modules.OBS", "Artemis.Plugins.Modules.OBS\Artemis.Plugins.Modules.OBS.csproj", "{D006F4BF-1724-4FF1-AD9F-A21605DDCBC4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.Modules.OBS", "Artemis.Plugins.Modules.OBS\Artemis.Plugins.Modules.OBS.csproj", "{D006F4BF-1724-4FF1-AD9F-A21605DDCBC4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
