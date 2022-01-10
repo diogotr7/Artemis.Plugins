@@ -34,8 +34,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="LeagueOfLegendsIcon.svg" CopyToOutputDirectory="PreserveNewest" />
-    <Content Update="Profiles\Default.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="LeagueOfLegendsIcon.svg" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Profiles/Default.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
