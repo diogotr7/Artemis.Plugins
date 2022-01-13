@@ -65,10 +65,17 @@ namespace Artemis.Plugins.LayerBrushes.Chroma
 
         public override SKColor GetColor(ArtemisLed led, SKPoint renderPoint)
         {
-            if (string.IsNullOrWhiteSpace(_chroma.CurrentApp) || _chroma.CurrentApp == "Artemis.UI.exe" || !_colors.TryGetValue(led.RgbLed.Id, out SKColor clr))
+            if (string.IsNullOrWhiteSpace(_chroma.CurrentApp) || _chroma.CurrentApp == "Artemis.UI.exe")
                 return SKColor.Empty;
 
-            return clr;
+            if (_colors.TryGetValue(led.RgbLed.Id, out SKColor color))
+                return color;
+
+            //According to razer docs, chromaLink1 is the "catchall" ledId. If an LED doesn't have a mapping, use this color.
+            if (Properties.UseDefault.CurrentValue && _colors.TryGetValue(LedId.LedStripe1, out var chromaLink1))
+                return chromaLink1;
+
+            return SKColor.Empty;
         }
     }
 }
