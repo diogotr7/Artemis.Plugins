@@ -1,0 +1,7 @@
+{
+  "Guid": "93e77647-43f5-4e24-8843-9ea8c51dafce",
+  "Name": "VoiceMeeter",
+  "Description": "VoiceMeeter integration",
+  "Version": "1.0.0.0",
+  "Main": "Artemis.Plugins.Modules.VoiceMeeter.dll"
+}
