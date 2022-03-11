@@ -1,15 +1,19 @@
-﻿using System.Windows.Controls;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
 
 namespace Artemis.Plugins.Modules.Spotify
 {
-    /// <summary>
-    /// Interaction logic for SpotifyConfigurationDialogView.xaml
-    /// </summary>
     public partial class SpotifyConfigurationDialogView : UserControl
     {
         public SpotifyConfigurationDialogView()
         {
             InitializeComponent();
+        }
+
+        private void InitializeComponent()
+        {
+            AvaloniaXamlLoader.Load(this);
         }
     }
 }
