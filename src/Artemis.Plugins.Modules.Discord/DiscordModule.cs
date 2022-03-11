@@ -45,8 +45,8 @@ namespace Artemis.Plugins.Modules.Discord
 
             _logger = logger;
 
-            _clientId = pluginSettings.GetSetting<string>("DiscordClientId", null);
-            _clientSecret = pluginSettings.GetSetting<string>("DiscordClientSecret", null);
+            _clientId = pluginSettings.GetSetting("DiscordClientId", string.Empty);
+            _clientSecret = pluginSettings.GetSetting("DiscordClientSecret", string.Empty);
             _savedToken = pluginSettings.GetSetting<SavedToken>("DiscordToken", null);
 
             _discordClientLock = new();
@@ -58,7 +58,7 @@ namespace Artemis.Plugins.Modules.Discord
                 _clientSecret.Value == null || _clientSecret.Value.Length < 1)
                 throw new ArtemisPluginException("Client ID or secret invalid");
 
-            AddTimedUpdate(TimeSpan.FromDays(1), (_) => authClient?.TryRefreshTokenAsync());
+            AddTimedUpdate(TimeSpan.FromDays(1), (_) => { DiscordAuthClient c = authClient; if (c != null) { return c.TryRefreshTokenAsync(); } else { return Task.CompletedTask; } });
         }
 
         public override void Disable()

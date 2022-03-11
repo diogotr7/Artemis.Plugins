@@ -1,15 +1,19 @@
-﻿using System.Windows.Controls;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
 
 namespace Artemis.Plugins.Modules.Discord
 {
-    /// <summary>
-    /// Interaction logic for DiscordPluginConfigurationView.xaml
-    /// </summary>
     public partial class DiscordPluginConfigurationView : UserControl
     {
         public DiscordPluginConfigurationView()
         {
             InitializeComponent();
+        }
+
+        private void InitializeComponent()
+        {
+            AvaloniaXamlLoader.Load(this);
         }
     }
 }

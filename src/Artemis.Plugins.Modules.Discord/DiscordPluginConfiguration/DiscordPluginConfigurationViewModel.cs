@@ -1,6 +1,8 @@
 ﻿using Artemis.Core;
 using Artemis.UI.Shared;
-using Stylet;
+using ReactiveUI;
+using ReactiveUI.Validation.Extensions;
+using System.Reactive;
 
 namespace Artemis.Plugins.Modules.Discord
 {
@@ -13,44 +15,42 @@ namespace Artemis.Plugins.Modules.Discord
 
         public DiscordPluginConfigurationViewModel(
             Plugin plugin,
-            PluginSettings pluginSettings,
-            IModelValidator<DiscordPluginConfigurationViewModel> validator)
-            : base(plugin, validator)
+            PluginSettings pluginSettings)
+            : base(plugin)
         {
-            _clientIdSetting = pluginSettings.GetSetting<string>("DiscordClientId", null);
-            _clientSecretSetting = pluginSettings.GetSetting<string>("DiscordClientSecret", null);
+            _clientIdSetting = pluginSettings.GetSetting("DiscordClientId", string.Empty);
+            _clientSecretSetting = pluginSettings.GetSetting("DiscordClientSecret", string.Empty);
 
             ClientId = _clientIdSetting.Value;
             ClientSecret = _clientSecretSetting.Value;
+
+            this.ValidationRule(vm => vm.ClientId, clientid => clientid?.Length == 18, "Client Id must be 18 characters long");
+            this.ValidationRule(vm => vm.ClientSecret, clientSecret => clientSecret?.Length == 32, "Client Secret must be 32 characters long");
+
+            Save = ReactiveCommand.Create(ExecuteSave, ValidationContext.Valid);
         }
 
         public string ClientId
         {
             get => _clientId;
-            set => SetAndNotify(ref _clientId, value);
+            set => RaiseAndSetIfChanged(ref _clientId, value);
         }
 
         public string ClientSecret
         {
             get => _clientSecret;
-            set => SetAndNotify(ref _clientSecret, value);
+            set => RaiseAndSetIfChanged(ref _clientSecret, value);
         }
 
-        public void Save()
-        {
-            if (!Validate())
-                return;
+        public ReactiveCommand<Unit, Unit> Save { get; }
 
-            _clientIdSetting.Value = _clientId.Trim();
+        public void ExecuteSave()
+        {
+            _clientIdSetting.Value = ClientId;
             _clientIdSetting.Save();
 
-            _clientSecretSetting.Value = _clientSecret.Trim();
+            _clientSecretSetting.Value = ClientSecret;
             _clientSecretSetting.Save();
-        }
-
-        public void OpenWikiLink()
-        {
-            Utilities.OpenUrl("https://wiki.artemis-rgb.com/en/guides/user/plugins/discord");
         }
     }
 }
