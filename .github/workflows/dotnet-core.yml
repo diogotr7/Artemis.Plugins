@@ -17,6 +17,7 @@ jobs:
         with:
           repository: Artemis-RGB/Artemis
           path: Artemis
+          ref: feature/avalonia
 
       - name: Build Artemis
         run: dotnet build .\Artemis\src\Artemis.sln
