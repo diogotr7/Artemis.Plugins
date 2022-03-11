@@ -8,7 +8,7 @@ namespace Artemis.Plugins.LayerBrushes.Particle.PropertyGroups
         [PropertyDescription]
         public SKPointLayerProperty Acceleration { get; set; }
 
-        [PropertyDescription(MinInputValue = 0, MaxInputValue = 1, InputStepSize = 0.01f)]
+        [PropertyDescription(MinInputValue = 0f, MaxInputValue = 1f, InputStepSize = 0.01f)]
         public SKPointLayerProperty Drag { get; set; }
 
         [PropertyDescription]

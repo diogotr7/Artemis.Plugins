@@ -14,13 +14,13 @@ namespace Artemis.Plugins.LayerBrushes.Particle.PropertyGroups
         [PropertyDescription]
         public EnumLayerProperty<SpawnPosition> SpawnPosition { get; set; }
 
-        [PropertyDescription(MinInputValue = 0, MaxInputValue = 1)]
+        [PropertyDescription(MinInputValue = 0f, MaxInputValue = 1f)]
         public SKPointLayerProperty SpawnPositionPercent { get; set; }
 
         [PropertyDescription(MinInputValue = 0, MaxInputValue = 100)]
         public IntRangeLayerProperty SpawnAmountRange { get; set; }
 
-        [PropertyDescription(MinInputValue = 0)]
+        [PropertyDescription(MinInputValue = 0f)]
         public FloatRangeLayerProperty SpawnTimeRange { get; set; }
 
         [PropertyDescription]
@@ -29,10 +29,10 @@ namespace Artemis.Plugins.LayerBrushes.Particle.PropertyGroups
         [PropertyDescription]
         public FloatRangeLayerProperty InitialYVelocityRange { get; set; }
 
-        [PropertyDescription(MinInputValue = 0)]
+        [PropertyDescription(MinInputValue = 0f)]
         public FloatRangeLayerProperty MaxLifetimeRange { get; set; }
 
-        [PropertyDescription(MinInputValue = 0)]
+        [PropertyDescription(MinInputValue = 0f)]
         public FloatRangeLayerProperty SizeRange { get; set; }
 
         protected override void PopulateDefaults()
@@ -43,10 +43,10 @@ namespace Artemis.Plugins.LayerBrushes.Particle.PropertyGroups
             SpawnPositionPercent.DefaultValue = new SKPoint(0.5f, 0.5f);
             SpawnAmountRange.DefaultValue = new IntRange(5, 10);
             SpawnTimeRange.DefaultValue = new FloatRange(0.0f, 0.2f);
-            InitialXVelocityRange.DefaultValue = new FloatRange(0, 0);
-            InitialYVelocityRange.DefaultValue = new FloatRange(-10, -5);
-            MaxLifetimeRange.DefaultValue = new FloatRange(0, 2);
-            SizeRange.DefaultValue = new FloatRange(20, 30);
+            InitialXVelocityRange.DefaultValue = new FloatRange(0f, 0f);
+            InitialYVelocityRange.DefaultValue = new FloatRange(-10f, -5f);
+            MaxLifetimeRange.DefaultValue = new FloatRange(0f, 2f);
+            SizeRange.DefaultValue = new FloatRange(20f, 30f);
         }
 
         protected override void EnableProperties()

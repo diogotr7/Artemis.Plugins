@@ -18,9 +18,9 @@ namespace Artemis.Plugins.LayerBrushes.Particle.PropertyGroups
         {
             ColorMode.DefaultValue = ParticleColorMode.Lifetime;
             Gradient.DefaultValue = new ColorGradient();
-            Gradient.DefaultValue.Add(new ColorGradientStop(SKColors.Orange, 0));
+            Gradient.DefaultValue.Add(new ColorGradientStop(SKColors.Orange, 0f));
             Gradient.DefaultValue.Add(new ColorGradientStop(SKColors.Red, 0.8f));
-            Gradient.DefaultValue.Add(new ColorGradientStop(SKColors.Black, 1));
+            Gradient.DefaultValue.Add(new ColorGradientStop(SKColors.Black, 1f));
         }
 
         protected override void EnableProperties()
