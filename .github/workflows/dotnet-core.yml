@@ -19,8 +19,11 @@ jobs:
           path: Artemis
           ref: feature/avalonia
 
-      - name: Build Artemis
-        run: dotnet build .\Artemis\src\Artemis.sln
+      - name: Build Artemis Core
+        run: dotnet build .\Artemis\src\Artemis.Core\Artemis.Core.csproj
+        
+      - name: Build Artemis UI Shared
+        run: dotnet build .\Artemis\src\Avalonia\Artemis.UI.Shared\Artemis.UI.Shared.csproj
 
       - name: Clone Plugins
         uses: actions/checkout@v2
