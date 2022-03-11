@@ -73,12 +73,6 @@ jobs:
         with:
           name: Fallout4
           path: .\Plugins\src\Artemis.Plugins.Modules.Fallout4\bin\x64\Release\net5.0-windows\publish
-
-      - name: Upload League of Legends
-        uses: actions/upload-artifact@v2
-        with:
-          name: League Of Legends
-          path: .\Plugins\src\Artemis.Plugins.Modules.LeagueOfLegends\bin\x64\Release\net5.0-windows\publish
           
       - name: Upload VoiceMeeter
         uses: actions/upload-artifact@v2

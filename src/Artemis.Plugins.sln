@@ -5,8 +5,6 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.LayerBrushes.Gif", "Artemis.Plugins.LayerBrushes.Gif\Artemis.Plugins.LayerBrushes.Gif.csproj", "{DDB60A1E-BA5F-45FA-9FF8-D038B503C1FA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.Modules.LeagueOfLegends", "Artemis.Plugins.Modules.LeagueOfLegends\Artemis.Plugins.Modules.LeagueOfLegends.csproj", "{55A728EE-76D6-492E-A45C-FADAC7FDECEE}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.LayerBrushes.Chroma", "Artemis.Plugins.LayerBrushes.Chroma\Artemis.Plugins.LayerBrushes.Chroma.csproj", "{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.Modules.Fallout4", "Artemis.Plugins.Modules.Fallout4\Artemis.Plugins.Modules.Fallout4.csproj", "{EA3D651A-1487-40D2-88DC-C6C5FBAB42FA}"
@@ -31,10 +29,6 @@ Global
 		{DDB60A1E-BA5F-45FA-9FF8-D038B503C1FA}.Debug|x64.Build.0 = Debug|x64
 		{DDB60A1E-BA5F-45FA-9FF8-D038B503C1FA}.Release|x64.ActiveCfg = Release|x64
 		{DDB60A1E-BA5F-45FA-9FF8-D038B503C1FA}.Release|x64.Build.0 = Release|x64
-		{55A728EE-76D6-492E-A45C-FADAC7FDECEE}.Debug|x64.ActiveCfg = Debug|x64
-		{55A728EE-76D6-492E-A45C-FADAC7FDECEE}.Debug|x64.Build.0 = Debug|x64
-		{55A728EE-76D6-492E-A45C-FADAC7FDECEE}.Release|x64.ActiveCfg = Release|x64
-		{55A728EE-76D6-492E-A45C-FADAC7FDECEE}.Release|x64.Build.0 = Release|x64
 		{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61}.Debug|x64.ActiveCfg = Debug|x64
 		{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61}.Debug|x64.Build.0 = Debug|x64
 		{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61}.Release|x64.ActiveCfg = Release|x64
