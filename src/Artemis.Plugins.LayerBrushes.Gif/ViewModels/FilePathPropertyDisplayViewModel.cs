@@ -1,5 +1,5 @@
 ﻿using Artemis.Core;
-using Artemis.UI.Shared.Services.Interfaces;
+using Artemis.UI.Shared.Services;
 using Artemis.UI.Shared.Services.ProfileEditor;
 using Artemis.UI.Shared.Services.PropertyInput;
 using System.Threading.Tasks;
