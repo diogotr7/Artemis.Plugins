@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Serilog" Version="2.10.0" />
-    <PackageReference Include="SkiaSharp" Version="2.80.3" />
+    <PackageReference Include="SkiaSharp" Version="2.88.1-preview.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 
     <!--All packages Artemis already references are compile-only dependencies-->
