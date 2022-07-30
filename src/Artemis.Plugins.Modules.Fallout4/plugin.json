@@ -1,7 +1,8 @@
 {
   "Guid": "ea2064cc-63ad-4a22-93e3-bfc71beb6c4b",
   "Name": "Fallout 4 Module",
-  "Icon":  "Radioactive",
+  "Author": "diogotr7",
+  "Icon": "Radioactive",
   "Description": "Provides Fallout 4 game integration.",
   "Version": "1.0.0.0",
   "Main": "Artemis.Plugins.Modules.Fallout4.dll"

@@ -36,10 +36,4 @@
     <Content Include="plugin.json" CopyToOutputDirectory="PreserveNewest" />
     <PackageReference Include="ArtemisRGB.Plugins.BuildTask" Version="1.1.0" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="DiscordPluginConfiguration\DiscordPluginConfigurationView.axaml.cs">
-      <DependentUpon>DiscordPluginConfigurationView.axaml</DependentUpon>
-    </Compile>
-  </ItemGroup>
 </Project>

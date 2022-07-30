@@ -15,13 +15,6 @@ namespace Artemis.Plugins.Modules.Discord
     [PluginFeature(Name = "Discord", Icon = "Discord")]
     public class DiscordModule : Module<DiscordDataModel>
     {
-        private static readonly string[] SCOPES = new string[]
-        {
-            "rpc",
-            "identify",
-            "rpc.notifications.read"
-        };
-
         public override List<IModuleActivationRequirement> ActivationRequirements { get; }
 
         private readonly ILogger _logger;
@@ -116,7 +109,7 @@ namespace Artemis.Plugins.Modules.Discord
                             DiscordResponse<Authorize> authorizeResponse = await discordClient.SendRequestAsync<Authorize>(
                                 new DiscordRequest(DiscordRpcCommand.AUTHORIZE)
                                     .WithArgument("client_id", _clientId.Value)
-                                    .WithArgument("scopes", SCOPES),
+                                    .WithArgument("scopes", new string[] { "rpc", "identify", "rpc.notifications.read" }),
                                 timeoutMs: 30000);//high timeout so the user has time to click the button
 
                             await authClient.GetAccessTokenAsync(authorizeResponse.Data.Code);

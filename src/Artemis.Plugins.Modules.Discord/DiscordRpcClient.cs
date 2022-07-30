@@ -73,6 +73,8 @@ namespace Artemis.Plugins.Modules.Discord
             return typedResponse;
         }
 
+        public Task<DiscordResponse<Subscribe>> Subscribe(DiscordRpcEvent rpcEvent) => SendRequestAsync<Subscribe>(new DiscordSubscribe(rpcEvent));
+
         private async Task SendInitPacket()
         {
             string initPacket = JsonConvert.SerializeObject(new { v = RPC_VERSION, client_id = _clientId }, _jsonSerializerSettings);
