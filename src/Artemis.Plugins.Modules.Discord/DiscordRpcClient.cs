@@ -4,6 +4,7 @@ using Newtonsoft.Json.Serialization;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Pipes;
 using System.Text;
 using System.Threading;
@@ -14,7 +15,6 @@ namespace Artemis.Plugins.Modules.Discord
     public class DiscordRpcClient : IDisposable
     {
         #region RPC Constants
-        private const string PIPE = "discord-ipc-0";
         private const string RPC_VERSION = "1";
         private const int HEADER_SIZE = 8;
         private static readonly JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings
@@ -28,8 +28,8 @@ namespace Artemis.Plugins.Modules.Discord
 
         private readonly Dictionary<Guid, TaskCompletionSource<DiscordResponse>> _pendingRequests;
         private readonly CancellationTokenSource _cancellationTokenSource;
-        private readonly NamedPipeClientStream _pipe;
         private readonly string _clientId;
+        private NamedPipeClientStream _pipe;
         private Task _readLoopTask;
 
         public event EventHandler<DiscordEvent> EventReceived;
@@ -40,13 +40,27 @@ namespace Artemis.Plugins.Modules.Discord
             _clientId = clientId;
             _pendingRequests = new();
             _cancellationTokenSource = new();
-            _pipe = new(".", PIPE, PipeDirection.InOut, PipeOptions.Asynchronous);
         }
 
         public void Connect(int timeoutMs = 500)
         {
-            _pipe.Connect(timeoutMs);
-            _readLoopTask = Task.Run(ReadLoop, _cancellationTokenSource.Token);
+            const int MAX_TRIES = 10;
+            for (int i = 0; i < MAX_TRIES; i++)
+            {
+                try
+                {
+                    _pipe = new(".", GetPipeName(i), PipeDirection.InOut, PipeOptions.Asynchronous);
+                    _pipe.Connect(timeoutMs);
+                    _readLoopTask = Task.Run(ReadLoop, _cancellationTokenSource.Token);
+                    return;
+                }
+                catch
+                {
+                    continue;
+                }
+            }
+
+            throw new Exception("Failed to connect to Discord");
         }
 
         public async Task<DiscordResponse<T>> SendRequestAsync<T>(DiscordRequest request, int timeoutMs = 1000) where T : class
@@ -220,6 +234,27 @@ namespace Artemis.Plugins.Modules.Discord
             {
                 Error?.Invoke(this, new DiscordRpcClientException("Received response with unknown guid"));
             }
+        }
+
+        private static string GetPipeName(int index)
+        {
+            const string PIPE_NAME = "discord-ipc-{0}";
+            return Environment.OSVersion.Platform switch
+            {
+                PlatformID.Unix => Path.Combine(GetTemporaryDirectory(), string.Format(PIPE_NAME, index)),
+                _ => string.Format(PIPE_NAME, index)
+            };
+        }
+
+        private static string GetTemporaryDirectory()
+        {
+            //source: https://github.com/Lachee/discord-rpc-csharp/
+            //try all these possible paths it could be, depending on system configuration
+            return Environment.GetEnvironmentVariable("XDG_RUNTIME_DIR") ??
+                Environment.GetEnvironmentVariable("TMPDIR") ??
+                Environment.GetEnvironmentVariable("TMP") ??
+                Environment.GetEnvironmentVariable("TEMP") ??
+                "/tmp";
         }
 
         #region IDisposable
