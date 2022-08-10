@@ -54,8 +54,8 @@ namespace Artemis.Plugins.Modules.Discord
 
         public override void Enable()
         {
-            if (_clientId.Value == null || _clientId.Value.Length != 18 ||
-                _clientSecret.Value == null || _clientSecret.Value.Length != 32)
+            if (_clientId.Value == null || _clientId.Value.All(c => char.IsDigit(c)) ||
+                _clientSecret.Value == null || _clientSecret.Value.Length < 1)
                 throw new ArtemisPluginException("Client ID or secret invalid");
 
             AddTimedUpdate(TimeSpan.FromDays(1), (_) => authClient?.TryRefreshTokenAsync());
