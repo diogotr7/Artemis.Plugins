@@ -54,7 +54,7 @@ namespace Artemis.Plugins.Modules.Discord
 
         public override void Enable()
         {
-            if (_clientId.Value == null || _clientId.Value.All(c => char.IsDigit(c)) ||
+            if (_clientId.Value == null || !_clientId.Value.All(c => char.IsDigit(c)) ||
                 _clientSecret.Value == null || _clientSecret.Value.Length < 1)
                 throw new ArtemisPluginException("Client ID or secret invalid");
 
