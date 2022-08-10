@@ -47,11 +47,12 @@ namespace Artemis.Plugins.Modules.Discord
 
         public override void Enable()
         {
-            if (_clientId.Value == null || !_clientId.Value.All(c => char.IsDigit(c)) ||
-                _clientSecret.Value == null || _clientSecret.Value.Length < 1)
-                throw new ArtemisPluginException("Client ID or secret invalid");
+            if (_clientId.Value?.All(c => char.IsDigit(c)) != false || _clientSecret.Value?.Length < 1)
+            {
+                _logger.Error("Discord client ID or secret invalid");
+            }
 
-            AddTimedUpdate(TimeSpan.FromDays(1), (_) => { DiscordAuthClient c = authClient; if (c != null) { return c.TryRefreshTokenAsync(); } else { return Task.CompletedTask; } });
+            AddTimedUpdate(TimeSpan.FromDays(1), (_) => authClient?.TryRefreshTokenAsync() ?? Task.CompletedTask);
         }
 
         public override void Disable()
