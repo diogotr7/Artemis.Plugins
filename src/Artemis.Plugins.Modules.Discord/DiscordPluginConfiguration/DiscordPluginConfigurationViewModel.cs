@@ -2,6 +2,7 @@
 using Artemis.UI.Shared;
 using ReactiveUI;
 using ReactiveUI.Validation.Extensions;
+using System.Linq;
 using System.Reactive;
 
 namespace Artemis.Plugins.Modules.Discord
@@ -24,8 +25,8 @@ namespace Artemis.Plugins.Modules.Discord
             ClientId = _clientIdSetting.Value;
             ClientSecret = _clientSecretSetting.Value;
 
-            this.ValidationRule(vm => vm.ClientId, clientid => clientid?.Length == 18, "Client Id must be 18 characters long");
-            this.ValidationRule(vm => vm.ClientSecret, clientSecret => clientSecret?.Length == 32, "Client Secret must be 32 characters long");
+            this.ValidationRule(vm => vm.ClientId, clientId => clientId.All(c => char.IsDigit(c)), "Client Id must be only number characters");
+            this.ValidationRule(vm => vm.ClientSecret, clientSecret => clientSecret?.Length > 0, "Client Secret must not be empty");
 
             Save = ReactiveCommand.Create(ExecuteSave, ValidationContext.Valid);
         }
