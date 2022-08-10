@@ -24,7 +24,6 @@ namespace Artemis.Plugins.Modules.Discord
         private readonly object _discordClientLock;
 
         private DiscordRpcClient discordClient;
-        private DiscordAuthClient authClient;
 
         public DiscordModule(ILogger logger, PluginSettings pluginSettings)
         {
@@ -51,8 +50,6 @@ namespace Artemis.Plugins.Modules.Discord
             {
                 _logger.Error("Discord client ID or secret invalid");
             }
-
-            AddTimedUpdate(TimeSpan.FromDays(1), (_) => authClient?.TryRefreshTokenAsync() ?? Task.CompletedTask);
         }
 
         public override void Disable()
@@ -70,8 +67,8 @@ namespace Artemis.Plugins.Modules.Discord
 
             lock (_discordClientLock)
             {
-                authClient = new(_clientId, _clientSecret, _savedToken);
-                discordClient = new(_clientId.Value);
+                discordClient = new(_clientId.Value, _clientSecret.Value, _savedToken);
+                discordClient.Authenticated += OnDiscordAuthenticated;
                 discordClient.EventReceived += OnDiscordEventReceived;
                 discordClient.Error += OnDiscordError;
                 discordClient.Connect();
@@ -82,10 +79,10 @@ namespace Artemis.Plugins.Modules.Discord
         {
             lock (_discordClientLock)
             {
+                discordClient.Authenticated -= OnDiscordAuthenticated;
                 discordClient.EventReceived -= OnDiscordEventReceived;
                 discordClient.Error -= OnDiscordError;
                 discordClient.Dispose();
-                authClient.Dispose();
             }
         }
 
@@ -94,61 +91,42 @@ namespace Artemis.Plugins.Modules.Discord
             _logger.Error(e, "Discord Rpc client error");
         }
 
+        private async void OnDiscordAuthenticated(object sender, Authenticate e)
+        {
+            try
+            {
+                DataModel.User.Username = e.User.Username;
+                DataModel.User.Discriminator = e.User.Discriminator;
+                DataModel.User.Id = e.User.Id;
+
+                //Initial request for data, then use events after
+                DiscordResponse<VoiceSettings> voiceSettingsResponse = await discordClient.SendRequestAsync<VoiceSettings>(
+                        new DiscordRequest(DiscordRpcCommand.GET_VOICE_SETTINGS)
+                );
+
+                DataModel.VoiceSettings.Deafened = voiceSettingsResponse.Data.Deaf;
+                DataModel.VoiceSettings.Muted = voiceSettingsResponse.Data.Mute;
+
+                await UpdateVoiceChannelData();
+
+                //Subscribe to these events as well
+                await discordClient.SendRequestAsync<Subscribe>(new DiscordSubscribe(DiscordRpcEvent.VOICE_SETTINGS_UPDATE));
+                await discordClient.SendRequestAsync<Subscribe>(new DiscordSubscribe(DiscordRpcEvent.NOTIFICATION_CREATE));
+                await discordClient.SendRequestAsync<Subscribe>(new DiscordSubscribe(DiscordRpcEvent.VOICE_CONNECTION_STATUS));
+                await discordClient.SendRequestAsync<Subscribe>(new DiscordSubscribe(DiscordRpcEvent.VOICE_CHANNEL_SELECT));
+            }
+            catch (Exception exc)
+            {
+                _logger.Error(exc, "Error during OnDiscordAuthenticated");
+            }
+        }
+
         private async void OnDiscordEventReceived(object sender, DiscordEvent discordEvent)
         {
             try
             {
                 switch (discordEvent)
                 {
-                    case DiscordEvent<Ready>:
-                        if (!authClient.HasToken)
-                        {
-                            //We have no token saved. This means it's probably the first time
-                            //the user is using the plugin. We need to ask for their permission
-                            //to get a token from discord. 
-                            //This token can be saved and reused (+ refreshed) later.
-                            DiscordResponse<Authorize> authorizeResponse = await discordClient.SendRequestAsync<Authorize>(
-                                new DiscordRequest(DiscordRpcCommand.AUTHORIZE)
-                                    .WithArgument("client_id", _clientId.Value)
-                                    .WithArgument("scopes", new string[] { "rpc", "identify", "rpc.notifications.read" }),
-                                timeoutMs: 30000);//high timeout so the user has time to click the button
-
-                            await authClient.GetAccessTokenAsync(authorizeResponse.Data.Code);
-                        }
-                        if (!authClient.IsTokenValid)
-                        {
-                            //Now that we have a token for sure,
-                            //we need to check if it expired or not.
-                            //If yes, refresh it.
-                            //Then, authenticate.
-                            await authClient.RefreshAccessTokenAsync();
-                        }
-
-                        DiscordResponse<Authenticate> authenticateResponse = await discordClient.SendRequestAsync<Authenticate>(
-                                new DiscordRequest(DiscordRpcCommand.AUTHENTICATE)
-                                    .WithArgument("access_token", authClient.AccessToken)
-                        );
-
-                        DataModel.User.Username = authenticateResponse.Data.User.Username;
-                        DataModel.User.Discriminator = authenticateResponse.Data.User.Discriminator;
-                        DataModel.User.Id = authenticateResponse.Data.User.Id;
-
-                        //Initial request for data, then use events after
-                        DiscordResponse<VoiceSettings> voiceSettingsResponse = await discordClient.SendRequestAsync<VoiceSettings>(
-                                new DiscordRequest(DiscordRpcCommand.GET_VOICE_SETTINGS)
-                        );
-
-                        DataModel.VoiceSettings.Deafened = voiceSettingsResponse.Data.Deaf;
-                        DataModel.VoiceSettings.Muted = voiceSettingsResponse.Data.Mute;
-
-                        await UpdateVoiceChannelData();
-
-                        //Subscribe to these events as well
-                        await discordClient.SendRequestAsync<Subscribe>(new DiscordSubscribe(DiscordRpcEvent.VOICE_SETTINGS_UPDATE));
-                        await discordClient.SendRequestAsync<Subscribe>(new DiscordSubscribe(DiscordRpcEvent.NOTIFICATION_CREATE));
-                        await discordClient.SendRequestAsync<Subscribe>(new DiscordSubscribe(DiscordRpcEvent.VOICE_CONNECTION_STATUS));
-                        await discordClient.SendRequestAsync<Subscribe>(new DiscordSubscribe(DiscordRpcEvent.VOICE_CHANNEL_SELECT));
-                        break;
                     case DiscordEvent<VoiceSettings> voice:
                         VoiceSettings voiceData = voice.Data;
                         DataModel.VoiceSettings.AutomaticGainControl = voiceData.AutomaticGainControl;
