@@ -103,9 +103,8 @@ namespace Artemis.Plugins.Modules.Discord
                 DiscordResponse<VoiceSettings> voiceSettingsResponse = await discordClient.SendRequestAsync<VoiceSettings>(
                         new DiscordRequest(DiscordRpcCommand.GET_VOICE_SETTINGS)
                 );
-
-                DataModel.VoiceSettings.Deafened = voiceSettingsResponse.Data.Deaf;
-                DataModel.VoiceSettings.Muted = voiceSettingsResponse.Data.Mute;
+                
+                UpdateVoiceSettings(voiceSettingsResponse.Data);
 
                 await UpdateVoiceChannelData();
 
@@ -129,25 +128,7 @@ namespace Artemis.Plugins.Modules.Discord
                 {
                     case DiscordEvent<VoiceSettings> voice:
                         VoiceSettings voiceData = voice.Data;
-                        DataModel.VoiceSettings.AutomaticGainControl = voiceData.AutomaticGainControl;
-                        DataModel.VoiceSettings.EchoCancellation = voiceData.EchoCancellation;
-                        DataModel.VoiceSettings.NoiseSuppression = voiceData.NoiseSuppression;
-                        DataModel.VoiceSettings.Qos = voiceData.Qos;
-                        DataModel.VoiceSettings.SilenceWarning = voiceData.SilenceWarning;
-                        DataModel.VoiceSettings.Deafened = voiceData.Deaf;
-                        DataModel.VoiceSettings.Muted = voiceData.Mute;
-                        DataModel.VoiceSettings.Mode.Type = Enum.Parse<DiscordVoiceModeType>(voiceData.Mode.Type);
-                        DataModel.VoiceSettings.Mode.AutoThreshold = voiceData.Mode.AutoThreshold;
-                        DataModel.VoiceSettings.Mode.Threshold = voiceData.Mode.Threshold;
-                        DataModel.VoiceSettings.Mode.Shortcut = voiceData.Mode.Shortcut
-                            .Select(ds => new DiscordShortcut
-                            {
-                                Type = (DiscordKeyType)ds.Type,
-                                Code = ds.Code,
-                                Name = ds.Name
-                            })
-                            .ToArray();
-
+                        UpdateVoiceSettings(voiceData);
                         break;
                     case DiscordEvent<VoiceConnectionStatus> voiceStatus:
                         DataModel.VoiceConnection.State = voiceStatus.Data.State;
@@ -196,6 +177,28 @@ namespace Artemis.Plugins.Modules.Discord
             {
                 _logger.Error(e, "Error handling discord event.");
             }
+        }
+
+        private void UpdateVoiceSettings(VoiceSettings voiceData)
+        {
+            DataModel.VoiceSettings.AutomaticGainControl = voiceData.AutomaticGainControl;
+            DataModel.VoiceSettings.EchoCancellation = voiceData.EchoCancellation;
+            DataModel.VoiceSettings.NoiseSuppression = voiceData.NoiseSuppression;
+            DataModel.VoiceSettings.Qos = voiceData.Qos;
+            DataModel.VoiceSettings.SilenceWarning = voiceData.SilenceWarning;
+            DataModel.VoiceSettings.Deafened = voiceData.Deaf;
+            DataModel.VoiceSettings.Muted = voiceData.Mute;
+            DataModel.VoiceSettings.Mode.Type = Enum.Parse<DiscordVoiceModeType>(voiceData.Mode.Type);
+            DataModel.VoiceSettings.Mode.AutoThreshold = voiceData.Mode.AutoThreshold;
+            DataModel.VoiceSettings.Mode.Threshold = voiceData.Mode.Threshold;
+            DataModel.VoiceSettings.Mode.Shortcut = voiceData.Mode.Shortcut
+                .Select(ds => new DiscordShortcut
+                {
+                    Type = (DiscordKeyType)ds.Type,
+                    Code = ds.Code,
+                    Name = ds.Name
+                })
+                .ToArray();
         }
 
         private async Task UpdateVoiceChannelData()
