@@ -1,8 +1,10 @@
 {
   "Guid": "0cb99d89-915b-407e-82ac-8316d0559c4e",
   "Name": "Chroma Grabber",
+  "Author": "diogotr7",
   "Icon":  "Snake",
   "Description": "Provides a layer that displays lighting from Razer Chroma supported games on all devices Artemis supports.",
   "Version": "1.0.0.0",
-  "Main": "Artemis.Plugins.LayerBrushes.Chroma.dll"
+  "Main": "Artemis.Plugins.LayerBrushes.Chroma.dll",
+  "Platforms": "Windows"
 }

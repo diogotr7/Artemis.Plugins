@@ -9,12 +9,12 @@ namespace Artemis.Plugins.Modules.Discord.Authentication
 {
     public class DiscordAuthClient : IDisposable
     {
-        private readonly PluginSetting<string> _clientId;
-        private readonly PluginSetting<string> _clientSecret;
+        private readonly string _clientId;
+        private readonly string _clientSecret;
         private readonly PluginSetting<SavedToken> _token;
         private readonly HttpClient _httpClient;
 
-        public DiscordAuthClient(PluginSetting<string> clientId, PluginSetting<string> clientSecret, PluginSetting<SavedToken> token)
+        public DiscordAuthClient(string clientId, string clientSecret, PluginSetting<SavedToken> token)
         {
             _clientId = clientId;
             _clientSecret = clientSecret;
@@ -59,8 +59,8 @@ namespace Artemis.Plugins.Modules.Discord.Authentication
             {
                 ["grant_type"] = grantType,
                 [secretType] = secret,
-                ["client_id"] = _clientId.Value,
-                ["client_secret"] = _clientSecret.Value
+                ["client_id"] = _clientId,
+                ["client_secret"] = _clientSecret
             };
 
             using HttpResponseMessage response = await _httpClient.PostAsync("https://discord.com/api/oauth2/token", new FormUrlEncodedContent(values));

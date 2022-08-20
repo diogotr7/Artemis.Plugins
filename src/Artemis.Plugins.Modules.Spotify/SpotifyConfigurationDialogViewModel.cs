@@ -1,57 +1,51 @@
 ﻿using Artemis.Core;
 using Artemis.UI.Shared;
+using Avalonia.Media.Imaging;
+using Avalonia.Threading;
+using Flurl.Http;
 using SpotifyAPI.Web;
 using SpotifyAPI.Web.Auth;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Windows.Media;
-using SkiaSharp.Views.WPF;
-using System.Net.Http;
 using System.IO;
-using SkiaSharp;
-using System.Windows;
-using System.Windows.Threading;
-using Stylet;
-using System.Windows.Media.Imaging;
+using System.Threading.Tasks;
 
 namespace Artemis.Plugins.Modules.Spotify
 {
     public class SpotifyConfigurationDialogViewModel : PluginConfigurationViewModel
     {
-        private static readonly HttpClient _httpClient = new HttpClient();
         private readonly PluginSetting<PKCETokenResponse> _token;
         private readonly SpotifyModule _dataModelExpansion;
 
         private static EmbedIOAuthServer _server;
         private static EmbedIOAuthServer Server => _server ??= new EmbedIOAuthServer(new Uri("http://localhost:5000/callback"), 5000);
 
-        private ImageSource _profilePicture;
-        public ImageSource ProfilePicture
+        private Bitmap? _profilePicture;
+        public Bitmap? ProfilePicture
         {
             get => _profilePicture;
-            set => SetAndNotify(ref _profilePicture, value);
+            set => this.RaiseAndSetIfChanged(ref _profilePicture, value);
         }
 
         private string _username;
         public string Username
         {
             get => _username;
-            set => SetAndNotify(ref _username, value);
+            set => this.RaiseAndSetIfChanged(ref _username, value);
         }
 
         private bool _logInVisibility;
         public bool LogInVisibility
         {
             get => _logInVisibility;
-            set => SetAndNotify(ref _logInVisibility, value);
+            set => this.RaiseAndSetIfChanged(ref _logInVisibility, value);
         }
 
         private bool _logOutVisibility;
         public bool LogOutVisibility
         {
             get => _logOutVisibility;
-            set => SetAndNotify(ref _logOutVisibility, value);
+            set => this.RaiseAndSetIfChanged(ref _logOutVisibility, value);
         }
 
         private string _verifier;
@@ -123,25 +117,23 @@ namespace Artemis.Plugins.Modules.Spotify
 
         private void UpdateProfilePicture()
         {
-            Execute.PostToUIThread(async () =>
+            Dispatcher.UIThread.Post(async () =>
             {
-                ProfilePicture = new DrawingImage();
-                Username = "Not logged in";
-
                 if (_dataModelExpansion.LoggedIn)
                 {
                     var user = await _dataModelExpansion.GetUserInfo();
                     if (user is null)
                         return;
                     Username = user.DisplayName;
+
                     if (user.Images.Count < 1)
                         return;
-
-                    using HttpResponseMessage response = await _httpClient.GetAsync(user.Images[0].Url);
-                    using Stream stream = await response.Content.ReadAsStreamAsync();
-                    var image = SKBitmap.Decode(stream);
-
-                    ProfilePicture = image.ToWriteableBitmap();
+                    ProfilePicture = new Bitmap(await user.Images[0].Url.GetStreamAsync());
+                }
+                else
+                {
+                    ProfilePicture = new Bitmap(new FileStream(Plugin.ResolveRelativePath("no-user.png"), FileMode.Open, FileAccess.Read));
+                    Username = "Not logged in";
                 }
             });
         }

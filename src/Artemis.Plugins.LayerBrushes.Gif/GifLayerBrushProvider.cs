@@ -1,21 +1,21 @@
 ﻿using Artemis.Core.LayerBrushes;
 using Artemis.Plugins.LayerBrushes.Gif.ViewModels;
-using Artemis.UI.Shared.Services;
+using Artemis.UI.Shared.Services.PropertyInput;
 
 namespace Artemis.Plugins.LayerBrushes.Gif
 {
     public class GifLayerBrushProvider : LayerBrushProvider
     {
-        private readonly IProfileEditorService _profileEditorService;
+        private readonly IPropertyInputService _propertyInputService;
 
-        public GifLayerBrushProvider(IProfileEditorService profileEditorService)
+        public GifLayerBrushProvider(IPropertyInputService profileEditorService)
         {
-            _profileEditorService = profileEditorService;
+            _propertyInputService = profileEditorService;
         }
 
         public override void Enable()
         {
-            _profileEditorService.RegisterPropertyInput<FilePathPropertyDisplayViewModel>(Plugin);
+            _propertyInputService.RegisterPropertyInput<FilePathPropertyDisplayViewModel>(Plugin);
             RegisterLayerBrushDescriptor<GifLayerBrush>("Gif layer brush", "Gif layer brush", "Gif");
         }
 

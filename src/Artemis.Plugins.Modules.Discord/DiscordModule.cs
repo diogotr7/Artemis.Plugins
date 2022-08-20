@@ -15,13 +15,6 @@ namespace Artemis.Plugins.Modules.Discord
     [PluginFeature(Name = "Discord", Icon = "Discord")]
     public class DiscordModule : Module<DiscordDataModel>
     {
-        private static readonly string[] SCOPES = new string[]
-        {
-            "rpc",
-            "identify",
-            "rpc.notifications.read"
-        };
-
         public override List<IModuleActivationRequirement> ActivationRequirements { get; }
 
         private readonly ILogger _logger;
@@ -31,7 +24,6 @@ namespace Artemis.Plugins.Modules.Discord
         private readonly object _discordClientLock;
 
         private DiscordRpcClient discordClient;
-        private DiscordAuthClient authClient;
 
         public DiscordModule(ILogger logger, PluginSettings pluginSettings)
         {
@@ -45,8 +37,8 @@ namespace Artemis.Plugins.Modules.Discord
 
             _logger = logger;
 
-            _clientId = pluginSettings.GetSetting<string>("DiscordClientId", null);
-            _clientSecret = pluginSettings.GetSetting<string>("DiscordClientSecret", null);
+            _clientId = pluginSettings.GetSetting("DiscordClientId", string.Empty);
+            _clientSecret = pluginSettings.GetSetting("DiscordClientSecret", string.Empty);
             _savedToken = pluginSettings.GetSetting<SavedToken>("DiscordToken", null);
 
             _discordClientLock = new();
@@ -54,11 +46,10 @@ namespace Artemis.Plugins.Modules.Discord
 
         public override void Enable()
         {
-            if (_clientId.Value == null || !_clientId.Value.All(c => char.IsDigit(c)) ||
-                _clientSecret.Value == null || _clientSecret.Value.Length < 1)
-                throw new ArtemisPluginException("Client ID or secret invalid");
-
-            AddTimedUpdate(TimeSpan.FromDays(1), (_) => authClient?.TryRefreshTokenAsync());
+            if (_clientId.Value?.All(c => char.IsDigit(c)) != false || _clientSecret.Value?.Length < 1)
+            {
+                _logger.Error("Discord client ID or secret invalid");
+            }
         }
 
         public override void Disable()
@@ -76,8 +67,8 @@ namespace Artemis.Plugins.Modules.Discord
 
             lock (_discordClientLock)
             {
-                authClient = new(_clientId, _clientSecret, _savedToken);
-                discordClient = new(_clientId.Value);
+                discordClient = new(_clientId.Value, _clientSecret.Value, _savedToken);
+                discordClient.Authenticated += OnDiscordAuthenticated;
                 discordClient.EventReceived += OnDiscordEventReceived;
                 discordClient.Error += OnDiscordError;
                 discordClient.Connect();
@@ -88,10 +79,10 @@ namespace Artemis.Plugins.Modules.Discord
         {
             lock (_discordClientLock)
             {
+                discordClient.Authenticated -= OnDiscordAuthenticated;
                 discordClient.EventReceived -= OnDiscordEventReceived;
                 discordClient.Error -= OnDiscordError;
                 discordClient.Dispose();
-                authClient.Dispose();
             }
         }
 
@@ -100,82 +91,44 @@ namespace Artemis.Plugins.Modules.Discord
             _logger.Error(e, "Discord Rpc client error");
         }
 
+        private async void OnDiscordAuthenticated(object sender, Authenticate e)
+        {
+            try
+            {
+                DataModel.User.Username = e.User.Username;
+                DataModel.User.Discriminator = e.User.Discriminator;
+                DataModel.User.Id = e.User.Id;
+
+                //Initial request for data, then use events after
+                DiscordResponse<VoiceSettings> voiceSettingsResponse = await discordClient.SendRequestAsync<VoiceSettings>(
+                        new DiscordRequest(DiscordRpcCommand.GET_VOICE_SETTINGS)
+                );
+                
+                UpdateVoiceSettings(voiceSettingsResponse.Data);
+
+                await UpdateVoiceChannelData();
+
+                //Subscribe to these events as well
+                await discordClient.SendRequestAsync<Subscribe>(new DiscordSubscribe(DiscordRpcEvent.VOICE_SETTINGS_UPDATE));
+                await discordClient.SendRequestAsync<Subscribe>(new DiscordSubscribe(DiscordRpcEvent.NOTIFICATION_CREATE));
+                await discordClient.SendRequestAsync<Subscribe>(new DiscordSubscribe(DiscordRpcEvent.VOICE_CONNECTION_STATUS));
+                await discordClient.SendRequestAsync<Subscribe>(new DiscordSubscribe(DiscordRpcEvent.VOICE_CHANNEL_SELECT));
+            }
+            catch (Exception exc)
+            {
+                _logger.Error(exc, "Error during OnDiscordAuthenticated");
+            }
+        }
+
         private async void OnDiscordEventReceived(object sender, DiscordEvent discordEvent)
         {
             try
             {
                 switch (discordEvent)
                 {
-                    case DiscordEvent<Ready>:
-                        if (!authClient.HasToken)
-                        {
-                            //We have no token saved. This means it's probably the first time
-                            //the user is using the plugin. We need to ask for their permission
-                            //to get a token from discord. 
-                            //This token can be saved and reused (+ refreshed) later.
-                            DiscordResponse<Authorize> authorizeResponse = await discordClient.SendRequestAsync<Authorize>(
-                                new DiscordRequest(DiscordRpcCommand.AUTHORIZE)
-                                    .WithArgument("client_id", _clientId.Value)
-                                    .WithArgument("scopes", SCOPES),
-                                timeoutMs: 30000);//high timeout so the user has time to click the button
-
-                            await authClient.GetAccessTokenAsync(authorizeResponse.Data.Code);
-                        }
-                        if (!authClient.IsTokenValid)
-                        {
-                            //Now that we have a token for sure,
-                            //we need to check if it expired or not.
-                            //If yes, refresh it.
-                            //Then, authenticate.
-                            await authClient.RefreshAccessTokenAsync();
-                        }
-
-                        DiscordResponse<Authenticate> authenticateResponse = await discordClient.SendRequestAsync<Authenticate>(
-                                new DiscordRequest(DiscordRpcCommand.AUTHENTICATE)
-                                    .WithArgument("access_token", authClient.AccessToken)
-                        );
-
-                        DataModel.User.Username = authenticateResponse.Data.User.Username;
-                        DataModel.User.Discriminator = authenticateResponse.Data.User.Discriminator;
-                        DataModel.User.Id = authenticateResponse.Data.User.Id;
-
-                        //Initial request for data, then use events after
-                        DiscordResponse<VoiceSettings> voiceSettingsResponse = await discordClient.SendRequestAsync<VoiceSettings>(
-                                new DiscordRequest(DiscordRpcCommand.GET_VOICE_SETTINGS)
-                        );
-
-                        DataModel.VoiceSettings.Deafened = voiceSettingsResponse.Data.Deaf;
-                        DataModel.VoiceSettings.Muted = voiceSettingsResponse.Data.Mute;
-
-                        await UpdateVoiceChannelData();
-
-                        //Subscribe to these events as well
-                        await discordClient.SendRequestAsync<Subscribe>(new DiscordSubscribe(DiscordRpcEvent.VOICE_SETTINGS_UPDATE));
-                        await discordClient.SendRequestAsync<Subscribe>(new DiscordSubscribe(DiscordRpcEvent.NOTIFICATION_CREATE));
-                        await discordClient.SendRequestAsync<Subscribe>(new DiscordSubscribe(DiscordRpcEvent.VOICE_CONNECTION_STATUS));
-                        await discordClient.SendRequestAsync<Subscribe>(new DiscordSubscribe(DiscordRpcEvent.VOICE_CHANNEL_SELECT));
-                        break;
                     case DiscordEvent<VoiceSettings> voice:
                         VoiceSettings voiceData = voice.Data;
-                        DataModel.VoiceSettings.AutomaticGainControl = voiceData.AutomaticGainControl;
-                        DataModel.VoiceSettings.EchoCancellation = voiceData.EchoCancellation;
-                        DataModel.VoiceSettings.NoiseSuppression = voiceData.NoiseSuppression;
-                        DataModel.VoiceSettings.Qos = voiceData.Qos;
-                        DataModel.VoiceSettings.SilenceWarning = voiceData.SilenceWarning;
-                        DataModel.VoiceSettings.Deafened = voiceData.Deaf;
-                        DataModel.VoiceSettings.Muted = voiceData.Mute;
-                        DataModel.VoiceSettings.Mode.Type = Enum.Parse<DiscordVoiceModeType>(voiceData.Mode.Type);
-                        DataModel.VoiceSettings.Mode.AutoThreshold = voiceData.Mode.AutoThreshold;
-                        DataModel.VoiceSettings.Mode.Threshold = voiceData.Mode.Threshold;
-                        DataModel.VoiceSettings.Mode.Shortcut = voiceData.Mode.Shortcut
-                            .Select(ds => new DiscordShortcut
-                            {
-                                Type = (DiscordKeyType)ds.Type,
-                                Code = ds.Code,
-                                Name = ds.Name
-                            })
-                            .ToArray();
-
+                        UpdateVoiceSettings(voiceData);
                         break;
                     case DiscordEvent<VoiceConnectionStatus> voiceStatus:
                         DataModel.VoiceConnection.State = voiceStatus.Data.State;
@@ -224,6 +177,28 @@ namespace Artemis.Plugins.Modules.Discord
             {
                 _logger.Error(e, "Error handling discord event.");
             }
+        }
+
+        private void UpdateVoiceSettings(VoiceSettings voiceData)
+        {
+            DataModel.VoiceSettings.AutomaticGainControl = voiceData.AutomaticGainControl;
+            DataModel.VoiceSettings.EchoCancellation = voiceData.EchoCancellation;
+            DataModel.VoiceSettings.NoiseSuppression = voiceData.NoiseSuppression;
+            DataModel.VoiceSettings.Qos = voiceData.Qos;
+            DataModel.VoiceSettings.SilenceWarning = voiceData.SilenceWarning;
+            DataModel.VoiceSettings.Deafened = voiceData.Deaf;
+            DataModel.VoiceSettings.Muted = voiceData.Mute;
+            DataModel.VoiceSettings.Mode.Type = Enum.Parse<DiscordVoiceModeType>(voiceData.Mode.Type);
+            DataModel.VoiceSettings.Mode.AutoThreshold = voiceData.Mode.AutoThreshold;
+            DataModel.VoiceSettings.Mode.Threshold = voiceData.Mode.Threshold;
+            DataModel.VoiceSettings.Mode.Shortcut = voiceData.Mode.Shortcut
+                .Select(ds => new DiscordShortcut
+                {
+                    Type = (DiscordKeyType)ds.Type,
+                    Code = ds.Code,
+                    Name = ds.Name
+                })
+                .ToArray();
         }
 
         private async Task UpdateVoiceChannelData()

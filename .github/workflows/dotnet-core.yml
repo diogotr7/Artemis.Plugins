@@ -7,19 +7,23 @@ jobs:
     runs-on: [windows-latest]
 
     steps:
-      - name: Setup .NET 5.0
+      - name: Setup .NET 6.0
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '5.0.x'
+          dotnet-version: '6.0.x'
 
       - name: Clone Artemis
         uses: actions/checkout@v2
         with:
           repository: Artemis-RGB/Artemis
           path: Artemis
+          ref: feature/avalonia
 
-      - name: Build Artemis
-        run: dotnet build .\Artemis\src\Artemis.sln
+      - name: Build Artemis Core
+        run: dotnet build .\Artemis\src\Artemis.Core\Artemis.Core.csproj
+        
+      - name: Build Artemis UI Shared
+        run: dotnet build .\Artemis\src\Artemis.UI.Shared\Artemis.UI.Shared.csproj
 
       - name: Clone Plugins
         uses: actions/checkout@v2
@@ -36,46 +40,46 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Discord
-          path: .\Plugins\src\Artemis.Plugins.Modules.Discord\bin\x64\Release\net5.0-windows\publish
+          path: .\Plugins\src\Artemis.Plugins.Modules.Discord\bin\x64\Release\net6.0\publish
 
       - name: Upload OBS
         uses: actions/upload-artifact@v2
         with:
           name: OBS
-          path: .\Plugins\src\Artemis.Plugins.Modules.OBS\bin\x64\Release\net5.0-windows\publish
+          path: .\Plugins\src\Artemis.Plugins.Modules.OBS\bin\x64\Release\net6.0\publish
 
       - name: Upload Spotify
         uses: actions/upload-artifact@v2
         with:
           name: Spotify
-          path: .\Plugins\src\Artemis.Plugins.Modules.Spotify\bin\x64\Release\net5.0-windows\publish
+          path: .\Plugins\src\Artemis.Plugins.Modules.Spotify\bin\x64\Release\net6.0\publish
 
       - name: Upload Chroma
         uses: actions/upload-artifact@v2
         with:
           name: Chroma
-          path: .\Plugins\src\Artemis.Plugins.LayerBrushes.Chroma\bin\x64\Release\net5.0-windows\publish
+          path: .\Plugins\src\Artemis.Plugins.LayerBrushes.Chroma\bin\x64\Release\net6.0\publish
 
       - name: Upload Gif
         uses: actions/upload-artifact@v2
         with:
           name: Gif
-          path: .\Plugins\src\Artemis.Plugins.LayerBrushes.Gif\bin\x64\Release\net5.0-windows\publish
+          path: .\Plugins\src\Artemis.Plugins.LayerBrushes.Gif\bin\x64\Release\net6.0\publish
 
       - name: Upload Particle
         uses: actions/upload-artifact@v2
         with:
           name: Particle
-          path: .\Plugins\src\Artemis.Plugins.LayerBrushes.Particle\bin\x64\Release\net5.0-windows\publish
+          path: .\Plugins\src\Artemis.Plugins.LayerBrushes.Particle\bin\x64\Release\net6.0\publish
 
       - name: Upload Fallout 4
         uses: actions/upload-artifact@v2
         with:
           name: Fallout4
-          path: .\Plugins\src\Artemis.Plugins.Modules.Fallout4\bin\x64\Release\net5.0-windows\publish
+          path: .\Plugins\src\Artemis.Plugins.Modules.Fallout4\bin\x64\Release\net6.0\publish
           
       - name: Upload VoiceMeeter
         uses: actions/upload-artifact@v2
         with:
           name: VoiceMeeter
-          path: .\Plugins\src\Artemis.Plugins.Modules.VoiceMeeter\bin\x64\Release\net5.0-windows\publish
+          path: .\Plugins\src\Artemis.Plugins.Modules.VoiceMeeter\bin\x64\Release\net6.0\publish
