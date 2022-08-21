@@ -58,7 +58,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Chroma
-          path: .\Plugins\src\Artemis.Plugins.LayerBrushes.Chroma\bin\x64\Release\net6.0\publish
+          path: .\Plugins\src\Artemis.Plugins.LayerBrushes.Chroma\bin\x64\Release\net6.0-windows\publish
 
       - name: Upload Gif
         uses: actions/upload-artifact@v2
