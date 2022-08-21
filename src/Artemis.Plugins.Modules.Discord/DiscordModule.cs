@@ -131,7 +131,7 @@ namespace Artemis.Plugins.Modules.Discord
                         UpdateVoiceSettings(voiceData);
                         break;
                     case DiscordEvent<VoiceConnectionStatus> voiceStatus:
-                        DataModel.VoiceConnection.State = voiceStatus.Data.State;
+                        DataModel.VoiceConnection.State = Enum.Parse<DiscordVoiceChannelState>(voiceStatus.Data.State);
                         DataModel.VoiceConnection.Ping = voiceStatus.Data.LastPing;
                         DataModel.VoiceConnection.Hostname = voiceStatus.Data.Hostname;
                         break;

@@ -76,11 +76,64 @@ namespace Artemis.Plugins.Modules.Discord.DataModels
 
     public class DiscordVoiceConnectionStatusDataModel : DataModel
     {
-        public string State { get; set; }
+        public DiscordVoiceChannelState State { get; set; }
         public string Hostname { get; set; }
         public float? Ping { get; set; }
         public bool Speaking { get; set; }
+        public bool IsVoiceConnected => State == DiscordVoiceChannelState.VOICE_CONNECTED;
         public DataModelEvent Connected { get; set; } = new DataModelEvent();
         public DataModelEvent Disconnected { get; set; } = new DataModelEvent();
+    }
+
+    public enum DiscordVoiceChannelState
+    {
+        /// <summary>
+        /// TCP disconnected
+        /// </summary>
+        DISCONNECTED,
+        /// <summary>
+        /// Waiting for voice endpoint
+        /// </summary>
+        AWAITING_ENDPOINT,
+
+        /// <summary>
+        /// TCP authenticating
+        /// </summary>
+        AUTHENTICATING,
+
+        /// <summary>
+        /// TCP connecting
+        /// </summary>
+        CONNECTING,//TCP connecting
+
+        /// <summary>
+        /// TCP connected
+        /// </summary>
+        CONNECTED,
+
+        /// <summary>
+        /// TCP connected, Voice disconnected
+        /// </summary>
+        VOICE_DISCONNECTED,
+
+        /// <summary>
+        /// TCP connected, Voice connecting
+        /// </summary>
+        VOICE_CONNECTING,
+
+        /// <summary>
+        /// TCP connected, Voice connected
+        /// </summary>
+        VOICE_CONNECTED,
+
+        /// <summary>
+        /// No route to host
+        /// </summary>
+        NO_ROUTE,
+
+        /// <summary>
+        /// WebRTC ice checking
+        /// </summary>
+        ICE_CHECKING,
     }
 }
