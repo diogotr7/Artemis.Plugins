@@ -46,7 +46,7 @@ namespace Artemis.Plugins.Modules.Discord
 
         public override void Enable()
         {
-            if (_clientId.Value?.All(c => char.IsDigit(c)) != false || _clientSecret.Value?.Length < 1)
+            if (!AreClientIdAndSecretValid())
             {
                 _logger.Error("Discord client ID or secret invalid");
             }
@@ -64,6 +64,12 @@ namespace Artemis.Plugins.Modules.Discord
         {
             if (isOverride)
                 return;
+
+            if (!AreClientIdAndSecretValid())
+            {
+                _logger.Error("Discord client ID or secret invalid");
+                return;
+            }
 
             lock (_discordClientLock)
             {
@@ -219,6 +225,11 @@ namespace Artemis.Plugins.Modules.Discord
             await discordClient.SendRequestAsync<Subscribe>(
                 new DiscordSubscribe(DiscordRpcEvent.SPEAKING_STOP)
                     .WithArgument("channel_id", id));
+        }
+
+        private bool AreClientIdAndSecretValid()
+        {
+            return _clientId.Value?.All(c => char.IsDigit(c)) == true && _clientSecret.Value?.Length > 0;
         }
     }
 }
