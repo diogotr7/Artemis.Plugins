@@ -2,7 +2,7 @@
 
 namespace Artemis.Plugins.LayerBrushes.Chroma.PropertyGroups
 {
-    public class MainPropertyGroup : LayerPropertyGroup
+    public class ChromaPropertyGroup : LayerPropertyGroup
     {
        [PropertyDescription(Description = "Colors unmapped LEDs with the default color")]
         public LayerProperty<bool> UseDefaultLed { get; set; }

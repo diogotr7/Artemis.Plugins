@@ -1,4 +1,5 @@
-﻿using Artemis.Core.Modules;
+﻿using Artemis.Core;
+using Artemis.Core.Modules;
 using RGB.NET.Core;
 using Serilog;
 using SkiaSharp;
@@ -8,7 +9,8 @@ using System.Linq;
 
 namespace Artemis.Plugins.LayerBrushes.Chroma.Module
 {
-    public class ChromaDataModelExpansion : Module<ChromaDataModel>
+    [PluginFeature(Name = "Chroma", Icon = "Snake")]
+    public class ChromaModule : Module<ChromaDataModel>
     {
         public override List<IModuleActivationRequirement> ActivationRequirements { get; } = new();
 
@@ -18,7 +20,7 @@ namespace Artemis.Plugins.LayerBrushes.Chroma.Module
         private readonly Dictionary<LedId, DynamicChild<SKColor>> _colorsCache = new();
         private readonly Dictionary<RzDeviceType, DynamicChild<ChromaDeviceDataModel>> _deviceTypeCache = new();
 
-        public ChromaDataModelExpansion(ChromaPluginService chroma, ILogger logger)
+        public ChromaModule(ChromaPluginService chroma, ILogger logger)
         {
             _chroma = chroma;
             _logger = logger;

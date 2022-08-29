@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Artemis.Plugins.Modules.OBS
 {
-    [PluginFeature(AlwaysEnabled = true)]
+    [PluginFeature(AlwaysEnabled = true, Name = "OBS")]
     public class ObsModule : Module<ObsDataModel>
     {
         public override List<IModuleActivationRequirement> ActivationRequirements { get; } = new() { new ProcessActivationRequirement(PROCESS_NAME) };

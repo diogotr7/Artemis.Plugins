@@ -6,18 +6,19 @@ using SkiaSharp;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
-namespace Artemis.Plugins.LayerBrushes.Chroma
+namespace Artemis.Plugins.LayerBrushes.Chroma.LayerBrushes
 {
-    public class ChromaLayerBrush : PerLedLayerBrush<MainPropertyGroup>
+    public class ChromaLayerBrush : PerLedLayerBrush<ChromaPropertyGroup>
     {
         private readonly ChromaPluginService _chroma;
         private readonly PluginSetting<Dictionary<RzDeviceType, LedId[,]>> _keyMapSetting;
-        private readonly ConcurrentDictionary<LedId, SKColor> _colors = new ConcurrentDictionary<LedId, SKColor>();
+        private readonly ConcurrentDictionary<LedId, SKColor> _colors;
 
         public ChromaLayerBrush(ChromaPluginService chroma, PluginSettings pluginSettings)
         {
             _chroma = chroma;
             _keyMapSetting = pluginSettings.GetSetting("ChromaLedArray", DefaultChromaLedMap.Clone());
+            _colors = new();
         }
 
         private double forceRefreshAppListTimer;

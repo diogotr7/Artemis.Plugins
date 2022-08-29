@@ -6,6 +6,8 @@ using Artemis.Plugins.Modules.VoiceMeeter.DataModels;
 
 namespace Artemis.Plugins.Modules.VoiceMeeter
 {
+    [PluginFeature(AlwaysEnabled = true, Name = "VoiceMeeter")]
+
     public class VoiceMeeterModule : Module<VoiceMeeterDataModel>
     {
         private VoiceMeeterStripDataModel[] _strips;
