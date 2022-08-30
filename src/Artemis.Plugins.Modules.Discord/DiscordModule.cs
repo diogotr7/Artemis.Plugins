@@ -109,16 +109,16 @@ namespace Artemis.Plugins.Modules.Discord
                 DiscordResponse<VoiceSettings> voiceSettingsResponse = await discordClient.SendRequestAsync<VoiceSettings>(
                         new DiscordRequest(DiscordRpcCommand.GET_VOICE_SETTINGS)
                 );
-                
-                UpdateVoiceSettings(voiceSettingsResponse.Data);
 
-                await UpdateVoiceChannelData();
+                ApplyVoiceSettings(voiceSettingsResponse.Data);
+
+                await UpdateCurrentVoiceChannelData();
 
                 //Subscribe to these events as well
-                await discordClient.SendRequestAsync<Subscribe>(new DiscordSubscribe(DiscordRpcEvent.VOICE_SETTINGS_UPDATE));
-                await discordClient.SendRequestAsync<Subscribe>(new DiscordSubscribe(DiscordRpcEvent.NOTIFICATION_CREATE));
-                await discordClient.SendRequestAsync<Subscribe>(new DiscordSubscribe(DiscordRpcEvent.VOICE_CONNECTION_STATUS));
-                await discordClient.SendRequestAsync<Subscribe>(new DiscordSubscribe(DiscordRpcEvent.VOICE_CHANNEL_SELECT));
+                await discordClient.SendRequestAsync<Subscription>(new DiscordSubscribe(DiscordRpcEvent.VOICE_SETTINGS_UPDATE));
+                await discordClient.SendRequestAsync<Subscription>(new DiscordSubscribe(DiscordRpcEvent.NOTIFICATION_CREATE));
+                await discordClient.SendRequestAsync<Subscription>(new DiscordSubscribe(DiscordRpcEvent.VOICE_CONNECTION_STATUS));
+                await discordClient.SendRequestAsync<Subscription>(new DiscordSubscribe(DiscordRpcEvent.VOICE_CHANNEL_SELECT));
             }
             catch (Exception exc)
             {
@@ -134,7 +134,7 @@ namespace Artemis.Plugins.Modules.Discord
                 {
                     case DiscordEvent<VoiceSettings> voice:
                         VoiceSettings voiceData = voice.Data;
-                        UpdateVoiceSettings(voiceData);
+                        ApplyVoiceSettings(voiceData);
                         break;
                     case DiscordEvent<VoiceConnectionStatus> voiceStatus:
                         DataModel.VoiceConnection.State = Enum.Parse<DiscordVoiceChannelState>(voiceStatus.Data.State);
@@ -151,14 +151,14 @@ namespace Artemis.Plugins.Modules.Discord
                             Title = notif.Data.Title
                         });
                         break;
-                    case DiscordEvent<SpeakingStop> speakingStop:
-                        if (speakingStop.Data.UserId == DataModel.User.Id)
+                    case DiscordEvent<SpeakingStartStop> stop when stop.Event == DiscordRpcEvent.SPEAKING_STOP:
+                        if (stop.Data.UserId == DataModel.User.Id)
                         {
                             DataModel.VoiceConnection.Speaking = false;
                         }
                         break;
-                    case DiscordEvent<SpeakingStart> speakingStart:
-                        if (speakingStart.Data.UserId == DataModel.User.Id)
+                    case DiscordEvent<SpeakingStartStop> start when start.Event == DiscordRpcEvent.SPEAKING_START:
+                        if (start.Data.UserId == DataModel.User.Id)
                         {
                             DataModel.VoiceConnection.Speaking = true;
                         }
@@ -167,17 +167,24 @@ namespace Artemis.Plugins.Modules.Discord
                         if (voiceSelect.Data.ChannelId is not null)//join voice channel
                         {
                             DataModel.VoiceConnection.Connected.Trigger();
-                            await UpdateVoiceChannelData();
+                            await UpdateCurrentVoiceChannelData();
                         }
                         else//leave voice channel
                         {
                             DataModel.VoiceConnection.Disconnected.Trigger();
                         }
                         break;
+                    case DiscordEvent<UserVoiceState> voiceCreate when voiceCreate.Event == DiscordRpcEvent.VOICE_STATE_CREATE:
+                        break;
+                    case DiscordEvent<UserVoiceState> voiceUpdate when voiceUpdate.Event == DiscordRpcEvent.VOICE_STATE_UPDATE:
+                        break;
+                    case DiscordEvent<UserVoiceState> voiceDelete when voiceDelete.Event == DiscordRpcEvent.VOICE_STATE_DELETE:
+                        break;
                     default:
                         _logger.Error("Received unexpected discord event of type {eventType}", discordEvent.Event);
                         break;
                 }
+                _logger.Verbose("Received discord event {Event} with data {Data}", discordEvent.Event, discordEvent.GetType().GetProperty("Data").GetValue(discordEvent));
             }
             catch (Exception e)
             {
@@ -185,7 +192,7 @@ namespace Artemis.Plugins.Modules.Discord
             }
         }
 
-        private void UpdateVoiceSettings(VoiceSettings voiceData)
+        private void ApplyVoiceSettings(VoiceSettings voiceData)
         {
             DataModel.VoiceSettings.AutomaticGainControl = voiceData.AutomaticGainControl;
             DataModel.VoiceSettings.EchoCancellation = voiceData.EchoCancellation;
@@ -207,23 +214,40 @@ namespace Artemis.Plugins.Modules.Discord
                 .ToArray();
         }
 
-        private async Task UpdateVoiceChannelData()
+        private async Task UpdateCurrentVoiceChannelData()
         {
             DiscordResponse<SelectedVoiceChannel> selectedVoiceChannelResponse =
                 await discordClient.SendRequestAsync<SelectedVoiceChannel>(
                     new DiscordRequest(DiscordRpcCommand.GET_SELECTED_VOICE_CHANNEL));
 
-            if (selectedVoiceChannelResponse.Data != null)
-                await SubscribeToSpeakingEventsAsync(selectedVoiceChannelResponse.Data.Id);
+            //we are not in voice, do nothing else.
+            if (selectedVoiceChannelResponse.Data == null)
+                return;
+
+            //setup dynamic data model with users
+            //todo
+
+            //we are in a voice channel. subscribe to events for this channel.
+            await SubscribeToVoiceChannelEvents(selectedVoiceChannelResponse.Data.Id);
         }
 
-        private async Task SubscribeToSpeakingEventsAsync(string id)
+        private async Task SubscribeToVoiceChannelEvents(string id)
         {
-            await discordClient.SendRequestAsync<Subscribe>(
+            await discordClient.SendRequestAsync<Subscription>(
                 new DiscordSubscribe(DiscordRpcEvent.SPEAKING_START)
                     .WithArgument("channel_id", id));
-            await discordClient.SendRequestAsync<Subscribe>(
+            await discordClient.SendRequestAsync<Subscription>(
                 new DiscordSubscribe(DiscordRpcEvent.SPEAKING_STOP)
+                    .WithArgument("channel_id", id));
+        }
+
+        private async Task UnubscribeFromVoiceChannelEvents(string id)
+        {
+            await discordClient.SendRequestAsync<Subscription>(
+                new DiscordUnsubscribe(DiscordRpcEvent.SPEAKING_START)
+                    .WithArgument("channel_id", id));
+            await discordClient.SendRequestAsync<Subscription>(
+                new DiscordUnsubscribe(DiscordRpcEvent.SPEAKING_STOP)
                     .WithArgument("channel_id", id));
         }
 

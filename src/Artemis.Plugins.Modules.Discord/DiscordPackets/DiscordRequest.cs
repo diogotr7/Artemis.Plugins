@@ -40,4 +40,15 @@ namespace Artemis.Plugins.Modules.Discord
             Event = e;
         }
     }
+
+    public class DiscordUnsubscribe : DiscordRequest
+    {
+        [JsonProperty("evt"), JsonConverter(typeof(StringEnumConverter))]
+        public DiscordRpcEvent Event { get; }
+
+        public DiscordUnsubscribe(DiscordRpcEvent e) : base(DiscordRpcCommand.UNSUBSCRIBE)
+        {
+            Event = e;
+        }
+    }
 }
