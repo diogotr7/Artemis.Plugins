@@ -16,17 +16,16 @@ namespace Artemis.Plugins.Modules.Discord
         [JsonProperty("cmd"), JsonConverter(typeof(StringEnumConverter))]
         public DiscordRpcCommand Command { get; }
 
-        public DiscordRequest(DiscordRpcCommand command)
+        public DiscordRequest(DiscordRpcCommand command, params (string Key, object Value)[] parameters)
         {
             Nonce = Guid.NewGuid();
-            Arguments = new JObject();
             Command = command;
-        }
+            Arguments = new JObject();
 
-        public DiscordRequest WithArgument(string key, object value)
-        {
-            Arguments.Add(key, JToken.FromObject(value));
-            return this;
+            foreach (var (Key, Value) in parameters)
+            {
+                Arguments.Add(Key, JToken.FromObject(Value));
+            }
         }
     }
 
@@ -35,7 +34,8 @@ namespace Artemis.Plugins.Modules.Discord
         [JsonProperty("evt"), JsonConverter(typeof(StringEnumConverter))]
         public DiscordRpcEvent Event { get; }
 
-        public DiscordSubscribe(DiscordRpcEvent e) : base(DiscordRpcCommand.SUBSCRIBE)
+        public DiscordSubscribe(DiscordRpcEvent e, params (string Key, object Value)[] parameters)
+            : base(DiscordRpcCommand.SUBSCRIBE, parameters)
         {
             Event = e;
         }
@@ -46,7 +46,8 @@ namespace Artemis.Plugins.Modules.Discord
         [JsonProperty("evt"), JsonConverter(typeof(StringEnumConverter))]
         public DiscordRpcEvent Event { get; }
 
-        public DiscordUnsubscribe(DiscordRpcEvent e) : base(DiscordRpcCommand.UNSUBSCRIBE)
+        public DiscordUnsubscribe(DiscordRpcEvent e, params (string Key, object Value)[] parameters)
+            : base(DiscordRpcCommand.UNSUBSCRIBE, parameters)
         {
             Event = e;
         }
