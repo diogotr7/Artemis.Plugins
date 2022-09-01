@@ -5,12 +5,10 @@ namespace Artemis.Plugins.Modules.Discord.DataModels
 {
     public class DiscordDataModel : DataModel
     {
-        public DiscordUserDataModel User { get; set; } = new DiscordUserDataModel();
+        public DiscordUserDataModel User { get; } = new();
 
-        public DiscordVoiceSettingsDataModel VoiceSettings { get; set; } = new DiscordVoiceSettingsDataModel();
+        public DiscordVoiceDataModel Voice { get; } = new();
 
-        public DiscordVoiceConnectionStatusDataModel VoiceConnection { get; set; } = new DiscordVoiceConnectionStatusDataModel();
-
-        public DataModelEvent<DiscordNotificationEventArgs> Notification { get; set; } = new DataModelEvent<DiscordNotificationEventArgs>();
+        public DataModelEvent<DiscordNotificationEventArgs> Notification { get;  } = new();
     }
 }
