@@ -7,8 +7,11 @@ using System.Threading.Tasks;
 
 namespace Artemis.Plugins.Modules.Discord.DataModels
 {
-    public class DiscordVoiceChannelMembers : DataModel { }
-    
+    public class DiscordVoiceChannelMembers : DataModel
+    {
+        public bool IsAnyoneElseSpeaking { get; internal set; }
+    }
+
     public class DiscordVoiceChannelMember : DataModel
     {
         public DiscordUserDataModel User { get; } = new();

@@ -11,11 +11,14 @@ namespace Artemis.Plugins.Modules.Discord.DataModels
 
         public string Id { get; set; }
 
+        public bool IsBot { get; set; }
+
         internal void Apply(User user)
         {
             Username = user.Username;
             Discriminator = user.Discriminator;
             Id = user.Id;
+            IsBot = user.Bot ?? false;
         }
     }
 }

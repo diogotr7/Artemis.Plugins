@@ -162,6 +162,8 @@ namespace Artemis.Plugins.Modules.Discord
             {
                 member.Value.IsSpeaking = true;
             }
+
+            UpdateIsAnyoneElseSpeaking();
         }
 
         private void OnSpeakingStopped(object sender, SpeakingStartStop e)
@@ -169,6 +171,19 @@ namespace Artemis.Plugins.Modules.Discord
             if (DataModel.Voice.Channel.Members.TryGetDynamicChild<DiscordVoiceChannelMember>(e.UserId, out var member))
             {
                 member.Value.IsSpeaking = false;
+            }
+
+            UpdateIsAnyoneElseSpeaking();
+        }
+
+        private void UpdateIsAnyoneElseSpeaking()
+        {
+            if (IsPropertyInUse(dm => dm.Voice.Channel.Members.IsAnyoneElseSpeaking, false))
+            {
+                DataModel.Voice.Channel.Members.IsAnyoneElseSpeaking =
+                    DataModel.Voice.Channel.Members.DynamicChildren.Values
+                        .OfType<DynamicChild<DiscordVoiceChannelMember>>()
+                        .Any(dvcm => dvcm.Value.User.Id != DataModel.User.Id && dvcm.Value.IsSpeaking);
             }
         }
 
