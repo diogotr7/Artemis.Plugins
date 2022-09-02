@@ -2,6 +2,7 @@
 using Artemis.Plugins.Modules.Discord.Authentication;
 using Artemis.Plugins.Modules.Discord.Enums;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Buffers;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace Artemis.Plugins.Modules.Discord
 {
-    public class DiscordRpcClient : IDisposable
+    public class DiscordRpcClient : IDiscordRpcClient
     {
         #region RPC Constants
         private const string RPC_VERSION = "1";
@@ -28,6 +29,7 @@ namespace Artemis.Plugins.Modules.Discord
         };
         #endregion
 
+        #region Fields
         private readonly Dictionary<Guid, TaskCompletionSource<DiscordResponse>> _pendingRequests;
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly string _clientId;
@@ -35,10 +37,70 @@ namespace Artemis.Plugins.Modules.Discord
         private NamedPipeClientStream _pipe;
         private Task _readLoopTask;
         private TaskCompletionSource<Ready> readyTcs;
+        #endregion
 
-        public event EventHandler<Authenticate> Authenticated;
-        public event EventHandler<DiscordEvent> EventReceived;
+        #region Events
+        /// <summary>
+        /// Sent when an error occurs.
+        /// </summary>
         public event EventHandler<Exception> Error;
+
+        /// <summary>
+        /// Generic event received
+        /// </summary>
+        public event EventHandler<DiscordEvent> UnhandledEventReceived;
+
+        /// <summary>
+        /// Sent when the client is authenticated and ready to use.
+        /// </summary>
+        public event EventHandler<Authenticate> Authenticated;
+
+        /// <summary>
+        /// Sent when the client's voice settings update.
+        /// </summary>
+        public event EventHandler<VoiceSettings> VoiceSettingsUpdated;
+
+        /// <summary>
+        /// Sent when the client's voice connection status changes.
+        /// </summary>
+        public event EventHandler<VoiceConnectionStatus> VoiceConnectionStatusUpdated;
+
+        /// <summary>
+        /// Sent when the client receives a notification (mention or new message in eligible channels)
+        /// </summary>
+        public event EventHandler<Notification> NotificationReceived;
+
+        /// <summary>
+        /// Sent when a user in a subscribed voice channel speaks.
+        /// </summary>
+        public event EventHandler<SpeakingStartStop> SpeakingStarted;
+
+        /// <summary>
+        /// Sent when a user in a subscribed voice channel stops speaking.
+        /// </summary>
+        public event EventHandler<SpeakingStartStop> SpeakingStopped;
+
+        /// <summary>
+        /// Sent when the client joins (or leaves)  a voice channel.
+        /// </summary>
+        public event EventHandler<VoiceChannelSelect> VoiceChannelUpdated;
+
+        /// <summary>
+        /// Sent when a user joins a subscribed voice channel.
+        /// </summary>
+        public event EventHandler<UserVoiceState> VoiceStateCreated;
+
+        /// <summary>
+        /// Sent when a user's voice state changes in a subscribed voice channel (mute, volume, etc.).
+        /// </summary>
+        public event EventHandler<UserVoiceState> VoiceStateUpdated;
+
+        /// <summary>
+        /// Sent when a user parts a subscribed voice channel.
+        /// </summary>
+        public event EventHandler<UserVoiceState> VoiceStateDeleted;
+
+        #endregion
 
         public DiscordRpcClient(string clientId, string clientSecret, PluginSetting<SavedToken> tokenSetting)
         {
@@ -58,7 +120,7 @@ namespace Artemis.Plugins.Modules.Discord
                     _pipe = new(".", GetPipeName(i), PipeDirection.InOut, PipeOptions.Asynchronous);
                     _pipe.Connect(timeoutMs);
                     _readLoopTask = Task.Run(ReadLoop, _cancellationTokenSource.Token);
-                    Task.Run(Initialize, _cancellationTokenSource.Token);
+                    Task.Run(InitializeAsync, _cancellationTokenSource.Token);
                     return;
                 }
                 catch
@@ -67,31 +129,44 @@ namespace Artemis.Plugins.Modules.Discord
                 }
             }
 
-            throw new Exception("Failed to connect to Discord");
+            throw new DiscordRpcClientException("Failed to connect to Discord");
         }
 
-        public async Task<DiscordResponse<T>> SendRequestAsync<T>(DiscordRequest request, int timeoutMs = 1000) where T : class
+        public async Task SubscribeAsync(DiscordRpcEvent evt, params (string Key, object Value)[] parameters)
         {
-            DiscordResponse response = await SendRequestAsync(request, timeoutMs);
+            var subscribe = new DiscordSubscribe(evt, parameters);
 
-            if (response is not DiscordResponse<T> typedResponse)
-                throw new DiscordRpcClientException("Discord response was not of the specified type.", new InvalidCastException());
-
-            return typedResponse;
+            await SendRequestWithResponseTypeAsync<Subscription>(subscribe);
         }
 
-        private async Task SendHandshakeAsync()
+        public async Task UnsubscribeAsync(DiscordRpcEvent evt, params (string Key, object Value)[] parameters)
+        {
+            var subscribe = new DiscordUnsubscribe(evt, parameters);
+
+            await SendRequestWithResponseTypeAsync<Subscription>(subscribe);
+        }
+
+        public async Task<T> GetAsync<T>(DiscordRpcCommand command, params (string Key, object Value)[] parameters) where T : class
+        {
+            var request = new DiscordRequest(command, parameters);
+
+            DiscordResponse<T> response = await SendRequestWithResponseTypeAsync<T>(request);
+
+            return response.Data;
+        }
+
+        private async Task HandshakeAsync()
         {
             string handshake = JsonConvert.SerializeObject(new { v = RPC_VERSION, client_id = _clientId }, _jsonSerializerSettings);
 
             await SendPacketAsync(handshake, RpcPacketType.HANDSHAKE);
         }
 
-        private async Task Initialize()
+        private async Task InitializeAsync()
         {
             readyTcs = new();
 
-            await SendHandshakeAsync();
+            await HandshakeAsync();
 
             //this task will complete once the Ready event is received
             await readyTcs.Task;
@@ -109,10 +184,10 @@ namespace Artemis.Plugins.Modules.Discord
                 //the user is using the plugin. We need to ask for their permission
                 //to get a token from discord. 
                 //This token can be saved and reused (+ refreshed) later.
-                DiscordResponse<Authorize> authorizeResponse = await SendRequestAsync<Authorize>(
-                    new DiscordRequest(DiscordRpcCommand.AUTHORIZE)
-                        .WithArgument("client_id", _clientId)
-                        .WithArgument("scopes", new string[] { "rpc", "identify", "rpc.notifications.read" }),
+                DiscordResponse<Authorize> authorizeResponse = await SendRequestWithResponseTypeAsync<Authorize>(
+                    new DiscordRequest(DiscordRpcCommand.AUTHORIZE,
+                        ("client_id", _clientId),
+                        ("scopes", new string[] { "rpc", "identify", "rpc.notifications.read" })),
                     timeoutMs: 30000);//high timeout so the user has time to click the button
 
                 await _authClient.GetAccessTokenAsync(authorizeResponse.Data.Code);
@@ -126,9 +201,9 @@ namespace Artemis.Plugins.Modules.Discord
                 await _authClient.RefreshAccessTokenAsync();
             }
 
-            DiscordResponse<Authenticate> authenticateResponse = await SendRequestAsync<Authenticate>(
-                    new DiscordRequest(DiscordRpcCommand.AUTHENTICATE)
-                        .WithArgument("access_token", _authClient.AccessToken)
+            DiscordResponse<Authenticate> authenticateResponse = await SendRequestWithResponseTypeAsync<Authenticate>(
+                    new DiscordRequest(DiscordRpcCommand.AUTHENTICATE,
+                        ("access_token", _authClient.AccessToken))
             );
 
             return authenticateResponse.Data;
@@ -140,9 +215,9 @@ namespace Artemis.Plugins.Modules.Discord
             {
                 try
                 {
-                    var (opCode, data) = await ReadMessage();
+                    var (opCode, data) = await ReadMessageAsync();
 
-                    await ProcessPipeMessageAsync(opCode, data);
+                    await ProcessMessageAsync(opCode, data);
 
                     //this is not really this classes job but it's easier to put it here :S
                     //It should only execute once a week or so, which is how long the token
@@ -157,7 +232,7 @@ namespace Artemis.Plugins.Modules.Discord
             }
         }
 
-        private async Task<(RpcPacketType, string)> ReadMessage()
+        private async Task<(RpcPacketType, string)> ReadMessageAsync()
         {
             byte[] headerBuffer = null;
             byte[] dataBuffer = null;
@@ -191,7 +266,7 @@ namespace Artemis.Plugins.Modules.Discord
             }
         }
 
-        private async Task ProcessPipeMessageAsync(RpcPacketType opCode, string data)
+        private async Task ProcessMessageAsync(RpcPacketType opCode, string data)
         {
             if (opCode == RpcPacketType.PING)
             {
@@ -252,10 +327,10 @@ namespace Artemis.Plugins.Modules.Discord
             int bufferSize = HEADER_SIZE + stringByteLength;
             byte[] buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
 
-            if (!BitConverter.TryWriteBytes(new Span<byte>(buffer, 0, 4), (int)rpcPacketType))
+            if (!BitConverter.TryWriteBytes(buffer.AsSpan(0, 4), (int)rpcPacketType))
                 throw new DiscordRpcClientException("Error writing rpc packet type.");
 
-            if (!BitConverter.TryWriteBytes(new Span<byte>(buffer, 4, 4), (int)stringByteLength))
+            if (!BitConverter.TryWriteBytes(buffer.AsSpan(4, 4), stringByteLength))
                 throw new DiscordRpcClientException("Error writing string byte length.");
 
             if (Encoding.UTF8.GetBytes(stringData, 0, stringData.Length, buffer, HEADER_SIZE) != stringData.Length)
@@ -289,6 +364,16 @@ namespace Artemis.Plugins.Modules.Discord
             return await responseCompletionSource.Task;
         }
 
+        private async Task<DiscordResponse<T>> SendRequestWithResponseTypeAsync<T>(DiscordRequest request, int timeoutMs = 1000) where T : class
+        {
+            DiscordResponse response = await SendRequestAsync(request, timeoutMs);
+
+            if (response is not DiscordResponse<T> typedResponse)
+                throw new DiscordRpcClientException("Discord response was not of the specified type.", new InvalidCastException());
+
+            return typedResponse;
+        }
+
         private void HandlePendingRequest(DiscordResponse message)
         {
             if (_pendingRequests.TryGetValue(message.Nonce, out TaskCompletionSource<DiscordResponse> tcs))
@@ -311,12 +396,40 @@ namespace Artemis.Plugins.Modules.Discord
                 case DiscordEvent<Ready> ready:
                     readyTcs.SetResult(ready.Data);
                     break;
+                case DiscordEvent<VoiceSettings> voice:
+                    VoiceSettingsUpdated?.Invoke(this, voice.Data);
+                    break;
+                case DiscordEvent<VoiceConnectionStatus> voiceStatus:
+                    VoiceConnectionStatusUpdated?.Invoke(this, voiceStatus.Data);
+                    break;
+                case DiscordEvent<Notification> notif:
+                    NotificationReceived?.Invoke(this, notif.Data);
+                    break;
+                case DiscordEvent<SpeakingStartStop> stop when stop.Event == DiscordRpcEvent.SPEAKING_STOP:
+                    SpeakingStopped?.Invoke(this, stop.Data);
+                    break;
+                case DiscordEvent<SpeakingStartStop> start when start.Event == DiscordRpcEvent.SPEAKING_START:
+                    SpeakingStarted?.Invoke(this, start.Data);
+                    break;
+                case DiscordEvent<VoiceChannelSelect> voiceSelect:
+                    VoiceChannelUpdated?.Invoke(this, voiceSelect.Data);
+                    break;
+                case DiscordEvent<UserVoiceState> voiceCreate when voiceCreate.Event == DiscordRpcEvent.VOICE_STATE_CREATE:
+                    VoiceStateCreated?.Invoke(this, voiceCreate.Data);
+                    break;
+                case DiscordEvent<UserVoiceState> voiceUpdate when voiceUpdate.Event == DiscordRpcEvent.VOICE_STATE_UPDATE:
+                    VoiceStateUpdated?.Invoke(this, voiceUpdate.Data);
+                    break;
+                case DiscordEvent<UserVoiceState> voiceDelete when voiceDelete.Event == DiscordRpcEvent.VOICE_STATE_DELETE:
+                    VoiceStateDeleted?.Invoke(this, voiceDelete.Data);
+                    break;
                 default:
-                    EventReceived?.Invoke(this, discordEvent);
+                    UnhandledEventReceived?.Invoke(this, discordEvent);
                     break;
             }
         }
 
+        #region Helper Pipe Methods
         private static string GetPipeName(int index)
         {
             const string PIPE_NAME = "discord-ipc-{0}";
@@ -337,6 +450,7 @@ namespace Artemis.Plugins.Modules.Discord
                 Environment.GetEnvironmentVariable("TEMP") ??
                 "/tmp";
         }
+        #endregion
 
         #region IDisposable
         private bool disposedValue;
@@ -353,7 +467,7 @@ namespace Artemis.Plugins.Modules.Discord
                         _authClient.Dispose();
 
                         try { _readLoopTask.Wait(); }
-                        catch { }//catch everything
+                        catch { /*catch everything*/ }
 
                         _cancellationTokenSource.Dispose();
                     }

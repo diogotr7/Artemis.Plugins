@@ -18,7 +18,7 @@ namespace Artemis.Plugins.Modules.Discord
     [KnownSubType(typeof(DiscordResponse<Authorize>), DiscordRpcCommand.AUTHORIZE)]
     [KnownSubType(typeof(DiscordResponse<Authenticate>), DiscordRpcCommand.AUTHENTICATE)]
     [KnownSubType(typeof(DiscordResponse<VoiceSettings>), DiscordRpcCommand.GET_VOICE_SETTINGS)]
-    [KnownSubType(typeof(DiscordResponse<Subscribe>), DiscordRpcCommand.SUBSCRIBE)]
+    [KnownSubType(typeof(DiscordResponse<Subscription>), DiscordRpcCommand.SUBSCRIBE)]
     [KnownSubType(typeof(DiscordResponse<SelectedVoiceChannel>), DiscordRpcCommand.GET_SELECTED_VOICE_CHANNEL)]
     public class DiscordResponse<T> : DiscordResponse
     {

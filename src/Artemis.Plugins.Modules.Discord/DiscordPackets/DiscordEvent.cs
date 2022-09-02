@@ -16,9 +16,12 @@ namespace Artemis.Plugins.Modules.Discord
     [KnownSubType(typeof(DiscordEvent<VoiceSettings>), DiscordRpcEvent.VOICE_SETTINGS_UPDATE)]
     [KnownSubType(typeof(DiscordEvent<VoiceConnectionStatus>), DiscordRpcEvent.VOICE_CONNECTION_STATUS)]
     [KnownSubType(typeof(DiscordEvent<Notification>), DiscordRpcEvent.NOTIFICATION_CREATE)]
-    [KnownSubType(typeof(DiscordEvent<SpeakingStop>), DiscordRpcEvent.SPEAKING_STOP)]
-    [KnownSubType(typeof(DiscordEvent<SpeakingStart>), DiscordRpcEvent.SPEAKING_START)]
+    [KnownSubType(typeof(DiscordEvent<SpeakingStartStop>), DiscordRpcEvent.SPEAKING_STOP)]
+    [KnownSubType(typeof(DiscordEvent<SpeakingStartStop>), DiscordRpcEvent.SPEAKING_START)]
     [KnownSubType(typeof(DiscordEvent<VoiceChannelSelect>), DiscordRpcEvent.VOICE_CHANNEL_SELECT)]
+    [KnownSubType(typeof(DiscordEvent<UserVoiceState>), DiscordRpcEvent.VOICE_STATE_CREATE)]
+    [KnownSubType(typeof(DiscordEvent<UserVoiceState>), DiscordRpcEvent.VOICE_STATE_UPDATE)]
+    [KnownSubType(typeof(DiscordEvent<UserVoiceState>), DiscordRpcEvent.VOICE_STATE_DELETE)]
     public class DiscordEvent<T> : DiscordEvent
     {
         public T Data { get; init; }
