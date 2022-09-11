@@ -3,7 +3,7 @@
   "Api": "1.0",
   "Name": "Gif Layer Brush",
   "Author": "diogotr7",
-  "Icon": "Gif",
+  "Icon": "AnimationPlay",
   "Description": "Provides a layer that allows Artemis to display GIFs on your devices",
   "Version": "1.0.0.0",
   "Main": "Artemis.Plugins.LayerBrushes.Gif.dll"

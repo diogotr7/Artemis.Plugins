@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace Artemis.Plugins.Modules.Spotify
 {
-    [PluginFeature(AlwaysEnabled = true, Name = "Spotify", Icon = "Spotify")]
+    [PluginFeature(Name = "Spotify", AlwaysEnabled = true)]
     public class SpotifyModule : Module<SpotifyDataModel>
     {
         public override List<IModuleActivationRequirement> ActivationRequirements { get; } = new();

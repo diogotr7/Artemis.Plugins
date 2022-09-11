@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="OBS.svg" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="obs.png" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   
   <ItemGroup>

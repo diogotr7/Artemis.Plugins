@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace Artemis.Plugins.LayerBrushes.Chroma.Module
 {
-    [PluginFeature(Name = "Chroma", Icon = "Snake")]
+    [PluginFeature(Name = "Chroma")]
     public class ChromaModule : Module<ChromaDataModel>
     {
         public override List<IModuleActivationRequirement> ActivationRequirements { get; } = new();

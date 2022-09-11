@@ -3,7 +3,7 @@
   "Api": "1.0",
   "Name": "Open Broadcaster Software",
   "Author": "diogotr7",
-  "Icon": "OBS.svg",
+  "Icon": "obs.png",
   "Description": "Provides OBS information like streaming and recording status, current scene, skipped frames, etc.",
   "Version": "1.0.0.0",
   "Main": "Artemis.Plugins.Modules.OBS.dll"
