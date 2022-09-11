@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: [windows-latest]
+    runs-on: windows-latest
 
     steps:
       - name: Setup .NET 6.0
@@ -17,7 +17,6 @@ jobs:
         with:
           repository: Artemis-RGB/Artemis
           path: Artemis
-          ref: feature/avalonia
 
       - name: Build Artemis Core
         run: dotnet build .\Artemis\src\Artemis.Core\Artemis.Core.csproj
@@ -71,12 +70,6 @@ jobs:
         with:
           name: Particle
           path: .\Plugins\src\Artemis.Plugins.LayerBrushes.Particle\bin\x64\Release\net6.0\publish
-
-      - name: Upload Fallout 4
-        uses: actions/upload-artifact@v2
-        with:
-          name: Fallout4
-          path: .\Plugins\src\Artemis.Plugins.Modules.Fallout4\bin\x64\Release\net6.0\publish
           
       - name: Upload VoiceMeeter
         uses: actions/upload-artifact@v2

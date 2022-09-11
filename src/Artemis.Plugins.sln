@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.LayerBrushe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.LayerBrushes.Chroma", "Artemis.Plugins.LayerBrushes.Chroma\Artemis.Plugins.LayerBrushes.Chroma.csproj", "{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.Modules.Fallout4", "Artemis.Plugins.Modules.Fallout4\Artemis.Plugins.Modules.Fallout4.csproj", "{EA3D651A-1487-40D2-88DC-C6C5FBAB42FA}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.LayerBrushes.Particle", "Artemis.Plugins.LayerBrushes.Particle\Artemis.Plugins.LayerBrushes.Particle.csproj", "{058E7B0B-141C-4169-9A7C-A18680C3BBCD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.Modules.Discord", "Artemis.Plugins.Modules.Discord\Artemis.Plugins.Modules.Discord.csproj", "{69EC267A-EDA1-4166-AC28-011E28ECE78F}"
@@ -33,10 +31,6 @@ Global
 		{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61}.Debug|x64.Build.0 = Debug|x64
 		{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61}.Release|x64.ActiveCfg = Release|x64
 		{3FF2D4CC-3798-4B91-A6D4-6A29D6A54A61}.Release|x64.Build.0 = Release|x64
-		{EA3D651A-1487-40D2-88DC-C6C5FBAB42FA}.Debug|x64.ActiveCfg = Debug|x64
-		{EA3D651A-1487-40D2-88DC-C6C5FBAB42FA}.Debug|x64.Build.0 = Debug|x64
-		{EA3D651A-1487-40D2-88DC-C6C5FBAB42FA}.Release|x64.ActiveCfg = Release|x64
-		{EA3D651A-1487-40D2-88DC-C6C5FBAB42FA}.Release|x64.Build.0 = Release|x64
 		{058E7B0B-141C-4169-9A7C-A18680C3BBCD}.Debug|x64.ActiveCfg = Debug|x64
 		{058E7B0B-141C-4169-9A7C-A18680C3BBCD}.Debug|x64.Build.0 = Debug|x64
 		{058E7B0B-141C-4169-9A7C-A18680C3BBCD}.Release|x64.ActiveCfg = Release|x64
