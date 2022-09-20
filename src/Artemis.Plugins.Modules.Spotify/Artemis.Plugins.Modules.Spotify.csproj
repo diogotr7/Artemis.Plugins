@@ -1,45 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <Platforms>x64</Platforms>
-    <EnableDynamicLoading>true</EnableDynamicLoading>
-    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <Platforms>x64</Platforms>
+        <EnableDynamicLoading>true</EnableDynamicLoading>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Avalonia" Version="0.10.15" />
-    <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.15" />
-    <PackageReference Include="ReactiveUI" Version="17.1.50" />
-    <PackageReference Include="ReactiveUI.Validation" Version="2.2.1" />
-    <PackageReference Include="Serilog" Version="2.10.0" />
-    <PackageReference Include="SkiaSharp" Version="2.88.1-preview.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="EmbedIO" Version="3.4.3" />
-    <PackageReference Include="Flurl.Http" Version="3.2.4" />
+    <ItemGroup>
+        <PackageReference
+            Include="ArtemisRGB.UI.Shared"
+            IncludeAssets="compile;build"
+            Version="1.0.0-feature-gh-actions.20220920.3" />
+    </ItemGroup>
 
-    <!--All packages Artemis already references are compile-only dependencies-->
-    <PackageReference Update="@(PackageReference)" IncludeAssets="compile;build" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="SpotifyAPI.Web" Version="6.2.2" />
+        <PackageReference Include="SpotifyAPI.Web.Auth" Version="6.2.2" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="SpotifyAPI.Web" Version="6.2.2" />
-    <PackageReference Include="SpotifyAPI.Web.Auth" Version="6.2.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Artemis.Core">
-      <HintPath>..\..\..\Artemis\src\Artemis.Core\bin\net6.0\Artemis.Core.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Artemis.UI.Shared">
-      <HintPath>..\..\..\Artemis\src\Artemis.UI.Shared\bin\net6.0\Artemis.UI.Shared.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="plugin.json" CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="no-user.png" CopyToOutputDirectory="PreserveNewest" />
-    <PackageReference Include="ArtemisRGB.Plugins.BuildTask" Version="1.1.0" />
-  </ItemGroup>
+    <ItemGroup>
+        <Content Include="plugin.json" CopyToOutputDirectory="PreserveNewest" />
+        <Content Include="no-user.png" CopyToOutputDirectory="PreserveNewest" />
+        <PackageReference Include="ArtemisRGB.Plugins.BuildTask" Version="1.1.0" />
+    </ItemGroup>
 </Project>
