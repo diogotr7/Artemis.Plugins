@@ -7,15 +7,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference
-            Include="ArtemisRGB.UI.Shared"
-            IncludeAssets="compile;build"
-            Version="1.0.0-feature-gh-actions.20220920.3" />
+        <PackageReference Include="ArtemisRGB.UI.Shared" IncludeAssets="compile;build" Version="1.2022.1006.1" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="SpotifyAPI.Web" Version="6.2.2" />
-        <PackageReference Include="SpotifyAPI.Web.Auth" Version="6.2.2" />
+        <PackageReference Include="SpotifyAPI.Web" Version="6.3.0" />
+        <PackageReference Include="SpotifyAPI.Web.Auth" Version="6.3.0" />
     </ItemGroup>
 
     <ItemGroup>
