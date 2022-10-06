@@ -70,13 +70,21 @@ namespace Artemis.Plugins.LayerBrushes.Chroma.LayerBrushes
                 return SKColor.Empty;
 
             if (_colors.TryGetValue(led.RgbLed.Id, out SKColor color))
-                return color;
+                return ProcessColor(color);
 
             //According to razer docs, chromaLink1 is the "catchall" ledId. If an LED doesn't have a mapping, use this color.
             if (Properties.UseDefaultLed.CurrentValue && _colors.TryGetValue(LedId.LedStripe1, out var chromaLink1))
-                return chromaLink1;
+                return ProcessColor(chromaLink1);
 
             return SKColor.Empty;
+        }
+
+        private SKColor ProcessColor(SKColor color)
+        {
+            if (Properties.TransparentBlack.CurrentValue && color == SKColors.Black)
+                return SKColor.Empty;
+
+            return color;
         }
     }
 }

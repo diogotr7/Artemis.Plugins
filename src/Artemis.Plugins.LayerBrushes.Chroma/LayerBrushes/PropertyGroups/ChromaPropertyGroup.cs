@@ -7,9 +7,13 @@ namespace Artemis.Plugins.LayerBrushes.Chroma.PropertyGroups
        [PropertyDescription(Description = "Colors unmapped LEDs with the default color")]
         public LayerProperty<bool> UseDefaultLed { get; set; }
 
+        [PropertyDescription(Description = "Turns black LEDs transparent")]
+        public LayerProperty<bool> TransparentBlack { get; set; }
+
         protected override void PopulateDefaults()
         {
             UseDefaultLed.DefaultValue = true;
+            TransparentBlack.DefaultValue = false;
         }
 
         protected override void EnableProperties()

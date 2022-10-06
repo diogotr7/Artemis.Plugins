@@ -2,18 +2,19 @@
 using Artemis.UI.Shared;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
-using Flurl.Http;
 using SpotifyAPI.Web;
 using SpotifyAPI.Web.Auth;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Artemis.Plugins.Modules.Spotify
 {
     public class SpotifyConfigurationDialogViewModel : PluginConfigurationViewModel
     {
+        private readonly HttpClient _client = new();
         private readonly PluginSetting<PKCETokenResponse> _token;
         private readonly SpotifyModule _dataModelExpansion;
 
@@ -128,7 +129,7 @@ namespace Artemis.Plugins.Modules.Spotify
 
                     if (user.Images.Count < 1)
                         return;
-                    ProfilePicture = new Bitmap(await user.Images[0].Url.GetStreamAsync());
+                    ProfilePicture = new Bitmap(await _client.GetStreamAsync(user.Images[0].Url));
                 }
                 else
                 {
