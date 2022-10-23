@@ -129,13 +129,18 @@ namespace Artemis.Plugins.Modules.Spotify
 
                     if (user.Images.Count < 1)
                         return;
-                    ProfilePicture = new Bitmap(await _client.GetStreamAsync(user.Images[0].Url));
+                    try
+                    {
+                        ProfilePicture = new Bitmap(await _client.GetStreamAsync(user.Images[0].Url));
+                    }
+                    catch
+                    {
+                        ProfilePicture = new Bitmap(new FileStream(Plugin.ResolveRelativePath("no-user.png"), FileMode.Open, FileAccess.Read));
+                    }
+                    return;
                 }
-                else
-                {
-                    ProfilePicture = new Bitmap(new FileStream(Plugin.ResolveRelativePath("no-user.png"), FileMode.Open, FileAccess.Read));
-                    Username = "Not logged in";
-                }
+
+                Username = "Not logged in";
             });
         }
     }

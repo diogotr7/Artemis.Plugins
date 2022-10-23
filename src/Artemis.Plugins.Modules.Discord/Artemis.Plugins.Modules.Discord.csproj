@@ -7,11 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="ArtemisRGB.UI.Shared" IncludeAssets="compile;build" Version="1.2022.1006.1" />
+        <PackageReference Include="ArtemisRGB.UI.Shared" IncludeAssets="compile;build;buildTransitive" Version="1.2022.1014.1" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="JsonSubTypes" Version="1.9.0" />
+        <PackageReference Include="JsonSubTypes" Version="2.0.1" />
     </ItemGroup>
 
     <ItemGroup>
