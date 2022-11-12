@@ -20,7 +20,7 @@ namespace Artemis.Plugins.Modules.VoiceMeeter
         {
             var vmLogin = VoiceMeeterRemote.Login();
             if (vmLogin != VoiceMeeterLoginResponse.OK)
-                throw new ArtemisPluginException("Error connecting to voicemeeter");
+                throw new ArtemisPluginException($"Error connecting to voicemeeter: {vmLogin}");
 
             GetInitialInformation();
         }
