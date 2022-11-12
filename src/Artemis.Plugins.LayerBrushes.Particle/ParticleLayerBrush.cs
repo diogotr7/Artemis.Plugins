@@ -54,10 +54,10 @@ namespace Artemis.Plugins.LayerBrushes.Particle
                         paint.Shader = SKShader.CreateColor(Properties.Color.Color);
                         break;
                     case ParticleColorMode.Sweep:
-                        paint.Shader = SKShader.CreateSweepGradient(particle.Position, Properties.Color.Gradient.CurrentValue.GetColorsArray());
+                        paint.Shader = SKShader.CreateSweepGradient(particle.Position, Properties.Color.Gradient.CurrentValue.Colors);
                         break;
                     case ParticleColorMode.Radial:
-                        paint.Shader = SKShader.CreateRadialGradient(particle.Position, particle.Radius, Properties.Color.Gradient.CurrentValue.GetColorsArray(), SKShaderTileMode.Clamp);
+                        paint.Shader = SKShader.CreateRadialGradient(particle.Position, particle.Radius, Properties.Color.Gradient.CurrentValue.Colors, SKShaderTileMode.Clamp);
                         break;
                     default:
                         break;
