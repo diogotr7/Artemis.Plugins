@@ -19,7 +19,7 @@ namespace Artemis.Plugins.Modules.VoiceMeeter
         public override void Enable()
         {
             var vmLogin = VoiceMeeterRemote.Login();
-            if (vmLogin != VoiceMeeterLoginResponse.OK)
+            if (vmLogin != VoiceMeeterLoginResponse.OK && vmLogin != VoiceMeeterLoginResponse.AlreadyLoggedIn)
                 throw new ArtemisPluginException($"Error connecting to voicemeeter: {vmLogin}");
 
             GetInitialInformation();
