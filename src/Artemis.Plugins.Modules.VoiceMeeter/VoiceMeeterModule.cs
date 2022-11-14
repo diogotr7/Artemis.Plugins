@@ -13,8 +13,11 @@ namespace Artemis.Plugins.Modules.VoiceMeeter
         private VoiceMeeterStripDataModel[] _strips;
         private VoiceMeeterBusDataModel[] _busses;
 
-        public override List<IModuleActivationRequirement> ActivationRequirements { get; }
-        = new List<IModuleActivationRequirement> { new ProcessActivationRequirement("voicemeeter8x64") };
+        public override List<IModuleActivationRequirement> ActivationRequirements { get; } = new()
+        {
+            new ProcessActivationRequirement("voicemeeter8x64"),
+            new ProcessActivationRequirement("voicemeeterpro"),
+        };
 
         public override void Enable()
         {
