@@ -1,4 +1,4 @@
-﻿using Artemis.Plugins.Modules.Discord.Enums;
+using Artemis.Plugins.Modules.Discord.Enums;
 using System;
 using System.Threading.Tasks;
 
@@ -7,7 +7,7 @@ namespace Artemis.Plugins.Modules.Discord
     public interface IDiscordRpcClient : IDisposable
     {
         event EventHandler<Authenticate> Authenticated;
-        event EventHandler<Exception> Error;
+        event EventHandler<DiscordRpcClientException> Error;
         event EventHandler<Notification> NotificationReceived;
         event EventHandler<SpeakingStartStop> SpeakingStarted;
         event EventHandler<SpeakingStartStop> SpeakingStopped;

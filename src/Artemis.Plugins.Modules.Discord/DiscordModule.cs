@@ -23,7 +23,7 @@ namespace Artemis.Plugins.Modules.Discord
         private readonly PluginSetting<SavedToken> _savedToken;
         private readonly object _discordClientLock;
 
-        private IDiscordRpcClient discordClient;
+        private IDiscordRpcClient? discordClient;
 
         public DiscordModule(ILogger logger, PluginSettings pluginSettings)
         {
@@ -71,6 +71,16 @@ namespace Artemis.Plugins.Modules.Discord
                 return;
             }
 
+            ConnectToDiscord();
+        }
+
+        public override void ModuleDeactivated(bool isOverride)
+        {
+            DisconnectFromDiscord();
+        }
+
+        private void ConnectToDiscord()
+        {
             lock (_discordClientLock)
             {
                 discordClient = new DiscordRpcClient(_clientId.Value, _clientSecret.Value, _savedToken);
@@ -90,8 +100,11 @@ namespace Artemis.Plugins.Modules.Discord
             }
         }
 
-        public override void ModuleDeactivated(bool isOverride)
+        private void DisconnectFromDiscord()
         {
+            if (discordClient is null)
+                return;
+            
             lock (_discordClientLock)
             {
                 discordClient.Authenticated -= OnAuthenticated;
@@ -107,12 +120,16 @@ namespace Artemis.Plugins.Modules.Discord
                 discordClient.VoiceStateDeleted -= OnVoiceStateDeleted;
                 discordClient.VoiceStateUpdated -= OnVoiceStateUpdated;
                 discordClient.Dispose();
+                discordClient = null;
             }
         }
 
         #region Event Handlers
-        private async void OnAuthenticated(object sender, Authenticate e)
+        private async void OnAuthenticated(object? sender, Authenticate e)
         {
+            if (discordClient is null)
+                return;
+            
             try
             {
                 DataModel.User.Apply(e.User);
@@ -139,12 +156,23 @@ namespace Artemis.Plugins.Modules.Discord
             }
         }
 
-        private void OnError(object sender, Exception e)
+        private void OnError(object? sender, DiscordRpcClientException e)
         {
             _logger.Error(e, "Discord Rpc client error");
+
+            if (!e.ShouldReconnect)
+                return;
+
+            //i hate this but otherwise it won't dispose properly.
+            //this method is still running in the read loop thread.
+            //todo: maybe switch to BeginRead instead of the loop?
+            Task.Run(() =>
+            {
+                DisconnectFromDiscord();
+            });
         }
 
-        private void OnNotificationReceived(object sender, Notification e)
+        private void OnNotificationReceived(object? sender, Notification e)
         {
             DataModel.Notification.Trigger(new DiscordNotificationEventArgs
             {
@@ -156,7 +184,7 @@ namespace Artemis.Plugins.Modules.Discord
             });
         }
 
-        private void OnSpeakingStarted(object sender, SpeakingStartStop e)
+        private void OnSpeakingStarted(object? sender, SpeakingStartStop e)
         {
             if (DataModel.Voice.Channel.Members.TryGetDynamicChild<DiscordVoiceChannelMember>(e.UserId, out var member))
             {
@@ -166,7 +194,7 @@ namespace Artemis.Plugins.Modules.Discord
             UpdateIsAnyoneElseSpeaking();
         }
 
-        private void OnSpeakingStopped(object sender, SpeakingStartStop e)
+        private void OnSpeakingStopped(object? sender, SpeakingStartStop e)
         {
             if (DataModel.Voice.Channel.Members.TryGetDynamicChild<DiscordVoiceChannelMember>(e.UserId, out var member))
             {
@@ -187,7 +215,7 @@ namespace Artemis.Plugins.Modules.Discord
             }
         }
 
-        private void OnUnhandledEventReceived(object sender, DiscordEvent discordEvent)
+        private void OnUnhandledEventReceived(object? sender, DiscordEvent discordEvent)
         {
             if (!_logger.IsEnabled(Serilog.Events.LogEventLevel.Verbose))
                 return;
@@ -202,8 +230,11 @@ namespace Artemis.Plugins.Modules.Discord
             }
         }
 
-        private async void OnVoiceChannelUpdated(object sender, VoiceChannelSelect e)
+        private async void OnVoiceChannelUpdated(object? sender, VoiceChannelSelect e)
         {
+            if (discordClient is null)
+                return;
+
             try
             {
                 if (e.ChannelId is not null)//join voice channel
@@ -224,17 +255,17 @@ namespace Artemis.Plugins.Modules.Discord
             }
         }
 
-        private void OnVoiceConnectionStatusUpdated(object sender, VoiceConnectionStatus e)
+        private void OnVoiceConnectionStatusUpdated(object? sender, VoiceConnectionStatus e)
         {
             DataModel.Voice.Connection.Apply(e);
         }
 
-        private void OnVoiceSettingsUpdated(object sender, VoiceSettings e)
+        private void OnVoiceSettingsUpdated(object? sender, VoiceSettings e)
         {
             DataModel.Voice.Settings.Apply(e);
         }
 
-        private void OnVoiceStateCreated(object sender, UserVoiceState e)
+        private void OnVoiceStateCreated(object? sender, UserVoiceState e)
         {
             if (!DataModel.Voice.Channel.Members.TryGetDynamicChild<DiscordVoiceChannelMember>(e.User.Id, out var member))
                 member = DataModel.Voice.Channel.Members.AddDynamicChild<DiscordVoiceChannelMember>(e.User.Id, new(), e.Nick);
@@ -242,12 +273,12 @@ namespace Artemis.Plugins.Modules.Discord
             member.Value.Apply(e);
         }
 
-        private void OnVoiceStateDeleted(object sender, UserVoiceState e)
+        private void OnVoiceStateDeleted(object? sender, UserVoiceState e)
         {
             DataModel.Voice.Channel.Members.RemoveDynamicChildByKey(e.User.Id);
         }
 
-        private void OnVoiceStateUpdated(object sender, UserVoiceState e)
+        private void OnVoiceStateUpdated(object? sender, UserVoiceState e)
         {
             if (DataModel.Voice.Channel.Members.TryGetDynamicChild<DiscordVoiceChannelMember>(e.User.Id, out var member))
             {
@@ -280,6 +311,9 @@ namespace Artemis.Plugins.Modules.Discord
 
         private async Task SubscribeToVoiceChannelEvents(string channelId)
         {
+            if (discordClient is null)
+                return;
+
             await discordClient.SubscribeAsync(DiscordRpcEvent.SPEAKING_START, ("channel_id", channelId));
             await discordClient.SubscribeAsync(DiscordRpcEvent.SPEAKING_STOP, ("channel_id", channelId));
             await discordClient.SubscribeAsync(DiscordRpcEvent.VOICE_STATE_CREATE, ("channel_id", channelId));
@@ -289,7 +323,7 @@ namespace Artemis.Plugins.Modules.Discord
 
         private async Task UnubscribeFromVoiceChannelEvents()
         {
-            //toto: do we even need to do this?
+            //todo: do we even need to do this?
             //await discordClient.UnsubscribeAsync(DiscordRpcEvent.SPEAKING_START, ("channel_id", channelId));
             //await discordClient.UnsubscribeAsync(DiscordRpcEvent.SPEAKING_STOP, ("channel_id", channelId));
             //await discordClient.UnsubscribeAsync(DiscordRpcEvent.VOICE_STATE_CREATE, ("channel_id", channelId));

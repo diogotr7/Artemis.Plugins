@@ -4,16 +4,16 @@ namespace Artemis.Plugins.Modules.Discord
 {
     public class DiscordRpcClientException : Exception
     {
-        public DiscordRpcClientException() : base()
+        public bool ShouldReconnect { get; }
+        
+        public DiscordRpcClientException(string message, bool shouldReconnect = false) : base(message)
         {
+            ShouldReconnect = shouldReconnect;
         }
 
-        public DiscordRpcClientException(string message) : base(message)
+        public DiscordRpcClientException(string message, Exception innerException, bool shouldReconnect = false) : base(message, innerException)
         {
-        }
-
-        public DiscordRpcClientException(string message, Exception innerException) : base(message, innerException)
-        {
+            ShouldReconnect = shouldReconnect;
         }
     }
 }
