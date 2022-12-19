@@ -36,7 +36,7 @@ public class VoiceMeeterModule : Module<VoiceMeeterDataModel>
         foreach (var level in DataModel.Levels.InputLevels.DynamicChildren.Values.OfType<DynamicChild<VoiceMeeterLevelDataModel>>())
             level.Value.Update();
 
-        foreach (var level in DataModel.Levels.OutputLevels.DynamicChildren.Values.OfType< DynamicChild<VoiceMeeterLevelDataModel>>())
+        foreach (var level in DataModel.Levels.OutputLevels.DynamicChildren.Values.OfType<DynamicChild<VoiceMeeterLevelDataModel>>())
             level.Value.Update();
     }
 
@@ -92,11 +92,11 @@ public class VoiceMeeterModule : Module<VoiceMeeterDataModel>
     
     private void UpdateParameters()
     {
-        foreach (var strip in DataModel.Strips.DynamicChildren.Values.OfType<VoiceMeeterStripDataModel>())
-            strip.Update();
+        foreach (var strip in DataModel.Strips.DynamicChildren.Values.OfType<DynamicChild<VoiceMeeterStripDataModel>>())
+            strip.Value.Update();
 
-        foreach (var bus in DataModel.Busses.DynamicChildren.Values.OfType<VoiceMeeterBusDataModel>())
-            bus.Update();
+        foreach (var bus in DataModel.Busses.DynamicChildren.Values.OfType<DynamicChild<VoiceMeeterBusDataModel>>())
+            bus.Value.Update();
     }
 
     private static int GetStripCount(VoiceMeeterType type) => type switch
