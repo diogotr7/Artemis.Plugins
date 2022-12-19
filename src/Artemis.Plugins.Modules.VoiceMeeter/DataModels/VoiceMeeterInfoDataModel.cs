@@ -6,6 +6,5 @@
         public string VoiceMeeterVersion { get; set; }
         public int StripCount { get; set; }
         public int BusCount { get; set; }
-        public int PhysicalStripCount { get; internal set; }
     }
 }

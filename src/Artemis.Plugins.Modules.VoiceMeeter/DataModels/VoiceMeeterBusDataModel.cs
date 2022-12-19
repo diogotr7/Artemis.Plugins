@@ -7,9 +7,10 @@ namespace Artemis.Plugins.Modules.VoiceMeeter.DataModels
     {
         private readonly string _updateHeader;
 
-        public VoiceMeeterBusDataModel(int idx)
+        public VoiceMeeterBusDataModel(int idx, VoiceMeeterLevelDataModel level)
         {
             _updateHeader = $"Bus[{idx}]";
+            Level = level;
         }
 
         public int Mono { get; set; }
@@ -43,6 +44,8 @@ namespace Artemis.Plugins.Modules.VoiceMeeter.DataModels
         public int ReturnFx2 { get; set; }
         public int Monitor { get; set; }
 
+        public VoiceMeeterLevelDataModel Level { get; }
+
         internal void Update()
         {
             Mono = VoiceMeeterRemote.GetInt($"{_updateHeader}.{nameof(Mono)}");
@@ -73,6 +76,11 @@ namespace Artemis.Plugins.Modules.VoiceMeeter.DataModels
             ReturnFx1 = VoiceMeeterRemote.GetInt($"{_updateHeader}.{nameof(ReturnFx1)}");
             ReturnFx2 = VoiceMeeterRemote.GetInt($"{_updateHeader}.{nameof(ReturnFx2)}");
             Monitor = VoiceMeeterRemote.GetInt($"{_updateHeader}.{nameof(Monitor)}");
+        }
+
+        internal void UpdateLevels()
+        {
+            Level.Update();
         }
     }
 }

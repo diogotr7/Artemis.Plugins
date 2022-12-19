@@ -9,7 +9,5 @@ namespace Artemis.Plugins.Modules.VoiceMeeter.DataModels
         public VoiceMeeterStripsDataModel Strips { get; set; } = new();
 
         public VoiceMeeterBussesDataModel Busses { get; set; } = new();
-        
-        public VoiceMeeterLevelsDataModel Levels { get; set; } = new();
     }
 }

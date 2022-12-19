@@ -5,22 +5,6 @@ using System.Collections.Generic;
 
 namespace Artemis.Plugins.Modules.VoiceMeeter.DataModels
 {
-    public class VoiceMeeterLevelsDataModel : DataModel 
-    {
-        public VoiceMeeterInputLevelsDataModel InputLevels { get; } = new();
-        public VoiceMeeterOutputLevelsDataModel OutputLevels { get; } = new();
-    }
-
-    public class VoiceMeeterInputLevelsDataModel : DataModel
-    {
-        
-    }
-
-    public class VoiceMeeterOutputLevelsDataModel : DataModel
-    {
-
-    }
-
     public class VoiceMeeterLevelDataModel : DataModel
     {
         private readonly DynamicChild<float>[] _children;
@@ -29,13 +13,13 @@ namespace Artemis.Plugins.Modules.VoiceMeeter.DataModels
 
         public float Value => _children.Select(x => x.Value).Average();
 
-        public VoiceMeeterLevelDataModel(int type, int index, int count)
+        public VoiceMeeterLevelDataModel(int type, int index, int channels)
         {
             _type = type;
             _index = index;
-            _children = new DynamicChild<float>[count];
-            for (int i = 0; i < count; i++)
-                _children[i] = AddDynamicChild(i.ToString(), 0f, $"Level {i + 1}");
+            _children = new DynamicChild<float>[channels];
+            for (int i = 0; i < channels; i++)
+                _children[i] = AddDynamicChild(i.ToString(), 0f, $"Channel {i + 1}");
         }
         
         public void Update()
