@@ -42,7 +42,7 @@ namespace Artemis.Plugins.Modules.VoiceMeeter.DataModels
         {
             for (int i = 0; i < _children.Length; i++)
             {
-                var result = VoiceMeeterRemote.GetLevel(_type, _index + 0, out var val);
+                var result = VoiceMeeterRemote.GetLevel(_type, _index + i, out var val);
 
                 if (result != 0)
                     throw new Exception();
