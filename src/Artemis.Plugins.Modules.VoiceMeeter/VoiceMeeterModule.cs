@@ -80,7 +80,7 @@ public class VoiceMeeterModule : Module<VoiceMeeterDataModel>
         for (int i = 0; i < DataModel.Information.BusCount; i++)
         {
             var level = new VoiceMeeterLevelDataModel(OUTPUT_LEVELS, CHANNELS_PER_BUS * i, CHANNELS_PER_BUS);
-            var bus = new VoiceMeeterStripDataModel(i, level);
+            var bus = new VoiceMeeterBusDataModel(i, level);
             
             bus.Update();
             bus.UpdateLevels();
