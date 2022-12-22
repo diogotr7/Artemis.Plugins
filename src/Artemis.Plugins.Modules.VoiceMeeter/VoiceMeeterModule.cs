@@ -5,12 +5,20 @@ using System.Threading;
 using Artemis.Core;
 using Artemis.Core.Modules;
 using Artemis.Plugins.Modules.VoiceMeeter.DataModels;
+using Serilog;
 
 namespace Artemis.Plugins.Modules.VoiceMeeter;
 
 [PluginFeature(AlwaysEnabled = true, Name = "VoiceMeeter")]
 public class VoiceMeeterModule : Module<VoiceMeeterDataModel>
 {
+    private readonly ILogger _logger;
+    
+    public VoiceMeeterModule(ILogger logger)
+    {
+        _logger = logger;
+    }
+
     public override List<IModuleActivationRequirement> ActivationRequirements { get; } = new()
     {
         new ProcessActivationRequirement("voicemeeter"),    //voicemeeter
@@ -30,10 +38,18 @@ public class VoiceMeeterModule : Module<VoiceMeeterDataModel>
 
     public override void Update(double deltaTime)
     {
-        if (VoiceMeeterRemote.IsParametersDirty() == 1)
-            UpdateParameters();
+        try
+        {
+            if (VoiceMeeterRemote.IsParametersDirty() == 1)
+                UpdateParameters();
 
-        UpdateLevels();
+            UpdateLevels();
+        }
+        catch (Exception e)
+        {
+            _logger.Error(e, "Error Updating VoiceMeeter data.");
+            //we will probably Disable ourselves soon, i think.
+        }
     }
 
     public override void Disable()
