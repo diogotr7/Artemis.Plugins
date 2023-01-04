@@ -1,16 +1,23 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using Artemis.Core;
 using Artemis.Core.Modules;
 using Artemis.Plugins.Modules.VoiceMeeter.DataModels;
+using Serilog;
 
 namespace Artemis.Plugins.Modules.VoiceMeeter;
 
 [PluginFeature(AlwaysEnabled = true, Name = "VoiceMeeter")]
 public class VoiceMeeterModule : Module<VoiceMeeterDataModel>
 {
-    private VoiceMeeterStripDataModel[]? _strips;
-    private VoiceMeeterBusDataModel[]? _busses;
+    private readonly ILogger _logger;
+    
+    public VoiceMeeterModule(ILogger logger)
+    {
+        _logger = logger;
+    }
 
     public override List<IModuleActivationRequirement> ActivationRequirements { get; } = new()
     {
@@ -31,9 +38,17 @@ public class VoiceMeeterModule : Module<VoiceMeeterDataModel>
 
     public override void Update(double deltaTime)
     {
-        if (VoiceMeeterRemote.IsParametersDirty() == 1)
+        try
         {
-            UpdateParameters();
+            if (VoiceMeeterRemote.IsParametersDirty() == 1)
+                UpdateParameters();
+
+            UpdateLevels();
+        }
+        catch (Exception e)
+        {
+            _logger.Error(e, "Error Updating VoiceMeeter data.");
+            //we will probably Disable ourselves soon, i think.
         }
     }
 
@@ -59,51 +74,106 @@ public class VoiceMeeterModule : Module<VoiceMeeterDataModel>
         DataModel.Information.StripCount = GetStripCount(voiceMeeterType);
         DataModel.Information.BusCount = GetBusCount(voiceMeeterType);
 
-        _strips = new VoiceMeeterStripDataModel[DataModel.Information.StripCount];
+        var totalStripChannels = 0;
         for (int i = 0; i < DataModel.Information.StripCount; i++)
         {
-            var strip = new VoiceMeeterStripDataModel(i);
+            int channels = i < GetPhysicalStripCount(DataModel.Information.VoiceMeeterType) ? 
+                        CHANNELS_PER_PHYSICAL_STRIP : CHANNELS_PER_VIRTUAL_STRIP;
+
+            var level = new VoiceMeeterLevelDataModel(POST_MUTE_INPUT_LEVELS, totalStripChannels, channels);
+            var strip = new VoiceMeeterStripDataModel(i, level);
+            
             strip.Update();
-            _strips[i] = DataModel.Strips.AddDynamicChild($"Strip {i + 1}", strip).Value;
+            strip.UpdateLevels();
+
+            var name = string.IsNullOrWhiteSpace(strip.Label) ? $"Strip {i + 1}" : strip.Label;
+            DataModel.Strips.AddDynamicChild(i.ToString(), strip, name);
+
+            totalStripChannels += channels;
         }
 
-        _busses = new VoiceMeeterBusDataModel[DataModel.Information.BusCount];
+        var names = GetBusNames(DataModel.Information.VoiceMeeterType).ToArray();
         for (int i = 0; i < DataModel.Information.BusCount; i++)
         {
-            var bus = new VoiceMeeterBusDataModel(i);
+            var level = new VoiceMeeterLevelDataModel(OUTPUT_LEVELS, CHANNELS_PER_BUS * i, CHANNELS_PER_BUS);
+            var bus = new VoiceMeeterBusDataModel(i, level);
+            
             bus.Update();
-            _busses[i] = DataModel.Busses.AddDynamicChild($"Bus {i + 1}", bus).Value;
+            bus.UpdateLevels();
+
+            DataModel.Busses.AddDynamicChild(i.ToString(), bus, names[i]);
         }
     }
-
+    
     private void UpdateParameters()
     {
-        foreach (var strip in _strips)
-        {
-            strip.Update();
-        }
+        foreach (var strip in DataModel.Strips.DynamicChildren.Values.OfType<DynamicChild<VoiceMeeterStripDataModel>>())
+            strip.Value.Update();
 
-        foreach (var bus in _busses)
-        {
-            bus.Update();
-        }
-
-        //TODO: Levels
+        foreach (var bus in DataModel.Busses.DynamicChildren.Values.OfType<DynamicChild<VoiceMeeterBusDataModel>>())
+            bus.Value.Update();
     }
 
-    private static int GetStripCount(VoiceMeeterType type) => type switch
+    private void UpdateLevels()
     {
-        VoiceMeeterType.VoiceMeeter => 3,
-        VoiceMeeterType.VoiceMeeterBanana => 5,
-        VoiceMeeterType.VoiceMeeterPotato => 8,
+        foreach (var strip in DataModel.Strips.DynamicChildren.Values.OfType<DynamicChild<VoiceMeeterStripDataModel>>())
+            strip.Value.UpdateLevels();
+
+        foreach (var bus in DataModel.Busses.DynamicChildren.Values.OfType<DynamicChild<VoiceMeeterBusDataModel>>())
+            bus.Value.UpdateLevels();
+    }
+
+    private static int GetPhysicalStripCount(VoiceMeeterType type) => type switch
+    {
+        VoiceMeeterType.VoiceMeeter => 2,
+        VoiceMeeterType.VoiceMeeterBanana => 3,
+        VoiceMeeterType.VoiceMeeterPotato => 5,
         _ => 0,
     };
 
-    private static int GetBusCount(VoiceMeeterType type) => type switch
+    private static int GetVirtualStripCount(VoiceMeeterType type) => type switch
     {
-        VoiceMeeterType.VoiceMeeter => 2,
-        VoiceMeeterType.VoiceMeeterBanana => 5,
-        VoiceMeeterType.VoiceMeeterPotato => 8,
+        VoiceMeeterType.VoiceMeeter => 1,
+        VoiceMeeterType.VoiceMeeterBanana => 2,
+        VoiceMeeterType.VoiceMeeterPotato => 3,
         _ => 0,
     };
+
+    private static int GetPhysicalBusCount(VoiceMeeterType type) => type switch
+    {
+        VoiceMeeterType.VoiceMeeter => 1,
+        VoiceMeeterType.VoiceMeeterBanana => 3,
+        VoiceMeeterType.VoiceMeeterPotato => 5,
+        _ => 0,
+    };
+
+    private static int GetVirtualBusCount(VoiceMeeterType type) => type switch
+    {
+        VoiceMeeterType.VoiceMeeter => 1,
+        VoiceMeeterType.VoiceMeeterBanana => 2,
+        VoiceMeeterType.VoiceMeeterPotato => 3,
+        _ => 0,
+    };
+    
+    private static int GetStripCount(VoiceMeeterType type) => GetPhysicalStripCount(type) + GetVirtualStripCount(type);
+    
+    private static int GetBusCount(VoiceMeeterType type) => GetPhysicalBusCount(type) + GetVirtualBusCount(type);
+
+    private const int CHANNELS_PER_PHYSICAL_STRIP = 2;
+    private const int CHANNELS_PER_VIRTUAL_STRIP = 8;
+    private const int CHANNELS_PER_BUS = 8;
+
+    private const int PRE_FADER_INPUT_LEVELS = 0;
+	private const int POST_FADER_INPUT_LEVELS = 1;
+	private const int POST_MUTE_INPUT_LEVELS = 2;
+	private const int OUTPUT_LEVELS = 3;
+
+    private static IEnumerable<string> GetBusNames(VoiceMeeterType type)
+    {
+        foreach (var item in Enumerable.Range(0, GetPhysicalBusCount(type)))
+            yield return $"A{item + 1}";
+        
+        foreach (var item in Enumerable.Range(0, GetVirtualBusCount(type)))
+            yield return $"B{item + 1}";
+    }
 }

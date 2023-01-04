@@ -7,9 +7,10 @@ namespace Artemis.Plugins.Modules.VoiceMeeter.DataModels
     {
         private readonly string _updateHeader;
 
-        public VoiceMeeterStripDataModel(int idx)
+        public VoiceMeeterStripDataModel(int idx, VoiceMeeterLevelDataModel level)
         {
             _updateHeader = $"Strip[{idx}]";
+            Level = level;
         }
 
         public bool Mono { get; set; }
@@ -57,6 +58,8 @@ namespace Artemis.Plugins.Modules.VoiceMeeter.DataModels
         //public int AppGain { get; set; }
         //public int AppMute { get; set; }
 
+        public VoiceMeeterLevelDataModel Level { get; }
+
         public void Update()
         {
             Mono = VoiceMeeterRemote.GetBool($"{_updateHeader}.{nameof(Mono)}");
@@ -97,6 +100,11 @@ namespace Artemis.Plugins.Modules.VoiceMeeter.DataModels
             PostDelay = VoiceMeeterRemote.GetBool($"{_updateHeader}.{nameof(PostDelay)}");
             PostFx1 = VoiceMeeterRemote.GetBool($"{_updateHeader}.{nameof(PostFx1)}");
             PostFx2 = VoiceMeeterRemote.GetBool($"{_updateHeader}.{nameof(PostFx2)}");
+        }
+
+        internal void UpdateLevels()
+        {
+            Level.Update();
         }
     }
 }
