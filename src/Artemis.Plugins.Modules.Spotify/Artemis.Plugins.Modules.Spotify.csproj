@@ -8,12 +8,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="ArtemisRGB.UI.Shared" IncludeAssets="compile;build;buildTransitive" Version="1.2022.1112.5" />
+        <PackageReference Include="ArtemisRGB.UI.Shared" IncludeAssets="compile;build;buildTransitive" Version="1.2022.1114.2" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="SpotifyAPI.Web" Version="6.3.0" />
-        <PackageReference Include="SpotifyAPI.Web.Auth" Version="6.3.0" />
+        <PackageReference Include="SpotifyAPI.Web" Version="7.0.0" />
+        <PackageReference Include="SpotifyAPI.Web.Auth" Version="7.0.0" />
     </ItemGroup>
 
     <ItemGroup>
