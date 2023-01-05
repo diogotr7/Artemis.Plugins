@@ -45,7 +45,7 @@ public class VoiceMeeterInstalledPrerequisite : PluginPrerequisite
         if (string.IsNullOrWhiteSpace(voiceMeeterPath))
             return false;
 
-        path = Path.Combine(Path.GetDirectoryName(voiceMeeterPath), "VoicemeeterRemote64.dll");
+        path = Path.Combine(Path.GetDirectoryName(voiceMeeterPath)!, "VoicemeeterRemote64.dll");
         return File.Exists(path);
     }
 }

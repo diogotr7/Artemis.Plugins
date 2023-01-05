@@ -4,6 +4,7 @@
         <Platforms>x64</Platforms>
         <EnableDynamicLoading>true</EnableDynamicLoading>
         <Nullable>enable</Nullable>
+        <NoWarn>CA1416</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
