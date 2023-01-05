@@ -4,52 +4,51 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using System;
 
-namespace Artemis.Plugins.Modules.Discord
+namespace Artemis.Plugins.Modules.Discord.DiscordPackets;
+
+public class DiscordRequest
 {
-    public class DiscordRequest
+    public Guid Nonce { get; }
+
+    [JsonProperty("args")]
+    public JObject Arguments { get; }
+
+    [JsonProperty("cmd"), JsonConverter(typeof(StringEnumConverter))]
+    public DiscordRpcCommand Command { get; }
+
+    public DiscordRequest(DiscordRpcCommand command, params (string Key, object Value)[] parameters)
     {
-        public Guid Nonce { get; }
+        Nonce = Guid.NewGuid();
+        Command = command;
+        Arguments = new JObject();
 
-        [JsonProperty("args")]
-        public JObject Arguments { get; }
-
-        [JsonProperty("cmd"), JsonConverter(typeof(StringEnumConverter))]
-        public DiscordRpcCommand Command { get; }
-
-        public DiscordRequest(DiscordRpcCommand command, params (string Key, object Value)[] parameters)
+        foreach (var (Key, Value) in parameters)
         {
-            Nonce = Guid.NewGuid();
-            Command = command;
-            Arguments = new JObject();
-
-            foreach (var (Key, Value) in parameters)
-            {
-                Arguments.Add(Key, JToken.FromObject(Value));
-            }
+            Arguments.Add(Key, JToken.FromObject(Value));
         }
     }
+}
 
-    public class DiscordSubscribe : DiscordRequest
+public class DiscordSubscribe : DiscordRequest
+{
+    [JsonProperty("evt"), JsonConverter(typeof(StringEnumConverter))]
+    public DiscordRpcEvent Event { get; }
+
+    public DiscordSubscribe(DiscordRpcEvent e, params (string Key, object Value)[] parameters)
+        : base(DiscordRpcCommand.SUBSCRIBE, parameters)
     {
-        [JsonProperty("evt"), JsonConverter(typeof(StringEnumConverter))]
-        public DiscordRpcEvent Event { get; }
-
-        public DiscordSubscribe(DiscordRpcEvent e, params (string Key, object Value)[] parameters)
-            : base(DiscordRpcCommand.SUBSCRIBE, parameters)
-        {
-            Event = e;
-        }
+        Event = e;
     }
+}
 
-    public class DiscordUnsubscribe : DiscordRequest
+public class DiscordUnsubscribe : DiscordRequest
+{
+    [JsonProperty("evt"), JsonConverter(typeof(StringEnumConverter))]
+    public DiscordRpcEvent Event { get; }
+
+    public DiscordUnsubscribe(DiscordRpcEvent e, params (string Key, object Value)[] parameters)
+        : base(DiscordRpcCommand.UNSUBSCRIBE, parameters)
     {
-        [JsonProperty("evt"), JsonConverter(typeof(StringEnumConverter))]
-        public DiscordRpcEvent Event { get; }
-
-        public DiscordUnsubscribe(DiscordRpcEvent e, params (string Key, object Value)[] parameters)
-            : base(DiscordRpcCommand.UNSUBSCRIBE, parameters)
-        {
-            Event = e;
-        }
+        Event = e;
     }
 }

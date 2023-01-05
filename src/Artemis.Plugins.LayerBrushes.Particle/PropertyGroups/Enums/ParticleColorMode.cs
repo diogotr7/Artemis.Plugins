@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace Artemis.Plugins.LayerBrushes.Particle.PropertyGroups.Enums;
 
-namespace Artemis.Plugins.LayerBrushes.Particle.PropertyGroups
+public enum ParticleColorMode
 {
-    public enum ParticleColorMode
-    {
-        Lifetime,
-        Static,
-        Sweep,
-        Radial
-    }
+    Lifetime,
+    Static,
+    Sweep,
+    Radial
 }

@@ -1,12 +1,11 @@
-﻿namespace Artemis.Plugins.LayerBrushes.Chroma
+﻿namespace Artemis.Plugins.LayerBrushes.Chroma.ChromaService;
+
+public enum RzDeviceType
 {
-    public enum RzDeviceType
-    {
-        Mousepad,
-        Mouse,
-        Keypad,
-        Keyboard,
-        Headset,
-        ChromaLink
-    }
+    Mousepad,
+    Mouse,
+    Keypad,
+    Keyboard,
+    Headset,
+    ChromaLink
 }

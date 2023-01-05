@@ -1,10 +1,9 @@
-﻿namespace Artemis.Plugins.Modules.VoiceMeeter.DataModels
+﻿namespace Artemis.Plugins.Modules.VoiceMeeter.DataModels;
+
+public class VoiceMeeterInfoDataModel
 {
-    public class VoiceMeeterInfoDataModel
-    {
-        public VoiceMeeterType VoiceMeeterType { get; set; }
-        public string VoiceMeeterVersion { get; set; }
-        public int StripCount { get; set; }
-        public int BusCount { get; set; }
-    }
+    public VoiceMeeterType VoiceMeeterType { get; set; }
+    public string VoiceMeeterVersion { get; set; }
+    public int StripCount { get; set; }
+    public int BusCount { get; set; }
 }

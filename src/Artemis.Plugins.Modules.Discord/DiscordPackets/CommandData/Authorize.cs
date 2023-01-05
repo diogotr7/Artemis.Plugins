@@ -1,4 +1,3 @@
-﻿namespace Artemis.Plugins.Modules.Discord
-{
-    public record Authorize(string Code);
-}
+﻿namespace Artemis.Plugins.Modules.Discord.DiscordPackets.CommandData;
+
+public record Authorize(string Code);

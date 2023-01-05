@@ -1,8 +1,7 @@
-﻿namespace Artemis.Plugins.Modules.Discord.DataModels
+﻿namespace Artemis.Plugins.Modules.Discord.DataModels;
+
+public enum DiscordVoiceModeType
 {
-    public enum DiscordVoiceModeType
-    {
-        PUSH_TO_TALK,
-        VOICE_ACTIVITY
-    }
+    PUSH_TO_TALK,
+    VOICE_ACTIVITY
 }

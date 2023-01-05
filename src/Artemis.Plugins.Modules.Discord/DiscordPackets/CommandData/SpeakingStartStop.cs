@@ -1,4 +1,3 @@
-﻿namespace Artemis.Plugins.Modules.Discord
-{
-    public record SpeakingStartStop(string UserId);
-}
+﻿namespace Artemis.Plugins.Modules.Discord.DiscordPackets.CommandData;
+
+public record SpeakingStartStop(string UserId);

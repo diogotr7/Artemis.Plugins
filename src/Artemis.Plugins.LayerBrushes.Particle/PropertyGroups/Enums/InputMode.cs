@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace Artemis.Plugins.LayerBrushes.Particle.PropertyGroups.Enums;
 
-namespace Artemis.Plugins.LayerBrushes.Particle.PropertyGroups
+public enum InputMode
 {
-    public enum InputMode
-    {
-        LifetimeBased,
-        RandomInRange
-    }
+    LifetimeBased,
+    RandomInRange
 }

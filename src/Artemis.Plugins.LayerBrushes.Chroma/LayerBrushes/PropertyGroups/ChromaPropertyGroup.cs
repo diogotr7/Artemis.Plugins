@@ -1,27 +1,26 @@
 ﻿using Artemis.Core;
 
-namespace Artemis.Plugins.LayerBrushes.Chroma.PropertyGroups
+namespace Artemis.Plugins.LayerBrushes.Chroma.LayerBrushes.PropertyGroups;
+
+public class ChromaPropertyGroup : LayerPropertyGroup
 {
-    public class ChromaPropertyGroup : LayerPropertyGroup
+    [PropertyDescription(Description = "Colors unmapped LEDs with the default color")]
+    public LayerProperty<bool> UseDefaultLed { get; set; }
+
+    [PropertyDescription(Description = "Turns black LEDs transparent")]
+    public LayerProperty<bool> TransparentBlack { get; set; }
+
+    protected override void PopulateDefaults()
     {
-       [PropertyDescription(Description = "Colors unmapped LEDs with the default color")]
-        public LayerProperty<bool> UseDefaultLed { get; set; }
+        UseDefaultLed.DefaultValue = true;
+        TransparentBlack.DefaultValue = false;
+    }
 
-        [PropertyDescription(Description = "Turns black LEDs transparent")]
-        public LayerProperty<bool> TransparentBlack { get; set; }
+    protected override void EnableProperties()
+    {
+    }
 
-        protected override void PopulateDefaults()
-        {
-            UseDefaultLed.DefaultValue = true;
-            TransparentBlack.DefaultValue = false;
-        }
-
-        protected override void EnableProperties()
-        {
-        }
-
-        protected override void DisableProperties()
-        {
-        }
+    protected override void DisableProperties()
+    {
     }
 }

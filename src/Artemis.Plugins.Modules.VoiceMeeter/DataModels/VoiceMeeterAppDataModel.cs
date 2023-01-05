@@ -1,9 +1,8 @@
 ﻿using Artemis.Core.Modules;
 
-namespace Artemis.Plugins.Modules.VoiceMeeter.DataModels
-{
-    public class VoiceMeeterAppDataModel : DataModel
-    {
+namespace Artemis.Plugins.Modules.VoiceMeeter.DataModels;
 
-    }
+public class VoiceMeeterAppDataModel : DataModel
+{
+
 }

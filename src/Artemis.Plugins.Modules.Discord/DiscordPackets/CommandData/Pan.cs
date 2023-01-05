@@ -1,7 +1,6 @@
-﻿namespace Artemis.Plugins.Modules.Discord
-{
-    public record Pan(
-        double Left,
-        double Right
-    );
-}
+﻿namespace Artemis.Plugins.Modules.Discord.DiscordPackets.CommandData;
+
+public record Pan(
+    double Left,
+    double Right
+);

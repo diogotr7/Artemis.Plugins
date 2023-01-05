@@ -1,12 +1,11 @@
-﻿namespace Artemis.Plugins.LayerBrushes.Particle.PropertyGroups
+﻿namespace Artemis.Plugins.LayerBrushes.Particle.PropertyGroups.Enums;
+
+public enum SpawnPosition
 {
-    public enum SpawnPosition
-    {
-        TopEdge,
-        RightEdge,
-        BottomEdge,
-        LeftEdge,
-        Random,
-        Custom
-    }
+    TopEdge,
+    RightEdge,
+    BottomEdge,
+    LeftEdge,
+    Random,
+    Custom
 }
