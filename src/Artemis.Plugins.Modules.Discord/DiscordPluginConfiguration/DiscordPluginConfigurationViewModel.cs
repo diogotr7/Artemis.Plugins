@@ -5,7 +5,7 @@ using ReactiveUI.Validation.Extensions;
 using System.Linq;
 using System.Reactive;
 
-namespace Artemis.Plugins.Modules.Discord
+namespace Artemis.Plugins.Modules.Discord.DiscordPluginConfiguration
 {
     public class DiscordPluginConfigurationViewModel : PluginConfigurationViewModel
     {

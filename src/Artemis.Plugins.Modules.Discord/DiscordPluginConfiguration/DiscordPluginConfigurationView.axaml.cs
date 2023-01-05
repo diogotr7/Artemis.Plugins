@@ -3,7 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Avalonia.ReactiveUI;
 
-namespace Artemis.Plugins.Modules.Discord
+namespace Artemis.Plugins.Modules.Discord.DiscordPluginConfiguration
 {
     public partial class DiscordPluginConfigurationView : ReactiveUserControl<DiscordPluginConfigurationViewModel>
     {
