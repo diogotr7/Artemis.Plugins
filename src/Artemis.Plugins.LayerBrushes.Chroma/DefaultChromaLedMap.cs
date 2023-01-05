@@ -315,7 +315,7 @@ public static class DefaultChromaLedMap
         }
     };
 
-    public static readonly Dictionary<RzDeviceType, LedId[,]> DeviceTypes = new Dictionary<RzDeviceType, LedId[,]>
+    public static readonly Dictionary<RzDeviceType, LedId[,]> DeviceTypes = new()
     {
         [RzDeviceType.Keyboard] = Keyboard,
         [RzDeviceType.Mouse] = Mouse,
@@ -325,13 +325,13 @@ public static class DefaultChromaLedMap
         [RzDeviceType.ChromaLink] = ChromaLink
     };
 
-    public static Dictionary<RzDeviceType, LedId[,]> Clone() => new Dictionary<RzDeviceType, LedId[,]>
+    public static Dictionary<RzDeviceType, LedId[,]> Clone() => new()
     {
-        [RzDeviceType.Keyboard] = Keyboard.Clone() as LedId[,],
-        [RzDeviceType.Mouse] = Mouse.Clone() as LedId[,],
-        [RzDeviceType.Mousepad] = Mousepad.Clone() as LedId[,],
-        [RzDeviceType.Headset] = Headset.Clone() as LedId[,],
-        [RzDeviceType.Keypad] = Keypad.Clone() as LedId[,],
-        [RzDeviceType.ChromaLink] = ChromaLink.Clone() as LedId[,],
+        [RzDeviceType.Keyboard] = (LedId[,])Keyboard.Clone(),
+        [RzDeviceType.Mouse] = (LedId[,])Mouse.Clone(),
+        [RzDeviceType.Mousepad] = (LedId[,])Mousepad.Clone(),
+        [RzDeviceType.Headset] = (LedId[,])Headset.Clone(),
+        [RzDeviceType.Keypad] = (LedId[,])Keypad.Clone(),
+        [RzDeviceType.ChromaLink] = (LedId[,])ChromaLink.Clone(),
     };
 }

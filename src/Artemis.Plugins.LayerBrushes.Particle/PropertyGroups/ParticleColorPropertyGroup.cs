@@ -4,6 +4,8 @@ using SkiaSharp;
 
 namespace Artemis.Plugins.LayerBrushes.Particle.PropertyGroups;
 
+#pragma warning disable CS8618
+
 public class ParticleColorPropertyGroup : LayerPropertyGroup
 {
     [PropertyDescription]
@@ -35,7 +37,7 @@ public class ParticleColorPropertyGroup : LayerPropertyGroup
         ColorMode.CurrentValueSet -= ColorModeOnCurrentValueSet;
     }
 
-    private void ColorModeOnCurrentValueSet(object sender, LayerPropertyEventArgs e)
+    private void ColorModeOnCurrentValueSet(object? sender, LayerPropertyEventArgs e)
     {
         UpdateVisibility();
     }

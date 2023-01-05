@@ -17,7 +17,7 @@ public class ObsModule : Module<ObsDataModel>
     private const string OBS_PASSWORD = "";
     private const string PROCESS_NAME = "obs64";
 
-    private OBSWebsocket _obs;
+    private OBSWebsocket? _obs;
 
     public override void ModuleActivated(bool isOverride)
     {
@@ -62,8 +62,11 @@ public class ObsModule : Module<ObsDataModel>
         }
     }
 
-    private void OnObsConnected(object sender, EventArgs e)
+    private void OnObsConnected(object? sender, EventArgs e)
     {
+        if (_obs is null)
+            return;
+        
         _obs.SetHeartbeat(true);
         _obs.Heartbeat += UpdateHeartbeat;
 

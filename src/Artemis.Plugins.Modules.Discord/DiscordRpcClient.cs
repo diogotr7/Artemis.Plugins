@@ -254,7 +254,7 @@ public class DiscordRpcClient : IDiscordRpcClient
         byte[]? dataBuffer = null;
         try
         {
-            int headerReadBytes = await _pipe.ReadAsync(_headerBuffer.AsMemory(0, HEADER_SIZE), _cancellationTokenSource.Token);
+            int headerReadBytes = await _pipe!.ReadAsync(_headerBuffer.AsMemory(0, HEADER_SIZE), _cancellationTokenSource.Token);
 
             if (headerReadBytes < HEADER_SIZE)
                 throw new DiscordRpcClientException("Read less than 4 bytes for the header");
@@ -310,7 +310,7 @@ public class DiscordRpcClient : IDiscordRpcClient
         IDiscordMessage discordMessage;
         try
         {
-            discordMessage = JsonConvert.DeserializeObject<IDiscordMessage>(data, _jsonSerializerSettings);
+            discordMessage = JsonConvert.DeserializeObject<IDiscordMessage>(data, _jsonSerializerSettings)!;
         }
         catch (Exception exc)
         {
@@ -349,7 +349,7 @@ public class DiscordRpcClient : IDiscordRpcClient
             if (Encoding.UTF8.GetBytes(stringData, 0, stringData.Length, buffer, HEADER_SIZE) != stringData.Length)
                 throw new DiscordRpcClientException("Wrote wrong number of characters.");
 
-            await _pipe.WriteAsync(buffer.AsMemory(0, bufferSize), _cancellationTokenSource.Token);
+            await _pipe!.WriteAsync(buffer.AsMemory(0, bufferSize), _cancellationTokenSource.Token);
         }
         finally
         {

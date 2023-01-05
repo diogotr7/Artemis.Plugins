@@ -223,7 +223,7 @@ public class DiscordModule : Module<DiscordDataModel>
 
         try
         {
-            _logger.Verbose("Received discord event {Event} with data {Data}", discordEvent.Event, discordEvent.GetType().GetProperty("Data").GetValue(discordEvent));
+            _logger.Verbose("Received discord event {Event} with data {Data}", discordEvent.Event, discordEvent.GetType().GetProperty("Data")?.GetValue(discordEvent));
         }
         catch
         {
@@ -322,7 +322,7 @@ public class DiscordModule : Module<DiscordDataModel>
         await discordClient.SubscribeAsync(DiscordRpcEvent.VOICE_STATE_DELETE, ("channel_id", channelId));
     }
 
-    private async Task UnubscribeFromVoiceChannelEvents()
+    private Task UnubscribeFromVoiceChannelEvents()
     {
         //todo: do we even need to do this?
         //await discordClient.UnsubscribeAsync(DiscordRpcEvent.SPEAKING_START, ("channel_id", channelId));
@@ -330,6 +330,7 @@ public class DiscordModule : Module<DiscordDataModel>
         //await discordClient.UnsubscribeAsync(DiscordRpcEvent.VOICE_STATE_CREATE, ("channel_id", channelId));
         //await discordClient.UnsubscribeAsync(DiscordRpcEvent.VOICE_STATE_UPDATE, ("channel_id", channelId));
         //await discordClient.UnsubscribeAsync(DiscordRpcEvent.VOICE_STATE_DELETE, ("channel_id", channelId));
+        return Task.CompletedTask;
     }
 
     private bool AreClientIdAndSecretValid()

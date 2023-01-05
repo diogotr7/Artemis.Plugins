@@ -7,6 +7,8 @@ using System.Reactive;
 
 namespace Artemis.Plugins.Modules.Discord.DiscordPluginConfiguration;
 
+#pragma warning disable CS8618
+
 public class DiscordPluginConfigurationViewModel : PluginConfigurationViewModel
 {
     private readonly PluginSetting<string> _clientIdSetting;
@@ -25,7 +27,7 @@ public class DiscordPluginConfigurationViewModel : PluginConfigurationViewModel
         ClientId = _clientIdSetting.Value;
         ClientSecret = _clientSecretSetting.Value;
 
-        this.ValidationRule(vm => vm.ClientId, clientId => clientId.All(c => char.IsDigit(c)), "Client Id must be only number characters");
+        this.ValidationRule(vm => vm.ClientId, clientId => clientId!.All(c => char.IsDigit(c)), "Client Id must be only number characters");
         this.ValidationRule(vm => vm.ClientSecret, clientSecret => clientSecret?.Length > 0, "Client Secret must not be empty");
 
         Save = ReactiveCommand.Create(ExecuteSave, ValidationContext.Valid);

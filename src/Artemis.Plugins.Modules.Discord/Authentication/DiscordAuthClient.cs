@@ -70,7 +70,7 @@ public class DiscordAuthClient : IDisposable
             throw new UnauthorizedAccessException(responseString);
         }
 
-        return JsonConvert.DeserializeObject<TokenResponse>(responseString);
+        return JsonConvert.DeserializeObject<TokenResponse>(responseString)!;
     }
 
     private void SaveToken(TokenResponse newToken)

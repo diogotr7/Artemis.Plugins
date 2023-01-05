@@ -4,6 +4,8 @@ using System;
 
 namespace Artemis.Plugins.Modules.Discord.Authentication;
 
+#pragma warning disable CS8618
+
 public class SavedToken
 {
     [JsonProperty("refresh_token")]

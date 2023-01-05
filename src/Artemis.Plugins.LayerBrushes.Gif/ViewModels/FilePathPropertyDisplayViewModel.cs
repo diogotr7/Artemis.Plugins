@@ -31,7 +31,7 @@ public class FilePathPropertyDisplayViewModel : PropertyInputViewModel<string>
             .HavingFilter(f => f.WithExtension("gif"));
 
         var files = await dialog.ShowAsync();
-        if (files.Length == 1)
+        if (files?.Length == 1)
         {
             InputValue = files[0];
         }

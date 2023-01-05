@@ -1,6 +1,7 @@
 ﻿using Artemis.Core;
 using Microsoft.Win32;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
@@ -31,7 +32,7 @@ public class ChromaSdkPluginPrerequisite : PluginPrerequisite
     public override bool IsMet()
     {
         const string registryPath = @"SOFTWARE\WOW6432Node\Razer Chroma SDK";
-        using RegistryKey key = Registry.LocalMachine.OpenSubKey(registryPath);
+        using var key = Registry.LocalMachine.OpenSubKey(registryPath);
 
         return key != null;
     }
@@ -59,9 +60,13 @@ public class ChromaSdkPluginPrerequisite : PluginPrerequisite
         const string endpoint = "prod";
         var endpointsJson = await httpClient.GetStringAsync("https://discovery.razerapi.com/user/endpoints");
         var endpoints = JsonConvert.DeserializeObject<RazerRoot>(endpointsJson);
+        
+        if(endpoints is null)
+            throw new HttpRequestException("Failed to get Razer endpoints");
+
         var prodEndpoint = endpoints.Endpoints.Find(ep => ep.Name == endpoint);
         if (prodEndpoint == null)
-            return null;
+            throw new HttpRequestException($"Failed to find Razer endpoint {endpoint}");
 
         const string platformData = @"
 <PlatformRoot xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
@@ -85,13 +90,13 @@ public class ChromaSdkPluginPrerequisite : PluginPrerequisite
         var xml = new XmlDocument();
         xml.LoadXml(a);
 
-        foreach (XmlNode node in xml.DocumentElement.SelectNodes("//Module"))
+        foreach (XmlNode node in xml.DocumentElement?.SelectNodes("//Module")!)
         {
-            if (node["Name"].InnerText == "CHROMABROADCASTER")
-                return node["DownloadURL"].InnerText;
+            if (node["Name"]?.InnerText == "CHROMABROADCASTER")
+                return node["DownloadURL"]?.InnerText!;
         }
 
-        return null;
+        throw new Exception("Failed to find Chroma SDK download URL");
     }
 
     private record RazerEndpoint(string Name, string Hash);

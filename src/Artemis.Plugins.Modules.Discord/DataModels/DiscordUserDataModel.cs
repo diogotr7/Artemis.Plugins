@@ -5,11 +5,11 @@ namespace Artemis.Plugins.Modules.Discord.DataModels;
 
 public class DiscordUserDataModel : DataModel
 {
-    public string Username { get; set; }
+    public string Username { get; set; } = string.Empty;
 
-    public string Discriminator { get; set; }
+    public string Discriminator { get; set; } = string.Empty;
 
-    public string Id { get; set; }
+    public string Id { get; set; } = string.Empty;
 
     public bool IsBot { get; set; }
 

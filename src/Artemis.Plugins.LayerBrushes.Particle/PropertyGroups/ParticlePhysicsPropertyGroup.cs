@@ -3,6 +3,8 @@ using SkiaSharp;
 
 namespace Artemis.Plugins.LayerBrushes.Particle.PropertyGroups;
 
+#pragma warning disable CS8618
+
 public class ParticlePhysicsPropertyGroup : LayerPropertyGroup
 {
     [PropertyDescription]

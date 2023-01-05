@@ -52,18 +52,18 @@ public class ChromaModule : Module<ChromaDataModel>
 
     }
 
-    private void UpdateAppList(object sender, EventArgs e)
+    private void UpdateAppList(object? sender, EventArgs e)
     {
         DataModel.CurrentApplication = _chroma.CurrentApp;
         DataModel.ApplicationList = _chroma.Apps;
         DataModel.PidList = _chroma.Pids;
     }
 
-    private void UpdateMatrix(object sender, RzDeviceType rzDeviceType)
+    private void UpdateMatrix(object? sender, RzDeviceType rzDeviceType)
     {
         lock (_lock)
         {
-            if (!_chroma.Matrices.TryGetValue(rzDeviceType, out SKColor[,] colors))
+            if (!_chroma.Matrices.TryGetValue(rzDeviceType, out SKColor[,]? colors))
                 return;
 
             if (!_deviceTypeCache.TryGetValue(rzDeviceType, out var deviceDataModel))

@@ -14,10 +14,10 @@ public class ChromaPluginService : IPluginService, IDisposable
     private readonly ILogger _logger;
     private readonly RzSdkManager _manager;
 
-    public event EventHandler<RzDeviceType> MatrixUpdated;
-    public event EventHandler AppListUpdated;
+    public event EventHandler<RzDeviceType>? MatrixUpdated;
+    public event EventHandler? AppListUpdated;
 
-    public string CurrentApp { get; private set; }
+    public string CurrentApp { get; private set; } = string.Empty;
     public List<string> Apps { get; } = new List<string>();
     public List<int> Pids { get; } = new List<int>();
     public ConcurrentDictionary<RzDeviceType, SKColor[,]> Matrices { get; } = new ConcurrentDictionary<RzDeviceType, SKColor[,]>();
@@ -58,7 +58,7 @@ public class ChromaPluginService : IPluginService, IDisposable
         UpdateAppListData(applist);
     }
 
-    private void OnDataUpdated(object sender, EventArgs e)
+    private void OnDataUpdated(object? sender, EventArgs e)
     {
         if (sender is not AbstractDataProvider provider)
             return;

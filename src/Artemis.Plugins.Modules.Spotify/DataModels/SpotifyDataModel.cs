@@ -6,6 +6,8 @@ using System.ComponentModel;
 
 namespace Artemis.Plugins.Modules.Spotify.DataModels;
 
+#pragma warning disable CS8618
+
 public class SpotifyDataModel : DataModel
 {
     public SpotifyPlayerDataModel Player { get; set; } = new SpotifyPlayerDataModel();
@@ -20,7 +22,7 @@ public class SpotifyPlayerDataModel : DataModel
     public int Volume { get; set; }
     public RepeatState RepeatState { get; set; }
     public ContextType ContextType { get; set; }
-    public string ContextName { get; set; }
+    public string? ContextName { get; set; }
 }
 
 public class SpotifyTrackDataModel : DataModel

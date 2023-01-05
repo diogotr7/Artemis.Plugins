@@ -25,5 +25,6 @@ public class DiscordEvent : IDiscordMessage
 [KnownSubType(typeof(DiscordEvent<UserVoiceState>), DiscordRpcEvent.VOICE_STATE_DELETE)]
 public class DiscordEvent<T> : DiscordEvent
 {
+#pragma warning disable CS8618
     public T Data { get; init; }
 }

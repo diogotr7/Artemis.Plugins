@@ -2,6 +2,7 @@
 
 namespace Artemis.Plugins.LayerBrushes.Chroma.LayerBrushes.PropertyGroups;
 
+#pragma warning disable CS8618
 public class ChromaPropertyGroup : LayerPropertyGroup
 {
     [PropertyDescription(Description = "Colors unmapped LEDs with the default color")]

@@ -34,7 +34,7 @@ public class ChromaLayerBrush : PerLedLayerBrush<ChromaPropertyGroup>
         _chroma.MatrixUpdated -= OnMatrixUpdated;
     }
 
-    private void OnMatrixUpdated(object sender, RzDeviceType e)
+    private void OnMatrixUpdated(object? sender, RzDeviceType e)
     {
         SKColor[,] matrix = _chroma.Matrices[e];
         var dict = _keyMapSetting.Value[e];

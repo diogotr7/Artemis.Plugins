@@ -4,6 +4,8 @@ using SkiaSharp;
 
 namespace Artemis.Plugins.LayerBrushes.Particle.PropertyGroups;
 
+#pragma warning disable CS8618
+
 public class ParticleSpawnPropertyGroup : LayerPropertyGroup
 {
     [PropertyDescription]
@@ -61,7 +63,7 @@ public class ParticleSpawnPropertyGroup : LayerPropertyGroup
         SpawnPosition.CurrentValueSet -= SpawnPositionOnCurrentValueSet;
     }
 
-    private void SpawnPositionOnCurrentValueSet(object sender, LayerPropertyEventArgs e)
+    private void SpawnPositionOnCurrentValueSet(object? sender, LayerPropertyEventArgs e)
     {
         UpdateVisibility();
     }

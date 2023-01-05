@@ -39,11 +39,11 @@ public class SpotifyModule : Module<SpotifyDataModel>
     }
     #endregion
 
-    private SpotifyClient _spotify;
-    private string _trackId;
-    private string _contextId;
-    private string _albumArtUrl;
-    private TrackAudioAnalysis _analysis;
+    private SpotifyClient? _spotify;
+    private string? _trackId;
+    private string? _contextId;
+    private string? _albumArtUrl;
+    private TrackAudioAnalysis? _analysis;
 
     #region Plugin Methods
     public override void Enable()
@@ -134,43 +134,49 @@ public class SpotifyModule : Module<SpotifyDataModel>
 
     private async Task UpdateTrackInfo(FullTrack track)
     {
+        if (_spotify is null)
+            return;
+        
         string trackId = track.Uri.Split(':').Last();
-        if (trackId != _trackId)
+        if (trackId == _trackId)
+            return;
+        
+        UpdateBasicTrackInfo(track);
+
+        try
         {
-            UpdateBasicTrackInfo(track);
-
-            try
-            {
-                TrackAudioFeatures features = await _spotify.Tracks.GetAudioFeatures(trackId);
-                UpdateTrackFeatures(features);
-            }
-            catch (Exception e)
-            {
-                _logger.Error("Error updating track audio features", e);
-            }
-
-            try
-            {
-                _analysis = await _spotify.Tracks.GetAudioAnalysis(trackId);
-            }
-            catch (Exception e)
-            {
-                _logger.Error("Error getting track audio analysis", e);
-            }
-
-            Image image = track.Album.Images.First();
-            if (image.Url != _albumArtUrl)
-            {
-                await UpdateAlbumArtColors(image.Url);
-                _albumArtUrl = image.Url;
-            }
-
-            _trackId = trackId;
+            TrackAudioFeatures features = await _spotify.Tracks.GetAudioFeatures(trackId);
+            UpdateTrackFeatures(features);
         }
+        catch (Exception e)
+        {
+            _logger.Error("Error updating track audio features", e);
+        }
+
+        try
+        {
+            _analysis = await _spotify.Tracks.GetAudioAnalysis(trackId);
+        }
+        catch (Exception e)
+        {
+            _logger.Error("Error getting track audio analysis", e);
+        }
+
+        Image image = track.Album.Images.First();
+        if (image.Url != _albumArtUrl)
+        {
+            await UpdateAlbumArtColors(image.Url);
+            _albumArtUrl = image.Url;
+        }
+
+        _trackId = trackId;
     }
 
     private async Task UpdatePlayerInfo(CurrentlyPlayingContext playing)
     {
+        if (_spotify is null)
+            return;
+        
         DataModel.Device.Name = playing.Device.Name;
         DataModel.Device.Type = playing.Device.Type;
         DataModel.Player.Shuffle = playing.ShuffleState;
@@ -293,7 +299,7 @@ public class SpotifyModule : Module<SpotifyDataModel>
         _spotify = null;
     }
 
-    internal async Task<PrivateUser> GetUserInfo()
+    internal async Task<PrivateUser?> GetUserInfo()
     {
         if (_spotify is null)
             return null;

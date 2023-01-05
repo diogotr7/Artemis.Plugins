@@ -11,7 +11,7 @@ public class DiscordVoiceChannelMembers : DataModel
 public class DiscordVoiceChannelMember : DataModel
 {
     public DiscordUserDataModel User { get; } = new();
-    public string Nickname { get; set; }
+    public string Nickname { get; set; } = string.Empty;
     public int Volume { get; set; }
     public bool IsServerMuted { get; set; }
     public bool IsSelfMuted { get; set; }

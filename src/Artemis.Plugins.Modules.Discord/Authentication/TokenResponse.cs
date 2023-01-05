@@ -3,6 +3,8 @@ using Newtonsoft.Json.Serialization;
 
 namespace Artemis.Plugins.Modules.Discord.Authentication;
 
+#pragma warning disable CS8618
+
 [JsonObject(NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
 public class TokenResponse
 {

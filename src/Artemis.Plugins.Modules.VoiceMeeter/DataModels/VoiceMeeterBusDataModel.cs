@@ -2,6 +2,8 @@
 
 namespace Artemis.Plugins.Modules.VoiceMeeter.DataModels;
 
+#pragma warning disable CS8618
+
 public class VoiceMeeterBusDataModel : DataModel
 {
     private readonly string _updateHeader;

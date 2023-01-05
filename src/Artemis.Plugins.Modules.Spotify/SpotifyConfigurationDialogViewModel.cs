@@ -18,7 +18,7 @@ public class SpotifyConfigurationDialogViewModel : PluginConfigurationViewModel
     private readonly PluginSetting<PKCETokenResponse> _token;
     private readonly SpotifyModule _dataModelExpansion;
 
-    private static EmbedIOAuthServer _server;
+    private static EmbedIOAuthServer? _server;
     private static EmbedIOAuthServer Server => _server ??= new EmbedIOAuthServer(new Uri("http://localhost:5000/callback"), 5000);
 
     private Bitmap? _profilePicture;
@@ -28,8 +28,8 @@ public class SpotifyConfigurationDialogViewModel : PluginConfigurationViewModel
         set => this.RaiseAndSetIfChanged(ref _profilePicture, value);
     }
 
-    private string _username;
-    public string Username
+    private string? _username;
+    public string? Username
     {
         get => _username;
         set => this.RaiseAndSetIfChanged(ref _username, value);
@@ -49,15 +49,15 @@ public class SpotifyConfigurationDialogViewModel : PluginConfigurationViewModel
         set => this.RaiseAndSetIfChanged(ref _logOutVisibility, value);
     }
 
-    private string _verifier;
-    private string _challenge;
-    private string _loginUrl;
+    private string? _verifier;
+    private string? _challenge;
+    private string? _loginUrl;
     private bool _waitingForUser;
 
     public SpotifyConfigurationDialogViewModel(Plugin plugin, PluginSettings settings) : base(plugin)
     {
         _token = settings.GetSetting<PKCETokenResponse>(Constants.SPOTIFY_AUTH_SETTING);
-        _dataModelExpansion = Plugin.GetFeature<SpotifyModule>();
+        _dataModelExpansion = Plugin.GetFeature<SpotifyModule>()!;
         UpdateProfilePicture();
         UpdateButtonVisibility();
     }
@@ -72,7 +72,7 @@ public class SpotifyConfigurationDialogViewModel : PluginConfigurationViewModel
             await Server.Start();
             Server.AuthorizationCodeReceived += OnAuthorizationCodeReceived;
 
-            LoginRequest request = new LoginRequest(_server.BaseUri, Constants.SPOTIFY_CLIENT_ID, LoginRequest.ResponseType.Code)
+            LoginRequest request = new LoginRequest(Server.BaseUri, Constants.SPOTIFY_CLIENT_ID, LoginRequest.ResponseType.Code)
             {
                 CodeChallenge = _challenge,
                 CodeChallengeMethod = "S256",
@@ -80,8 +80,9 @@ public class SpotifyConfigurationDialogViewModel : PluginConfigurationViewModel
             };
             _loginUrl = request.ToUri().ToString();
         }
-
-        Utilities.OpenUrl(_loginUrl);
+        
+        if (_loginUrl is not null)
+            Utilities.OpenUrl(_loginUrl);
     }
 
     public void Logout()
@@ -98,7 +99,7 @@ public class SpotifyConfigurationDialogViewModel : PluginConfigurationViewModel
         Server.AuthorizationCodeReceived -= OnAuthorizationCodeReceived;
         await Server.Stop();
 
-        PKCETokenRequest tokenRequest = new PKCETokenRequest(Constants.SPOTIFY_CLIENT_ID, response.Code, _server.BaseUri, _verifier);
+        PKCETokenRequest tokenRequest = new PKCETokenRequest(Constants.SPOTIFY_CLIENT_ID, response.Code, Server.BaseUri, _verifier!);
 
         _token.Value = await new OAuthClient().RequestToken(tokenRequest);
         _token.Save();

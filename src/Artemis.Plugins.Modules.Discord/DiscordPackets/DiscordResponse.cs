@@ -23,5 +23,6 @@ public class DiscordResponse : IDiscordMessage
 [KnownSubType(typeof(DiscordResponse<SelectedVoiceChannel>), DiscordRpcCommand.GET_SELECTED_VOICE_CHANNEL)]
 public class DiscordResponse<T> : DiscordResponse
 {
+#pragma warning disable CS8618
     public T Data { get; init; }
 }

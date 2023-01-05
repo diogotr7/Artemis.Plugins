@@ -10,9 +10,9 @@ public class GifLayerBrush : LayerBrush<MainPropertyGroup>
     private readonly object myLock = new();
     private int frameCount;
     private int currentFrame;
-    private int[] durations;
+    private int[]? durations;
     private int elapsed;
-    private SKBitmap[] originals;
+    private SKBitmap[]? originals;
 
     public override void EnableLayerBrush()
     {
@@ -20,7 +20,7 @@ public class GifLayerBrush : LayerBrush<MainPropertyGroup>
         LoadGifData();
     }
 
-    private void OnFileNamePropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+    private void OnFileNamePropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
         LoadGifData();
     }

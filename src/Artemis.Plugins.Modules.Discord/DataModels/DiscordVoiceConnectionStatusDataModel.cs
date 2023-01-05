@@ -8,7 +8,7 @@ public class DiscordVoiceConnectionStatusDataModel : DataModel
 {
     public DiscordVoiceChannelState State { get; set; }
 
-    public string Hostname { get; set; }
+    public string Hostname { get; set; } = string.Empty;
 
     public float? Ping { get; set; }
 

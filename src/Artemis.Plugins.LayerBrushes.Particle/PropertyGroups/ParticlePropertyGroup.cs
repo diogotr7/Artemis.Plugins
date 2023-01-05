@@ -2,6 +2,8 @@
 
 namespace Artemis.Plugins.LayerBrushes.Particle.PropertyGroups;
 
+#pragma warning disable CS8618
+
 public class ParticlePropertyGroup : LayerPropertyGroup
 {
     [PropertyGroupDescription(Description = "These define how and when particles spawn, and what properties a particle will have when it spawns.")]
