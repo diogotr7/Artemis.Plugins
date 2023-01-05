@@ -8,12 +8,12 @@ jobs:
 
     steps:
       - name: Setup .NET 6.0
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '6.0.x'
 
       - name: Clone Plugins
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Build Plugins
         run: dotnet publish -c Release src/Artemis.Plugins.diogotr7.sln
@@ -22,43 +22,43 @@ jobs:
         #https://github.com/dotnet/sdk/issues/7238
 
       - name: Upload Discord
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: Discord
           path: src/Artemis.Plugins.Modules.Discord/bin/x64/Release/net6.0/publish
 
       - name: Upload OBS
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: OBS
           path: src/Artemis.Plugins.Modules.OBS/bin/x64/Release/net6.0/publish
 
       - name: Upload Spotify
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: Spotify
           path: src/Artemis.Plugins.Modules.Spotify/bin/x64/Release/net6.0/publish
 
       - name: Upload Chroma
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: Chroma
           path: src/Artemis.Plugins.LayerBrushes.Chroma/bin/x64/Release/net6.0-windows/publish
 
       - name: Upload Gif
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: Gif
           path: src/Artemis.Plugins.LayerBrushes.Gif/bin/x64/Release/net6.0/publish
 
       - name: Upload Particle
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: Particle
           path: src/Artemis.Plugins.LayerBrushes.Particle/bin/x64/Release/net6.0/publish
           
       - name: Upload VoiceMeeter
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: VoiceMeeter
           path: src/Artemis.Plugins.Modules.VoiceMeeter/bin/x64/Release/net6.0/publish
