@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Build Plugins
-        run: dotnet publish -c Release src/Artemis.Plugins.sln
+        run: dotnet publish -c Release src/Artemis.Plugins.diogotr7.sln
 
         #msbuild is dumb so we have to upload one at a time :)
         #https://github.com/dotnet/sdk/issues/7238
