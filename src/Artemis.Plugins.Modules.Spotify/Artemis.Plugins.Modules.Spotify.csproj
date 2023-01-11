@@ -18,6 +18,7 @@
 
     <ItemGroup>
         <Content Include="plugin.json" CopyToOutputDirectory="PreserveNewest" />
+        <Content Include="Spotify.json" CopyToOutputDirectory="PreserveNewest" />
         <Content Include="no-user.png" CopyToOutputDirectory="PreserveNewest" />
         <PackageReference Include="ArtemisRGB.Plugins.BuildTask" Version="1.1.0" />
     </ItemGroup>
