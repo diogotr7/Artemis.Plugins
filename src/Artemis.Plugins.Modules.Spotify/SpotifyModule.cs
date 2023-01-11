@@ -1,6 +1,6 @@
 using Artemis.Core;
+using Artemis.Core.ColorScience;
 using Artemis.Core.Modules;
-using Artemis.Core.Services;
 using Artemis.Plugins.Modules.Spotify.DataModels;
 using Serilog;
 using SkiaSharp;
@@ -19,25 +19,23 @@ public class SpotifyModule : Module<SpotifyDataModel>
 {
     public override List<IModuleActivationRequirement> ActivationRequirements { get; } = new();
 
-    #region Constructor and readonly fields
-    private readonly ILogger _logger;
-    private readonly IColorQuantizerService _colorQuantizer;
-    private readonly PluginSetting<PKCETokenResponse> _token;
-    private readonly PluginSetting<Dictionary<string, ColorSwatch>> _cache;
-    private readonly HttpClient _httpClient;
+        #region Constructor and readonly fields
+        private readonly ILogger _logger;
+        private readonly PluginSetting<PKCETokenResponse> _token;
+        private readonly PluginSetting<Dictionary<string, ColorSwatch>> _cache;
+        private readonly HttpClient _httpClient;
 
-    public SpotifyModule(PluginSettings settings, ILogger logger, IColorQuantizerService colorQuantizer)
-    {
-        _logger = logger;
-        _colorQuantizer = colorQuantizer;
-        _token = settings.GetSetting<PKCETokenResponse>(Constants.SPOTIFY_AUTH_SETTING);
-        _cache = settings.GetSetting<Dictionary<string, ColorSwatch>>("AlbumArtCache", new());
-        _httpClient = new HttpClient
+        public SpotifyModule(PluginSettings settings, ILogger logger)
         {
-            Timeout = TimeSpan.FromSeconds(2)
-        };
-    }
-    #endregion
+            _logger = logger;
+            _token = settings.GetSetting<PKCETokenResponse>(Constants.SPOTIFY_AUTH_SETTING);
+            _cache = settings.GetSetting<Dictionary<string, ColorSwatch>>("AlbumArtCache", new());
+            _httpClient = new HttpClient
+            {
+                Timeout = TimeSpan.FromSeconds(2)
+            };
+        }
+        #endregion
 
     private SpotifyClient? _spotify;
     private string? _trackId;
@@ -50,13 +48,21 @@ public class SpotifyModule : Module<SpotifyDataModel>
     {
         try
         {
-            Login();
+            try
+            {
+                Login();
+            }
+            catch (Exception e)
+            {
+                _logger.Error("Failed spotify authentication, login in the settings dialog:" + e.ToString());
+            }
+            AddTimedUpdate(TimeSpan.FromSeconds(2), UpdatePlayback, nameof(UpdatePlayback));
+            AddDefaultProfile(DefaultCategoryName.Applications, Plugin.ResolveRelativePath("Spotify.json"));
         }
         catch (Exception e)
         {
             _logger.Error("Failed spotify authentication, login in the settings dialog:" + e.ToString());
         }
-        AddTimedUpdate(TimeSpan.FromSeconds(2), UpdatePlayback, nameof(UpdatePlayback));
     }
 
     public override void Disable()
@@ -244,8 +250,8 @@ public class SpotifyModule : Module<SpotifyDataModel>
     {
         using Stream stream = await _httpClient.GetStreamAsync(uri);
         using SKBitmap skbm = SKBitmap.Decode(stream);
-        SKColor[] skClrs = _colorQuantizer.Quantize(skbm.Pixels, 256);
-        return _colorQuantizer.FindAllColorVariations(skClrs, true);
+        SKColor[] skClrs = ColorQuantizer.Quantize(skbm.Pixels, 256);
+        return ColorQuantizer.FindAllColorVariations(skClrs, true);
     }
 
     private void UpdateBasicTrackInfo(FullTrack track)
@@ -303,8 +309,15 @@ public class SpotifyModule : Module<SpotifyDataModel>
     {
         if (_spotify is null)
             return null;
-
-        return await _spotify.UserProfile.Current();
+        
+        try
+        {
+            return await _spotify.UserProfile.Current();
+        }
+        catch
+        {
+            return null;
+        }
     }
-    #endregion
-}
+        #endregion
+    }

@@ -1,4 +1,5 @@
-﻿using Artemis.Core.Modules;
+﻿using Artemis.Core.ColorScience;
+using Artemis.Core.Modules;
 using Artemis.Core.Services;
 using SpotifyAPI.Web;
 using System;
