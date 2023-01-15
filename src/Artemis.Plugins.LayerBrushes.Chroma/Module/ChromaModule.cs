@@ -36,7 +36,7 @@ public class ChromaModule : Module<ChromaDataModel>
         }
         catch (Exception e)
         {
-            _logger.Error("Error setting priority list.", e);
+            _logger.Error(e, "Error setting priority list.");
             DataModel.PriorityList = Array.Empty<string>();
         }
     }

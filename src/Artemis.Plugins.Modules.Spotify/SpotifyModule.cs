@@ -107,14 +107,14 @@ public class SpotifyModule : Module<SpotifyDataModel>
         if (_spotify is null)
             return;
 
-        CurrentlyPlayingContext playing;
+        CurrentlyPlayingContext? playing;
         try
         {
             playing = await _spotify.Player.GetCurrentPlayback();
         }
         catch (Exception e)
         {
-            _logger.Error("Error updating playback", e);
+            _logger.Error(e, "Error updating playback");
             return;
         }
 
@@ -127,7 +127,7 @@ public class SpotifyModule : Module<SpotifyDataModel>
         }
         catch (Exception e)
         {
-            _logger.Error("Error updating player info", e);
+            _logger.Error(e, "Error updating player info");
         }
 
         //in theory this can also be FullEpisode for podcasts
@@ -156,7 +156,7 @@ public class SpotifyModule : Module<SpotifyDataModel>
         }
         catch (Exception e)
         {
-            _logger.Error("Error updating track audio features", e);
+            _logger.Error(e, "Error updating track audio features");
         }
 
         try
@@ -165,7 +165,7 @@ public class SpotifyModule : Module<SpotifyDataModel>
         }
         catch (Exception e)
         {
-            _logger.Error("Error getting track audio analysis", e);
+            _logger.Error(e, "Error getting track audio analysis");
         }
 
         Image image = track.Album.Images.First();
@@ -242,7 +242,7 @@ public class SpotifyModule : Module<SpotifyDataModel>
         }
         catch (Exception e)
         {
-            _logger.Error("Failed to get album art colors", e);
+            _logger.Error(e, "Failed to get album art colors");
         }
     }
 
