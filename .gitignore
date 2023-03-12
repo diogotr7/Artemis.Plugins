@@ -368,3 +368,5 @@ MigrationBackup/
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudio,dotnetcore
 src/.idea/
+
+src/Artemis.Plugins.LayerBrushes.Chroma/Resources/

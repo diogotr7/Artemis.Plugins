@@ -7,9 +7,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
-namespace Artemis.Plugins.LayerBrushes.Chroma.ChromaService;
+namespace Artemis.Plugins.LayerBrushes.Chroma.Services;
 
-public class ChromaPluginService : IPluginService, IDisposable
+public class ChromaService : IPluginService, IDisposable
 {
     private readonly ILogger _logger;
     private readonly RzSdkManager _manager;
@@ -17,12 +17,12 @@ public class ChromaPluginService : IPluginService, IDisposable
     public event EventHandler<RzDeviceType>? MatrixUpdated;
     public event EventHandler? AppListUpdated;
 
-    public string CurrentApp { get; private set; } = string.Empty;
-    public List<string> Apps { get; } = new List<string>();
-    public List<int> Pids { get; } = new List<int>();
-    public ConcurrentDictionary<RzDeviceType, SKColor[,]> Matrices { get; } = new ConcurrentDictionary<RzDeviceType, SKColor[,]>();
+    public string? CurrentApp { get; private set; } = string.Empty;
+    public List<string> Apps { get; } = new();
+    public List<int> Pids { get; } = new();
+    public ConcurrentDictionary<RzDeviceType, SKColor[,]> Matrices { get; } = new();
 
-    public ChromaPluginService(ILogger logger)
+    public ChromaService(ILogger logger)
     {
         _logger = logger;
 
@@ -73,16 +73,16 @@ public class ChromaPluginService : IPluginService, IDisposable
         else if (provider is AbstractColorDataProvider colorProvider)
         {
             UpdateMatrix(colorProvider);
-            _logger.Verbose("Updated {provider}. Zone zero: {color}", deviceTypeDict[colorProvider.GetType()], colorProvider.GetZoneColor(0));
+            _logger.Verbose("Updated {provider}. Zone zero: {color}", _deviceTypeDict[colorProvider.GetType()], colorProvider.GetZoneColor(0));
         }
     }
 
     private void UpdateMatrix(AbstractColorDataProvider colorProvider)
     {
-        RzDeviceType matrixDeviceType = deviceTypeDict[colorProvider.GetType()];
+        RzDeviceType matrixDeviceType = _deviceTypeDict[colorProvider.GetType()];
         GridSize grid = colorProvider.Grids[0];
 
-        SKColor[,] matrix = Matrices.GetOrAdd(matrixDeviceType, new SKColor[grid.Height, grid.Width]);
+        SKColor[,] matrix = Matrices.GetOrAdd(matrixDeviceType, static (id,g) => new SKColor[g.Height, g.Width], grid);
 
         for (int i = 0; i < grid.Height; i++)
         {
@@ -110,7 +110,7 @@ public class ChromaPluginService : IPluginService, IDisposable
         AppListUpdated?.Invoke(this, EventArgs.Empty);
     }
 
-    private readonly Dictionary<Type, RzDeviceType> deviceTypeDict = new Dictionary<Type, RzDeviceType>
+    private readonly Dictionary<Type, RzDeviceType> _deviceTypeDict = new()
     {
         [typeof(RzMousepadDataProvider)] = RzDeviceType.Mousepad,
         [typeof(RzMouseDataProvider)] = RzDeviceType.Mouse,

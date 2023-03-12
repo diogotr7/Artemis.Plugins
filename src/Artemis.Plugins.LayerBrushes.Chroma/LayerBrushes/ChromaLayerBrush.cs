@@ -1,6 +1,6 @@
-﻿using Artemis.Core;
+using Artemis.Core;
 using Artemis.Core.LayerBrushes;
-using Artemis.Plugins.LayerBrushes.Chroma.ChromaService;
+using Artemis.Plugins.LayerBrushes.Chroma.Services;
 using Artemis.Plugins.LayerBrushes.Chroma.LayerBrushes.PropertyGroups;
 using RGB.NET.Core;
 using SkiaSharp;
@@ -11,11 +11,11 @@ namespace Artemis.Plugins.LayerBrushes.Chroma.LayerBrushes;
 
 public class ChromaLayerBrush : PerLedLayerBrush<ChromaPropertyGroup>
 {
-    private readonly ChromaPluginService _chroma;
+    private readonly ChromaService _chroma;
     private readonly PluginSetting<Dictionary<RzDeviceType, LedId[,]>> _keyMapSetting;
     private readonly ConcurrentDictionary<LedId, SKColor> _colors;
 
-    public ChromaLayerBrush(ChromaPluginService chroma, PluginSettings pluginSettings)
+    public ChromaLayerBrush(ChromaService chroma, PluginSettings pluginSettings)
     {
         _chroma = chroma;
         _keyMapSetting = pluginSettings.GetSetting("ChromaLedArray", DefaultChromaLedMap.Clone());

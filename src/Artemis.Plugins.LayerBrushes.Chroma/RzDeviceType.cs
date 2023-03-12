@@ -1,4 +1,4 @@
-﻿namespace Artemis.Plugins.LayerBrushes.Chroma.ChromaService;
+﻿namespace Artemis.Plugins.LayerBrushes.Chroma;
 
 public enum RzDeviceType
 {

@@ -1,5 +1,4 @@
-﻿using Artemis.Plugins.LayerBrushes.Chroma.ChromaService;
-using RGB.NET.Core;
+﻿using RGB.NET.Core;
 using System.Collections.Generic;
 
 namespace Artemis.Plugins.LayerBrushes.Chroma;

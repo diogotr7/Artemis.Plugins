@@ -14,7 +14,12 @@
         <Reference Include="RazerSdkWrapper" />
     </ItemGroup>
 
+    <Target Name="DownloadChromaSdk" BeforeTargets="PrepareForBuild">
+        <Exec Command="pwsh -NoProfile -ExecutionPolicy Unrestricted -file $(ProjectDir)Scripts\download-razer-chroma-sdk.ps1 $(ProjectDir)" />
+    </Target>
+    
     <ItemGroup>
+        <Content Include="Resources/RazerChromaSdkCoreSetup.exe" CopyToOutputDirectory="PreserveNewest" />
         <Content Include="plugin.json" CopyToOutputDirectory="PreserveNewest" />
         <PackageReference Include="ArtemisRGB.Plugins.BuildTask" Version="1.1.0" />
     </ItemGroup>
