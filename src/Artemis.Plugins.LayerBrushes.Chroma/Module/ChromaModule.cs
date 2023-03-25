@@ -1,6 +1,6 @@
 ﻿using Artemis.Core;
 using Artemis.Core.Modules;
-using Artemis.Plugins.LayerBrushes.Chroma.ChromaService;
+using Artemis.Plugins.LayerBrushes.Chroma.Services;
 using RGB.NET.Core;
 using Serilog;
 using SkiaSharp;
@@ -9,20 +9,22 @@ using System.Collections.Generic;
 
 namespace Artemis.Plugins.LayerBrushes.Chroma.Module;
 
-[PluginFeature(Name = "Chroma")]
+[PluginFeature(Name = "Chroma Grabber")]
 public class ChromaModule : Module<ChromaDataModel>
 {
     public override List<IModuleActivationRequirement> ActivationRequirements { get; } = new();
 
     private readonly ILogger _logger;
-    private readonly ChromaPluginService _chroma;
+    private readonly ChromaService _chroma;
+    private readonly ChromaRegistryService _registry;
     private readonly object _lock = new();
     private readonly Dictionary<LedId, DynamicChild<SKColor>> _colorsCache = new();
     private readonly Dictionary<RzDeviceType, DynamicChild<ChromaDeviceDataModel>> _deviceTypeCache = new();
 
-    public ChromaModule(ChromaPluginService chroma, ILogger logger)
+    public ChromaModule(ChromaService chroma,ChromaRegistryService registry, ILogger logger)
     {
         _chroma = chroma;
+        _registry = registry;
         _logger = logger;
     }
 
@@ -32,13 +34,15 @@ public class ChromaModule : Module<ChromaDataModel>
         _chroma.AppListUpdated += UpdateAppList;
         try
         {
-            DataModel.PriorityList = RazerChromaUtils.GetRazerPriorityList();
+            DataModel.PriorityList = _registry.GetRazerSdkInfo().PriorityList;
         }
         catch (Exception e)
         {
             _logger.Error(e, "Error setting priority list.");
             DataModel.PriorityList = Array.Empty<string>();
         }
+        
+        AddDefaultProfile(DefaultCategoryName.Games, Plugin.ResolveRelativePath("Chroma.json"));
     }
 
     public override void Disable()

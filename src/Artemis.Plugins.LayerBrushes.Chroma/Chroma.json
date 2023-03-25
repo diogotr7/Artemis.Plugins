@@ -1,0 +1,1012 @@
+{
+  "$type": "Artemis.Core.ProfileConfigurationExportModel, Artemis.Core",
+  "ProfileConfigurationEntity": {
+    "$type": "Artemis.Storage.Entities.Profile.ProfileConfigurationEntity, Artemis.Storage",
+    "Name": "Chroma",
+    "MaterialIcon": "Robber",
+    "IconOriginalFileName": null,
+    "FileIconId": "00000000-0000-0000-0000-000000000000",
+    "IconType": 0,
+    "IconFill": false,
+    "Order": 0,
+    "IsSuspended": false,
+    "ActivationBehaviour": 0,
+    "ActivationCondition": {
+      "$type": "Artemis.Storage.Entities.Profile.Nodes.NodeScriptEntity, Artemis.Storage",
+      "Name": "Activate profile",
+      "Description": "Whether or not the profile should be active",
+      "Nodes": {
+        "$type": "System.Collections.Generic.List`1[[Artemis.Storage.Entities.Profile.Nodes.NodeEntity, Artemis.Storage]], System.Private.CoreLib",
+        "$values": [
+          {
+            "$type": "Artemis.Storage.Entities.Profile.Nodes.NodeEntity, Artemis.Storage",
+            "Id": "410c824d-c5e3-4e3a-8080-d50f6c8b83b8",
+            "Type": "ExitNode`1",
+            "PluginId": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+            "Name": "Activate profile",
+            "Description": "Whether or not the profile should be active",
+            "IsExitNode": true,
+            "X": 0.0,
+            "Y": 0.0,
+            "Storage": "",
+            "PinCollections": {
+              "$type": "System.Collections.Generic.List`1[[Artemis.Storage.Entities.Profile.Nodes.NodePinCollectionEntity, Artemis.Storage]], System.Private.CoreLib",
+              "$values": []
+            }
+          }
+        ]
+      },
+      "Connections": {
+        "$type": "System.Collections.Generic.List`1[[Artemis.Storage.Entities.Profile.Nodes.NodeConnectionEntity, Artemis.Storage]], System.Private.CoreLib",
+        "$values": []
+      }
+    },
+    "HotkeyMode": 0,
+    "EnableHotkey": null,
+    "DisableHotkey": null,
+    "ModuleId": null,
+    "ProfileCategoryId": "aef10337-b324-4015-be6e-1ab4c9fb1b79",
+    "ProfileId": "3fdf3dd2-5e8a-4c83-a92c-fd51e6bde0e6",
+    "FadeInAndOut": false
+  },
+  "ProfileEntity": {
+    "$type": "Artemis.Storage.Entities.Profile.ProfileEntity, Artemis.Storage",
+    "Id": "3fdf3dd2-5e8a-4c83-a92c-fd51e6bde0e6",
+    "Name": "Chroma",
+    "IsFreshImport": false,
+    "LastSelectedProfileElement": "11d6b2bf-c0ad-4177-9eda-b0bf0e622e30",
+    "Folders": {
+      "$type": "System.Collections.Generic.List`1[[Artemis.Storage.Entities.Profile.FolderEntity, Artemis.Storage]], System.Private.CoreLib",
+      "$values": [
+        {
+          "$type": "Artemis.Storage.Entities.Profile.FolderEntity, Artemis.Storage",
+          "Order": 1,
+          "Name": "Root folder",
+          "IsExpanded": false,
+          "Suspended": false,
+          "Profile": null,
+          "ProfileId": "3fdf3dd2-5e8a-4c83-a92c-fd51e6bde0e6",
+          "Id": "954c21ed-d51a-45aa-a6ee-3367c0afebeb",
+          "ParentId": "3fdf3dd2-5e8a-4c83-a92c-fd51e6bde0e6",
+          "LayerEffects": {
+            "$type": "System.Collections.Generic.List`1[[Artemis.Storage.Entities.Profile.LayerEffectEntity, Artemis.Storage]], System.Private.CoreLib",
+            "$values": []
+          },
+          "DisplayCondition": {
+            "$type": "Artemis.Storage.Entities.Profile.Conditions.AlwaysOnConditionEntity, Artemis.Storage"
+          },
+          "Timeline": {
+            "$type": "Artemis.Storage.Entities.Profile.TimelineEntity, Artemis.Storage",
+            "StartSegmentLength": "00:00:00",
+            "MainSegmentLength": "00:00:05",
+            "EndSegmentLength": "00:00:00"
+          }
+        }
+      ]
+    },
+    "Layers": {
+      "$type": "System.Collections.Generic.List`1[[Artemis.Storage.Entities.Profile.LayerEntity, Artemis.Storage]], System.Private.CoreLib",
+      "$values": [
+        {
+          "$type": "Artemis.Storage.Entities.Profile.LayerEntity, Artemis.Storage",
+          "Order": 1,
+          "Name": "Chroma",
+          "Suspended": false,
+          "Leds": {
+            "$type": "System.Collections.Generic.List`1[[Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage]], System.Private.CoreLib",
+            "$values": [
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_Escape",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_F1",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_F2",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_F3",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_F4",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_F5",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_F6",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_F7",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_F8",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_F9",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_F10",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_F11",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_F12",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_PrintScreen",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_PauseBreak",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_ScrollLock",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_Custom1",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_Custom2",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_Custom3",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_Custom4",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_GraveAccentAndTilde",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_1",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_2",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_3",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_4",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_5",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_6",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_7",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_8",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_9",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_0",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_MinusAndUnderscore",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_EqualsAndPlus",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_Backspace",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_Insert",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_Home",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_PageUp",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_NumLock",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_NumSlash",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_NumAsterisk",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_NumMinus",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_Tab",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_Q",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_W",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_E",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_R",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_T",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_Y",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_U",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_I",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_O",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_P",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_BracketLeft",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_BracketRight",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_Delete",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_End",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_PageDown",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_Num7",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_Num8",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_Num9",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_NumPlus",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_CapsLock",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_A",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_S",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_D",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_F",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_G",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_H",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_J",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_K",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_L",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_SemicolonAndColon",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_ApostropheAndDoubleQuote",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_NonUsTilde",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_Enter",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_Num4",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_Num5",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_Num6",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_LeftShift",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_NonUsBackslash",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_Z",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_X",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_C",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_V",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_B",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_N",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_M",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_CommaAndLessThan",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_PeriodAndBiggerThan",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_SlashAndQuestionMark",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_RightShift",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_ArrowUp",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_Num1",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_Num2",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_Num3",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_NumEnter",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_LeftCtrl",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_LeftGui",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_LeftAlt",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_Space",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_RightAlt",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_RightGui",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_Function",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_RightCtrl",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_ArrowLeft",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_ArrowDown",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_ArrowRight",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_Num0",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              },
+              {
+                "$type": "Artemis.Storage.Entities.Profile.LedEntity, Artemis.Storage",
+                "LedName": "Keyboard_NumPeriodAndDelete",
+                "DeviceIdentifier": "Wooting Wooting Two HE-Wooting-Wooting Two HE-Keyboard",
+                "PhysicalLayout": 2
+              }
+            ]
+          },
+          "AdaptionHints": {
+            "$type": "System.Collections.Generic.List`1[[Artemis.Storage.Entities.Profile.AdaptionHints.IAdaptionHintEntity, Artemis.Storage]], System.Private.CoreLib",
+            "$values": [
+              {
+                "$type": "Artemis.Storage.Entities.Profile.AdaptionHints.DeviceAdaptionHintEntity, Artemis.Storage",
+                "DeviceType": -1,
+                "LimitAmount": false,
+                "Skip": 0,
+                "Amount": 0
+              }
+            ]
+          },
+          "GeneralPropertyGroup": {
+            "$type": "Artemis.Storage.Entities.Profile.PropertyGroupEntity, Artemis.Storage",
+            "Identifier": "General",
+            "Properties": {
+              "$type": "System.Collections.Generic.List`1[[Artemis.Storage.Entities.Profile.PropertyEntity, Artemis.Storage]], System.Private.CoreLib",
+              "$values": [
+                {
+                  "$type": "Artemis.Storage.Entities.Profile.PropertyEntity, Artemis.Storage",
+                  "Identifier": "BrushReference",
+                  "Value": "{\"LayerBrushProviderId\":\"Artemis.Plugins.LayerBrushes.Chroma.LayerBrushes.ChromaLayerBrushProvider-0cb99d89\",\"BrushType\":\"ChromaLayerBrush\"}",
+                  "KeyframesEnabled": false,
+                  "DataBinding": {
+                    "$type": "Artemis.Storage.Entities.Profile.DataBindings.DataBindingEntity, Artemis.Storage",
+                    "Identifier": null,
+                    "IsEnabled": false,
+                    "NodeScript": null
+                  },
+                  "KeyframeEntities": {
+                    "$type": "System.Collections.Generic.List`1[[Artemis.Storage.Entities.Profile.KeyframeEntity, Artemis.Storage]], System.Private.CoreLib",
+                    "$values": []
+                  }
+                },
+                {
+                  "$type": "Artemis.Storage.Entities.Profile.PropertyEntity, Artemis.Storage",
+                  "Identifier": "ShapeType",
+                  "Value": "1",
+                  "KeyframesEnabled": false,
+                  "DataBinding": {
+                    "$type": "Artemis.Storage.Entities.Profile.DataBindings.DataBindingEntity, Artemis.Storage",
+                    "Identifier": null,
+                    "IsEnabled": false,
+                    "NodeScript": null
+                  },
+                  "KeyframeEntities": {
+                    "$type": "System.Collections.Generic.List`1[[Artemis.Storage.Entities.Profile.KeyframeEntity, Artemis.Storage]], System.Private.CoreLib",
+                    "$values": []
+                  }
+                },
+                {
+                  "$type": "Artemis.Storage.Entities.Profile.PropertyEntity, Artemis.Storage",
+                  "Identifier": "BlendMode",
+                  "Value": "3",
+                  "KeyframesEnabled": false,
+                  "DataBinding": {
+                    "$type": "Artemis.Storage.Entities.Profile.DataBindings.DataBindingEntity, Artemis.Storage",
+                    "Identifier": null,
+                    "IsEnabled": false,
+                    "NodeScript": null
+                  },
+                  "KeyframeEntities": {
+                    "$type": "System.Collections.Generic.List`1[[Artemis.Storage.Entities.Profile.KeyframeEntity, Artemis.Storage]], System.Private.CoreLib",
+                    "$values": []
+                  }
+                },
+                {
+                  "$type": "Artemis.Storage.Entities.Profile.PropertyEntity, Artemis.Storage",
+                  "Identifier": "TransformMode",
+                  "Value": "0",
+                  "KeyframesEnabled": false,
+                  "DataBinding": {
+                    "$type": "Artemis.Storage.Entities.Profile.DataBindings.DataBindingEntity, Artemis.Storage",
+                    "Identifier": null,
+                    "IsEnabled": false,
+                    "NodeScript": null
+                  },
+                  "KeyframeEntities": {
+                    "$type": "System.Collections.Generic.List`1[[Artemis.Storage.Entities.Profile.KeyframeEntity, Artemis.Storage]], System.Private.CoreLib",
+                    "$values": []
+                  }
+                }
+              ]
+            },
+            "PropertyGroups": {
+              "$type": "System.Collections.Generic.List`1[[Artemis.Storage.Entities.Profile.PropertyGroupEntity, Artemis.Storage]], System.Private.CoreLib",
+              "$values": []
+            }
+          },
+          "TransformPropertyGroup": {
+            "$type": "Artemis.Storage.Entities.Profile.PropertyGroupEntity, Artemis.Storage",
+            "Identifier": "Transform",
+            "Properties": {
+              "$type": "System.Collections.Generic.List`1[[Artemis.Storage.Entities.Profile.PropertyEntity, Artemis.Storage]], System.Private.CoreLib",
+              "$values": [
+                {
+                  "$type": "Artemis.Storage.Entities.Profile.PropertyEntity, Artemis.Storage",
+                  "Identifier": "AnchorPoint",
+                  "Value": "{\"IsEmpty\":false,\"Length\":0.70710677,\"LengthSquared\":0.5,\"X\":0.5,\"Y\":0.5}",
+                  "KeyframesEnabled": false,
+                  "DataBinding": {
+                    "$type": "Artemis.Storage.Entities.Profile.DataBindings.DataBindingEntity, Artemis.Storage",
+                    "Identifier": null,
+                    "IsEnabled": false,
+                    "NodeScript": null
+                  },
+                  "KeyframeEntities": {
+                    "$type": "System.Collections.Generic.List`1[[Artemis.Storage.Entities.Profile.KeyframeEntity, Artemis.Storage]], System.Private.CoreLib",
+                    "$values": []
+                  }
+                },
+                {
+                  "$type": "Artemis.Storage.Entities.Profile.PropertyEntity, Artemis.Storage",
+                  "Identifier": "Position",
+                  "Value": "{\"IsEmpty\":false,\"Length\":0.70710677,\"LengthSquared\":0.5,\"X\":0.5,\"Y\":0.5}",
+                  "KeyframesEnabled": false,
+                  "DataBinding": {
+                    "$type": "Artemis.Storage.Entities.Profile.DataBindings.DataBindingEntity, Artemis.Storage",
+                    "Identifier": null,
+                    "IsEnabled": false,
+                    "NodeScript": null
+                  },
+                  "KeyframeEntities": {
+                    "$type": "System.Collections.Generic.List`1[[Artemis.Storage.Entities.Profile.KeyframeEntity, Artemis.Storage]], System.Private.CoreLib",
+                    "$values": []
+                  }
+                },
+                {
+                  "$type": "Artemis.Storage.Entities.Profile.PropertyEntity, Artemis.Storage",
+                  "Identifier": "Scale",
+                  "Value": "{\"IsEmpty\":false,\"Width\":100.0,\"Height\":100.0}",
+                  "KeyframesEnabled": false,
+                  "DataBinding": {
+                    "$type": "Artemis.Storage.Entities.Profile.DataBindings.DataBindingEntity, Artemis.Storage",
+                    "Identifier": null,
+                    "IsEnabled": false,
+                    "NodeScript": null
+                  },
+                  "KeyframeEntities": {
+                    "$type": "System.Collections.Generic.List`1[[Artemis.Storage.Entities.Profile.KeyframeEntity, Artemis.Storage]], System.Private.CoreLib",
+                    "$values": []
+                  }
+                },
+                {
+                  "$type": "Artemis.Storage.Entities.Profile.PropertyEntity, Artemis.Storage",
+                  "Identifier": "Rotation",
+                  "Value": "0.0",
+                  "KeyframesEnabled": false,
+                  "DataBinding": {
+                    "$type": "Artemis.Storage.Entities.Profile.DataBindings.DataBindingEntity, Artemis.Storage",
+                    "Identifier": null,
+                    "IsEnabled": false,
+                    "NodeScript": null
+                  },
+                  "KeyframeEntities": {
+                    "$type": "System.Collections.Generic.List`1[[Artemis.Storage.Entities.Profile.KeyframeEntity, Artemis.Storage]], System.Private.CoreLib",
+                    "$values": []
+                  }
+                },
+                {
+                  "$type": "Artemis.Storage.Entities.Profile.PropertyEntity, Artemis.Storage",
+                  "Identifier": "Opacity",
+                  "Value": "100.0",
+                  "KeyframesEnabled": false,
+                  "DataBinding": {
+                    "$type": "Artemis.Storage.Entities.Profile.DataBindings.DataBindingEntity, Artemis.Storage",
+                    "Identifier": null,
+                    "IsEnabled": false,
+                    "NodeScript": null
+                  },
+                  "KeyframeEntities": {
+                    "$type": "System.Collections.Generic.List`1[[Artemis.Storage.Entities.Profile.KeyframeEntity, Artemis.Storage]], System.Private.CoreLib",
+                    "$values": []
+                  }
+                }
+              ]
+            },
+            "PropertyGroups": {
+              "$type": "System.Collections.Generic.List`1[[Artemis.Storage.Entities.Profile.PropertyGroupEntity, Artemis.Storage]], System.Private.CoreLib",
+              "$values": []
+            }
+          },
+          "LayerBrush": {
+            "$type": "Artemis.Storage.Entities.Profile.LayerBrushEntity, Artemis.Storage",
+            "ProviderId": "Artemis.Plugins.LayerBrushes.Chroma.LayerBrushes.ChromaLayerBrushProvider-0cb99d89",
+            "BrushType": "Artemis.Plugins.LayerBrushes.Chroma.LayerBrushes.ChromaLayerBrush",
+            "PropertyGroup": {
+              "$type": "Artemis.Storage.Entities.Profile.PropertyGroupEntity, Artemis.Storage",
+              "Identifier": "Brush",
+              "Properties": {
+                "$type": "System.Collections.Generic.List`1[[Artemis.Storage.Entities.Profile.PropertyEntity, Artemis.Storage]], System.Private.CoreLib",
+                "$values": [
+                  {
+                    "$type": "Artemis.Storage.Entities.Profile.PropertyEntity, Artemis.Storage",
+                    "Identifier": "UseDefaultLed",
+                    "Value": "true",
+                    "KeyframesEnabled": false,
+                    "DataBinding": {
+                      "$type": "Artemis.Storage.Entities.Profile.DataBindings.DataBindingEntity, Artemis.Storage",
+                      "Identifier": null,
+                      "IsEnabled": false,
+                      "NodeScript": null
+                    },
+                    "KeyframeEntities": {
+                      "$type": "System.Collections.Generic.List`1[[Artemis.Storage.Entities.Profile.KeyframeEntity, Artemis.Storage]], System.Private.CoreLib",
+                      "$values": []
+                    }
+                  },
+                  {
+                    "$type": "Artemis.Storage.Entities.Profile.PropertyEntity, Artemis.Storage",
+                    "Identifier": "TransparentBlack",
+                    "Value": "false",
+                    "KeyframesEnabled": false,
+                    "DataBinding": {
+                      "$type": "Artemis.Storage.Entities.Profile.DataBindings.DataBindingEntity, Artemis.Storage",
+                      "Identifier": null,
+                      "IsEnabled": false,
+                      "NodeScript": null
+                    },
+                    "KeyframeEntities": {
+                      "$type": "System.Collections.Generic.List`1[[Artemis.Storage.Entities.Profile.KeyframeEntity, Artemis.Storage]], System.Private.CoreLib",
+                      "$values": []
+                    }
+                  }
+                ]
+              },
+              "PropertyGroups": {
+                "$type": "System.Collections.Generic.List`1[[Artemis.Storage.Entities.Profile.PropertyGroupEntity, Artemis.Storage]], System.Private.CoreLib",
+                "$values": []
+              }
+            }
+          },
+          "Profile": null,
+          "ProfileId": "3fdf3dd2-5e8a-4c83-a92c-fd51e6bde0e6",
+          "Id": "11d6b2bf-c0ad-4177-9eda-b0bf0e622e30",
+          "ParentId": "954c21ed-d51a-45aa-a6ee-3367c0afebeb",
+          "LayerEffects": {
+            "$type": "System.Collections.Generic.List`1[[Artemis.Storage.Entities.Profile.LayerEffectEntity, Artemis.Storage]], System.Private.CoreLib",
+            "$values": []
+          },
+          "DisplayCondition": {
+            "$type": "Artemis.Storage.Entities.Profile.Conditions.AlwaysOnConditionEntity, Artemis.Storage"
+          },
+          "Timeline": {
+            "$type": "Artemis.Storage.Entities.Profile.TimelineEntity, Artemis.Storage",
+            "StartSegmentLength": "00:00:00",
+            "MainSegmentLength": "00:00:05",
+            "EndSegmentLength": "00:00:00"
+          }
+        }
+      ]
+    },
+    "ScriptConfigurations": {
+      "$type": "System.Collections.Generic.List`1[[Artemis.Storage.Entities.General.ScriptConfigurationEntity, Artemis.Storage]], System.Private.CoreLib",
+      "$values": []
+    }
+  },
+  "ProfileImage": null
+}

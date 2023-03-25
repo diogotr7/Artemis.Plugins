@@ -1,7 +1,6 @@
 ﻿using Artemis.Core.LayerBrushes;
-using Artemis.Plugins.LayerBrushes.Chroma.LayerBrushes;
 
-namespace Artemis.Plugins.LayerBrushes.Chroma;
+namespace Artemis.Plugins.LayerBrushes.Chroma.LayerBrushes;
 
 public class ChromaLayerBrushProvider : LayerBrushProvider
 {
