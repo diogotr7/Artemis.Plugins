@@ -41,6 +41,8 @@ public class ChromaModule : Module<ChromaDataModel>
             _logger.Error(e, "Error setting priority list.");
             DataModel.PriorityList = Array.Empty<string>();
         }
+        
+        AddDefaultProfile(DefaultCategoryName.Games, Plugin.ResolveRelativePath("Chroma.json"));
     }
 
     public override void Disable()

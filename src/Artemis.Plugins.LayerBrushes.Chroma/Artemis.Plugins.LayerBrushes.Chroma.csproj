@@ -21,6 +21,7 @@
     <ItemGroup>
         <Content Include="Resources/RazerChromaSdkCoreSetup.exe" CopyToOutputDirectory="PreserveNewest" />
         <Content Include="plugin.json" CopyToOutputDirectory="PreserveNewest" />
+        <Content Include="Chroma.json" CopyToOutputDirectory="PreserveNewest" />
         <PackageReference Include="ArtemisRGB.Plugins.BuildTask" Version="1.1.0" />
     </ItemGroup>
 </Project>
