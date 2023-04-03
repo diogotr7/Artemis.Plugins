@@ -166,7 +166,6 @@ public class DiscordModule : Module<DiscordDataModel>
 
         //i hate this but otherwise it won't dispose properly.
         //this method is still running in the read loop thread.
-        //todo: maybe switch to BeginRead instead of the loop?
         Task.Run(() =>
         {
             DisconnectFromDiscord();
@@ -307,7 +306,7 @@ public class DiscordModule : Module<DiscordDataModel>
     {
         DataModel.Voice.Channel.Members.ClearDynamicChildren();
 
-        await UnubscribeFromVoiceChannelEvents();
+        await UnsubscribeFromVoiceChannelEvents();
     }
 
     private async Task SubscribeToVoiceChannelEvents(string channelId)
@@ -322,7 +321,7 @@ public class DiscordModule : Module<DiscordDataModel>
         await discordClient.SubscribeAsync(DiscordRpcEvent.VOICE_STATE_DELETE, ("channel_id", channelId));
     }
 
-    private Task UnubscribeFromVoiceChannelEvents()
+    private Task UnsubscribeFromVoiceChannelEvents()
     {
         //todo: do we even need to do this?
         //await discordClient.UnsubscribeAsync(DiscordRpcEvent.SPEAKING_START, ("channel_id", channelId));

@@ -28,7 +28,7 @@ public class DiscordAuthClient : IDisposable
 
     public string AccessToken => _token.Value.AccessToken;
 
-    public async Task TryRefreshTokenAsync()
+    public async Task RefreshTokenIfNeededAsync()
     {
         if (!HasToken)
             return;
@@ -46,11 +46,13 @@ public class DiscordAuthClient : IDisposable
         return token;
     }
 
-    public async Task<TokenResponse> RefreshAccessTokenAsync()
+    public async Task RefreshAccessTokenAsync()
     {
+        if (!HasToken)
+            throw new InvalidOperationException("No token to refresh");
+        
         TokenResponse token = await GetCredentialsAsync("refresh_token", "refresh_token", _token.Value.RefreshToken);
         SaveToken(token);
-        return token;
     }
 
     private async Task<TokenResponse> GetCredentialsAsync(string grantType, string secretType, string secret)

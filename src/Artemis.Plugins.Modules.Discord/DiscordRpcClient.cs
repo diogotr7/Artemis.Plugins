@@ -41,6 +41,7 @@ public class DiscordRpcClient : IDiscordRpcClient
     private readonly byte[] _headerBuffer;
     private NamedPipeClientStream? _pipe;
     private Task? _readLoopTask;
+    private Task? _refreshTokenTask;
     private TaskCompletionSource<Ready>? _readyTcs;
     #endregion
 
@@ -189,8 +190,20 @@ public class DiscordRpcClient : IDiscordRpcClient
         await _readyTcs.Task;
 
         var authenticatedData = await HandleAuthenticationAsync();
-
+        _refreshTokenTask = Task.Run(RefreshTokenLoop, _cancellationTokenSource.Token);
+        
         Authenticated?.Invoke(this, authenticatedData);
+    }
+    
+    private async Task AuthorizeAsync()
+    {
+        DiscordResponse<Authorize> authorizeResponse = await SendRequestWithResponseTypeAsync<Authorize>(
+            new DiscordRequest(DiscordRpcCommand.AUTHORIZE,
+                ("client_id", _clientId),
+                ("scopes", new string[] { "rpc", "identify", "rpc.notifications.read" })),
+            timeoutMs: 30000);//high timeout so the user has time to click the button
+        
+        await _authClient.GetAccessTokenAsync(authorizeResponse.Data.Code);
     }
 
     private async Task<Authenticate> HandleAuthenticationAsync()
@@ -200,22 +213,22 @@ public class DiscordRpcClient : IDiscordRpcClient
             //We have no token saved. This means it's probably the first time
             //the user is using the plugin. We need to ask for their permission
             //to get a token from discord. 
-            //This token can be saved and reused (+ refreshed) later.
-            DiscordResponse<Authorize> authorizeResponse = await SendRequestWithResponseTypeAsync<Authorize>(
-                new DiscordRequest(DiscordRpcCommand.AUTHORIZE,
-                    ("client_id", _clientId),
-                    ("scopes", new string[] { "rpc", "identify", "rpc.notifications.read" })),
-                timeoutMs: 30000);//high timeout so the user has time to click the button
-
-            await _authClient.GetAccessTokenAsync(authorizeResponse.Data.Code);
+            await AuthorizeAsync();
         }
-        if (!_authClient.IsTokenValid)
+        
+        //Now that we have a token for sure,
+        //we need to check if it expired or not.
+        //If yes, refresh it.
+        //Then, authenticate.
+        try
         {
-            //Now that we have a token for sure,
-            //we need to check if it expired or not.
-            //If yes, refresh it.
-            //Then, authenticate.
             await _authClient.RefreshAccessTokenAsync();
+        }
+        catch (UnauthorizedAccessException e)
+        {
+            //if we get here, the token is invalid and we need to get a new one.
+            Error?.Invoke(this, new DiscordRpcClientException("Token is invalid. Please re-authorize the plugin.", e));
+            await AuthorizeAsync();
         }
 
         DiscordResponse<Authenticate> authenticateResponse = await SendRequestWithResponseTypeAsync<Authenticate>(
@@ -235,16 +248,27 @@ public class DiscordRpcClient : IDiscordRpcClient
                 var (opCode, data) = await ReadMessageAsync();
 
                 await ProcessMessageAsync(opCode, data);
-
-                //this is not really this classes job but it's easier to put it here :S
-                //It should only execute once a week or so, which is how long the token
-                //lasts for. This is to keep the connection working for the people that 
-                //never close the programs.
-                await _authClient.TryRefreshTokenAsync();
             }
             catch (Exception e)
             {
                 Error?.Invoke(this, new DiscordRpcClientException("Error in Discord read loop", e, true));
+            }
+        }
+    }
+
+    private async Task RefreshTokenLoop()
+    {
+        while (!_cancellationTokenSource.IsCancellationRequested)
+        {
+            try
+            {
+                await _authClient.RefreshTokenIfNeededAsync();
+
+                await Task.Delay(TimeSpan.FromDays(1), _cancellationTokenSource.Token);
+            }
+            catch
+            {
+                //we can safely ignore this error
             }
         }
     }
@@ -503,7 +527,7 @@ public class DiscordRpcClient : IDiscordRpcClient
                     VoiceStateUpdated = null;
                     VoiceStateDeleted = null;
 
-                    try { _readLoopTask?.Wait(); }
+                    try { _readLoopTask?.Wait(); _refreshTokenTask?.Wait(); }
                     catch { /*catch everything*/ }
 
                     _cancellationTokenSource.Dispose();
