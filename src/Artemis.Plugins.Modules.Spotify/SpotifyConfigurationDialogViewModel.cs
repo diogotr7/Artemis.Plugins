@@ -127,7 +127,11 @@ public class SpotifyConfigurationDialogViewModel : PluginConfigurationViewModel
                 if (user is null)
                     return;
                 Username = user.DisplayName;
-
+                
+                //skiaSharp crashes on linux, fix later TODO
+                if (OperatingSystem.IsLinux())
+                    return;
+                
                 if (user.Images.Count < 1)
                     return;
                 try
