@@ -10,9 +10,4 @@ public partial class FilePathPropertyDisplayView : ReactiveUserControl<FilePathP
     {
         InitializeComponent();
     }
-
-    private void InitializeComponent()
-    {
-        AvaloniaXamlLoader.Load(this);
-    }
 }

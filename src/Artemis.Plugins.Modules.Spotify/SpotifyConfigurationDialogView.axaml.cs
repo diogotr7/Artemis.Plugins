@@ -9,9 +9,4 @@ public partial class SpotifyConfigurationDialogView : ReactiveUserControl<Spotif
     {
         InitializeComponent();
     }
-
-    private void InitializeComponent()
-    {
-        AvaloniaXamlLoader.Load(this);
-    }
 }

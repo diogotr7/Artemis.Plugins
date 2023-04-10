@@ -9,9 +9,4 @@ public partial class DiscordPluginConfigurationView : ReactiveUserControl<Discor
     {
         InitializeComponent();
     }
-
-    private void InitializeComponent()
-    {
-        AvaloniaXamlLoader.Load(this);
-    }
 }
