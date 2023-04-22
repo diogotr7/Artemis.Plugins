@@ -24,16 +24,16 @@ public class DiscordAuthClient : IDisposable
 
     public bool HasToken => _token.Value != null;
 
-    public bool IsTokenValid => HasToken && _token.Value.ExpirationDate >= DateTime.UtcNow;
+    public bool IsTokenValid => HasToken && _token.Value!.ExpirationDate >= DateTime.UtcNow;
 
-    public string AccessToken => _token.Value.AccessToken;
+    public string AccessToken => _token.Value?.AccessToken ?? throw new InvalidOperationException("No token available");
 
     public async Task RefreshTokenIfNeededAsync()
     {
         if (!HasToken)
             return;
 
-        if (_token.Value.ExpirationDate >= DateTime.UtcNow.AddDays(1))
+        if (_token.Value!.ExpirationDate >= DateTime.UtcNow.AddDays(1))
             return;
 
         await RefreshAccessTokenAsync();
@@ -41,7 +41,7 @@ public class DiscordAuthClient : IDisposable
 
     public async Task<TokenResponse> GetAccessTokenAsync(string challengeCode)
     {
-        TokenResponse token = await GetCredentialsAsync("authorization_code", "code", challengeCode);
+        var token = await GetCredentialsAsync("authorization_code", "code", challengeCode);
         SaveToken(token);
         return token;
     }
@@ -51,7 +51,7 @@ public class DiscordAuthClient : IDisposable
         if (!HasToken)
             throw new InvalidOperationException("No token to refresh");
         
-        TokenResponse token = await GetCredentialsAsync("refresh_token", "refresh_token", _token.Value.RefreshToken);
+        TokenResponse token = await GetCredentialsAsync("refresh_token", "refresh_token", _token.Value!.RefreshToken);
         SaveToken(token);
     }
 

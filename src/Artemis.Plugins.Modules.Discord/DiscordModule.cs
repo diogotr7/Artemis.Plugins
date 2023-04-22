@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Artemis.Plugins.Modules.Discord;
 
-[PluginFeature(Name = "Discord")]
+[PluginFeature(Name = "Discord but different")]
 public class DiscordModule : Module<DiscordDataModel>
 {
     public override List<IModuleActivationRequirement> ActivationRequirements { get; }
@@ -82,6 +82,9 @@ public class DiscordModule : Module<DiscordDataModel>
 
     private void ConnectToDiscord()
     {
+        ArgumentException.ThrowIfNullOrEmpty(_clientId.Value, nameof(_clientId));
+        ArgumentException.ThrowIfNullOrEmpty(_clientSecret.Value, nameof(_clientSecret));
+        
         lock (_discordClientLock)
         {
             discordClient = new DiscordRpcClient(_clientId.Value, _clientSecret.Value, _savedToken);
@@ -103,11 +106,11 @@ public class DiscordModule : Module<DiscordDataModel>
 
     private void DisconnectFromDiscord()
     {
-        if (discordClient is null)
-            return;
-
         lock (_discordClientLock)
         {
+            if (discordClient is null)
+                return;
+            
             discordClient.Authenticated -= OnAuthenticated;
             discordClient.Error -= OnError;
             discordClient.NotificationReceived -= OnNotificationReceived;

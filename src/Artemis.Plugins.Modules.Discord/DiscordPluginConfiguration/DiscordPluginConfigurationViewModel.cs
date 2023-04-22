@@ -24,8 +24,8 @@ public class DiscordPluginConfigurationViewModel : PluginConfigurationViewModel
         _clientIdSetting = pluginSettings.GetSetting("DiscordClientId", string.Empty);
         _clientSecretSetting = pluginSettings.GetSetting("DiscordClientSecret", string.Empty);
 
-        ClientId = _clientIdSetting.Value;
-        ClientSecret = _clientSecretSetting.Value;
+        ClientId = _clientIdSetting.Value!;
+        ClientSecret = _clientSecretSetting.Value!;
 
         this.ValidationRule(vm => vm.ClientId, clientId => clientId!.All(c => char.IsDigit(c)), "Client Id must be only number characters");
         this.ValidationRule(vm => vm.ClientSecret, clientSecret => clientSecret?.Length > 0, "Client Secret must not be empty");

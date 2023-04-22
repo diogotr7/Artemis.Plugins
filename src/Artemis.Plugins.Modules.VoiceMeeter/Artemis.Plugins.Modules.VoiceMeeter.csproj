@@ -8,15 +8,18 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="ArtemisRGB.UI.Shared" IncludeAssets="compile;build;buildTransitive" Version="1.2023.410.9" />
+        <PackageReference Include="ArtemisRGB.UI.Shared" IncludeAssets="compile;build;buildTransitive" Version="1.2023.420.6" />
     </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Update="Microsoft.Win32.Registry" Version="6.0.0-preview.5.21301.5" />
-    </ItemGroup>
+<!--    <ItemGroup>-->
+<!--        <PackageReference Update="Microsoft.Win32.Registry" Version="6.0.0-preview.5.21301.5" />-->
+<!--    </ItemGroup>-->
 
     <ItemGroup>
         <Content Include="plugin.json" CopyToOutputDirectory="PreserveNewest" />
-        <PackageReference Include="ArtemisRGB.Plugins.BuildTask" Version="1.1.0" />
+        <PackageReference Include="ArtemisRGB.Plugins.BuildTask" Version="2.0.0">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
 </Project>
