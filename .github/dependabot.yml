@@ -5,9 +5,11 @@
 
 version: 2
 updates:
-  - package-ecosystem: "nuget" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: "nuget"
+    directory: "/"
     schedule:
       interval: "weekly"
+    allow:
+      - dependency-name: "ArtemisRGB*"
     ignore:
-      update-types: ["version-update:semver-major"] # I will handle major updates manually. others should be fine.
+      update-types: ["version-update:semver-major"]
