@@ -12,4 +12,4 @@ updates:
     allow:
       - dependency-name: "ArtemisRGB*"
     ignore:
-      update-types: ["version-update:semver-major"]
+      - update-types: ["version-update:semver-major"]
