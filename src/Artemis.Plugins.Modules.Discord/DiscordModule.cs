@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Artemis.Plugins.Modules.Discord;
 
-[PluginFeature(Name = "Discord but different")]
+[PluginFeature(Name = "Discord")]
 public class DiscordModule : Module<DiscordDataModel>
 {
     public override List<IModuleActivationRequirement> ActivationRequirements { get; }

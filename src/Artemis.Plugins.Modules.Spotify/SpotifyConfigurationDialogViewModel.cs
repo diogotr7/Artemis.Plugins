@@ -7,6 +7,7 @@ using SpotifyAPI.Web.Auth;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -22,31 +23,35 @@ public class SpotifyConfigurationDialogViewModel : PluginConfigurationViewModel
     private static EmbedIOAuthServer Server => _server ??= new EmbedIOAuthServer(new Uri("http://localhost:5000/callback"), 5000);
 
     private Bitmap? _profilePicture;
+
     public Bitmap? ProfilePicture
     {
         get => _profilePicture;
-        set => this.RaiseAndSetIfChanged(ref _profilePicture, value);
+        set => RaiseAndSetIfChanged(ref _profilePicture, value);
     }
 
     private string? _username;
+
     public string? Username
     {
         get => _username;
-        set => this.RaiseAndSetIfChanged(ref _username, value);
+        set => RaiseAndSetIfChanged(ref _username, value);
     }
 
     private bool _logInVisibility;
+
     public bool LogInVisibility
     {
         get => _logInVisibility;
-        set => this.RaiseAndSetIfChanged(ref _logInVisibility, value);
+        set => RaiseAndSetIfChanged(ref _logInVisibility, value);
     }
 
     private bool _logOutVisibility;
+
     public bool LogOutVisibility
     {
         get => _logOutVisibility;
-        set => this.RaiseAndSetIfChanged(ref _logOutVisibility, value);
+        set => RaiseAndSetIfChanged(ref _logOutVisibility, value);
     }
 
     private string? _verifier;
@@ -64,23 +69,23 @@ public class SpotifyConfigurationDialogViewModel : PluginConfigurationViewModel
 
     public async Task Login()
     {
-        if (!_waitingForUser)
-        {
-            _waitingForUser = true;
-            (_verifier, _challenge) = PKCEUtil.GenerateCodes();
-
-            await Server.Start();
-            Server.AuthorizationCodeReceived += OnAuthorizationCodeReceived;
-
-            LoginRequest request = new LoginRequest(Server.BaseUri, Constants.SPOTIFY_CLIENT_ID, LoginRequest.ResponseType.Code)
-            {
-                CodeChallenge = _challenge,
-                CodeChallengeMethod = "S256",
-                Scope = new List<string> { Scopes.UserReadCurrentlyPlaying, Scopes.UserReadPlaybackState }
-            };
-            _loginUrl = request.ToUri().ToString();
-        }
+        if (_waitingForUser)
+            return;
         
+        _waitingForUser = true;
+        (_verifier, _challenge) = PKCEUtil.GenerateCodes();
+
+        await Server.Start();
+        Server.AuthorizationCodeReceived += OnAuthorizationCodeReceived;
+
+        var request = new LoginRequest(Server.BaseUri, Constants.SPOTIFY_CLIENT_ID, LoginRequest.ResponseType.Code)
+        {
+            CodeChallenge = _challenge,
+            CodeChallengeMethod = "S256",
+            Scope = new List<string> { Scopes.UserReadCurrentlyPlaying, Scopes.UserReadPlaybackState }
+        };
+        _loginUrl = request.ToUri().ToString();
+
         if (_loginUrl is not null)
             Utilities.OpenUrl(_loginUrl);
     }
@@ -99,7 +104,7 @@ public class SpotifyConfigurationDialogViewModel : PluginConfigurationViewModel
         Server.AuthorizationCodeReceived -= OnAuthorizationCodeReceived;
         await Server.Stop();
 
-        PKCETokenRequest tokenRequest = new PKCETokenRequest(Constants.SPOTIFY_CLIENT_ID, response.Code, Server.BaseUri, _verifier!);
+        var tokenRequest = new PKCETokenRequest(Constants.SPOTIFY_CLIENT_ID, response.Code, Server.BaseUri, _verifier!);
 
         _token.Value = await new OAuthClient().RequestToken(tokenRequest);
         _token.Save();
@@ -121,31 +126,42 @@ public class SpotifyConfigurationDialogViewModel : PluginConfigurationViewModel
     {
         Dispatcher.UIThread.Post(async () =>
         {
-            if (_dataModelExpansion.LoggedIn)
+            try
             {
-                var user = await _dataModelExpansion.GetUserInfo();
-                if (user is null)
-                    return;
-                Username = user.DisplayName;
-                
-                //skiaSharp crashes on linux, fix later TODO
-                if (OperatingSystem.IsLinux())
-                    return;
-                
-                if (user.Images.Count < 1)
-                    return;
-                try
+                if (_dataModelExpansion.LoggedIn)
                 {
-                    ProfilePicture = new Bitmap(await _client.GetStreamAsync(user.Images[0].Url));
-                }
-                catch
-                {
-                    ProfilePicture = new Bitmap(new FileStream(Plugin.ResolveRelativePath("no-user.png"), FileMode.Open, FileAccess.Read));
-                }
-                return;
-            }
+                    var user = await _dataModelExpansion.GetUserInfo();
+                    if (user is null)
+                        return;
+                    Username = user.DisplayName;
 
-            Username = "Not logged in";
+                    //skiaSharp crashes on linux, fix later TODO
+                    if (OperatingSystem.IsLinux())
+                        return;
+
+                    if (user.Images.Count < 1)
+                        return;
+                    
+                    try
+                    {
+                        var response = await _client.GetAsync(user.Images.Last().Url, HttpCompletionOption.ResponseContentRead);
+                        var imageStream = await response.Content.ReadAsStreamAsync();
+                        ProfilePicture = new Bitmap(imageStream);
+                    }
+                    catch (Exception e)
+                    {
+                        ProfilePicture = new Bitmap(new FileStream(Plugin.ResolveRelativePath("no-user.png"), FileMode.Open, FileAccess.Read));
+                    }
+
+                    return;
+                }
+
+                Username = "Not logged in";
+            }
+            catch (Exception e)
+            {
+                //failed to get user info, ignore
+            }
         });
     }
 }

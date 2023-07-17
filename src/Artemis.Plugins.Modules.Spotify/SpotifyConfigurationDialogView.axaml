@@ -2,7 +2,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+              xmlns:local="clr-namespace:Artemis.Plugins.Modules.Spotify"
              mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="450"
+             x:DataType="local:SpotifyConfigurationDialogViewModel"
              x:Class="Artemis.Plugins.Modules.Spotify.SpotifyConfigurationDialogView">
   <Border Classes="card" Margin="8" >
       <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
@@ -11,14 +13,14 @@
                  Height="300"
                  Width="300" >
           <Ellipse.Fill>
-            <ImageBrush Source="{Binding ProfilePicture}" />
+            <ImageBrush Source="{CompiledBinding ProfilePicture}" />
           </Ellipse.Fill>
         </Ellipse>
 
         <TextBlock HorizontalAlignment="Center"
                Margin="5"
                FontSize="20"
-               Text="{Binding Username}"/>
+               Text="{CompiledBinding Username}"/>
 
         <StackPanel Orientation="Horizontal">
           <Button Margin="10"
@@ -27,7 +29,7 @@
                   HorizontalAlignment="Center"
                   Classes="AppBarButton icon-button"
                   Command="{Binding Login}"
-                  IsEnabled="{Binding LogInVisibility}">
+                  IsEnabled="{CompiledBinding LogInVisibility}">
             LOGIN
           </Button>
 
@@ -37,7 +39,7 @@
                   HorizontalAlignment="Center"
                   Classes="AppBarButton icon-button"
                   Command="{Binding Logout}"
-                  IsEnabled="{Binding LogOutVisibility}">
+                  IsEnabled="{CompiledBinding LogOutVisibility}">
             LOGOUT
           </Button>
         </StackPanel>

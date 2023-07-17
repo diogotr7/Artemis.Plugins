@@ -48,11 +48,6 @@ public class ChromaService : IPluginService, IDisposable
         if (CurrentApp == null && !forced)
             return;
 
-        if (forced)
-            _logger.Verbose("Running forced AppList update...");
-        else
-            _logger.Verbose("Running applist update to check for closed apps...");
-
         RzAppListDataProvider applist = _manager.GetDataProvider<RzAppListDataProvider>();
         applist.Update();
         UpdateAppListData(applist);
