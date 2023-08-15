@@ -8,10 +8,7 @@
 
     <ItemGroup>
         <PackageReference Include="ArtemisRGB.UI.Shared" IncludeAssets="compile;build;buildTransitive" Version="1.2023.727.9" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Reference Include="RazerSdkWrapper" />
+        <PackageReference Include="RazerSdkReader" Version="1.2.0" />
     </ItemGroup>
 
     <Target Name="DownloadChromaSdk" BeforeTargets="PrepareForBuild">
