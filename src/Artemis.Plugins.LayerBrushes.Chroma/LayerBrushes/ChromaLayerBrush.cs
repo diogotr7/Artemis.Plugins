@@ -18,7 +18,7 @@ public class ChromaLayerBrush : PerLedLayerBrush<ChromaPropertyGroup>
     public ChromaLayerBrush(ChromaService chroma, PluginSettings pluginSettings)
     {
         _chroma = chroma;
-        _keyMapSetting = pluginSettings.GetSetting("ChromaLedArray", DefaultChromaLedMap.Clone());
+        _keyMapSetting = pluginSettings.GetSetting("ChromaKeymap", DefaultChromaLedMap.Clone());
         _colors = new();
     }
 

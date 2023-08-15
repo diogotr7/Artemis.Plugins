@@ -242,6 +242,11 @@ public static class DefaultChromaLedMap
     public static readonly LedId[,] Mousepad =
     {
         {
+            LedId.Mousepad20,
+            LedId.Mousepad19,
+            LedId.Mousepad18,
+            LedId.Mousepad17,
+            LedId.Mousepad16,
             LedId.Mousepad15,
             LedId.Mousepad14,
             LedId.Mousepad13,
