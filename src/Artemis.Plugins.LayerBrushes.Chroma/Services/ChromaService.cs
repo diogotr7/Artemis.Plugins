@@ -4,6 +4,8 @@ using SkiaSharp;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using Artemis.Core;
 using RazerSdkReader;
 using RazerSdkReader.Structures;
 
@@ -13,6 +15,8 @@ public class ChromaService : IPluginService, IDisposable
 {
     private readonly ILogger _logger;
     private readonly ChromaReader _reader;
+    private readonly Profiler _profiler;
+    private readonly Dictionary<RzDeviceType, string> _enumNames;
 
     public event EventHandler<RzDeviceType>? MatrixUpdated;
     public event EventHandler? AppListUpdated;
@@ -23,10 +27,13 @@ public class ChromaService : IPluginService, IDisposable
     public List<int> Pids { get; } = new();
     public ConcurrentDictionary<RzDeviceType, SKColor[,]> Matrices { get; } = new();
 
-    public ChromaService(ILogger logger)
+    public ChromaService(ILogger logger, Plugin plugin)
     {
         _logger = logger;
         _logger.Verbose("Starting RazerSdkReader...");
+        _profiler = plugin.GetProfiler("Chroma Service");
+
+        _enumNames = Enum.GetValues<RzDeviceType>().ToDictionary(t => t, t => $"Update {Enum.GetName(typeof(RzDeviceType), t) ?? throw new Exception()}");
 
         _reader = new();
         _reader.KeyboardUpdated += RazerEmulatorReaderOnKeyboardUpdated;
@@ -42,37 +49,37 @@ public class ChromaService : IPluginService, IDisposable
         UpdateAppList(true);
     }
 
-    private void RazerEmulatorReaderOnAppDataUpdated(object? sender, ChromaAppData e)
+    private void RazerEmulatorReaderOnAppDataUpdated(object? sender, in ChromaAppData e)
     {
-        UpdateAppListData(e);
+        UpdateAppListData(in e);
     }
 
-    private void RazerEmulatorReaderOnChromaLinkUpdated(object? sender, ChromaLink e)
+    private void RazerEmulatorReaderOnChromaLinkUpdated(object? sender, in ChromaLink e)
     {
-        UpdateMatrix(RzDeviceType.ChromaLink, e);
+        UpdateMatrix(RzDeviceType.ChromaLink,in e);
     }
 
-    private void RazerEmulatorReaderOnHeadsetUpdated(object? sender, ChromaHeadset e)
+    private void RazerEmulatorReaderOnHeadsetUpdated(object? sender, in ChromaHeadset e)
     {
-        UpdateMatrix(RzDeviceType.Headset, e);
+        UpdateMatrix(RzDeviceType.Headset,in e);
     }
 
-    private void RazerEmulatorReaderOnKeypadUpdated(object? sender, ChromaKeypad e)
+    private void RazerEmulatorReaderOnKeypadUpdated(object? sender, in ChromaKeypad e)
     {
-        UpdateMatrix(RzDeviceType.Keypad, e);
+        UpdateMatrix(RzDeviceType.Keypad,in e);
     }
 
-    private void RazerEmulatorReaderOnMousepadUpdated(object? sender, ChromaMousepad e)
+    private void RazerEmulatorReaderOnMousepadUpdated(object? sender, in ChromaMousepad e)
     {
-        UpdateMatrix(RzDeviceType.Mousepad, e);
+        UpdateMatrix(RzDeviceType.Mousepad,in e);
     }
 
-    private void RazerEmulatorReaderOnMouseUpdated(object? sender, ChromaMouse e)
+    private void RazerEmulatorReaderOnMouseUpdated(object? sender, in ChromaMouse e)
     {
-        UpdateMatrix(RzDeviceType.Mouse, e);
+        UpdateMatrix(RzDeviceType.Mouse,in e);
     }
 
-    private void RazerEmulatorReaderOnKeyboardUpdated(object? sender, ChromaKeyboard e)
+    private void RazerEmulatorReaderOnKeyboardUpdated(object? sender, in ChromaKeyboard e)
     {
         UpdateMatrix(RzDeviceType.Keyboard, e);
     }
@@ -83,35 +90,33 @@ public class ChromaService : IPluginService, IDisposable
         return;
     }
 
-    private void UpdateMatrix<T>(RzDeviceType deviceType, T data) where T : IColorProvider
+    private void UpdateMatrix<T>(RzDeviceType deviceType, in T data) where T : unmanaged, IColorProvider
     {
-        var matrix = Matrices.GetOrAdd(deviceType, static (id, g) => new SKColor[g.Height, g.Width], data);
+        var profilerName = _enumNames[deviceType];
+        
+        _profiler.StartMeasurement(profilerName);
+        var matrix = Matrices.GetOrAdd(deviceType, static (id, t) => new SKColor[t.Height, t.Width], data);
 
         for (var i = 0; i < data.Height; i++)
         {
             for (var j = 0; j < data.Width; j++)
             {
+                // ReSharper disable once PossiblyImpureMethodCallOnReadonlyVariable
                 var clr = data.GetColor(i * data.Width + j);
                 matrix[i, j] = new SKColor(clr.R, clr.G, clr.B);
             }
         }
 
         MatrixUpdated?.Invoke(this, deviceType);
+        _profiler.StopMeasurement(profilerName);
     }
 
-    private void UpdateAppListData(ChromaAppData app)
+    private void UpdateAppListData(in ChromaAppData app)
     {
         Apps.Clear();
         Pids.Clear();
         CurrentAppId = (int?)app.CurrentAppId;
-        CurrentApp = null;
-        for (var i = 0; i < app.AppCount; i++)
-        {
-            Apps.Add(app.AppInfo[i].AppName);
-            Pids.Add((int)app.AppInfo[i].AppId);
-            if (app.AppInfo[i].AppId == app.CurrentAppId)
-                CurrentApp = app.AppInfo[i].AppName;
-        }
+        CurrentApp = app.CurrentAppName;
 
         AppListUpdated?.Invoke(this, EventArgs.Empty);
         _logger.Verbose("Updated Chroma app list");

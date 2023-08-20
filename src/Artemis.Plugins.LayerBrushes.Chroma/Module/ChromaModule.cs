@@ -67,7 +67,7 @@ public class ChromaModule : Module<ChromaDataModel>
     {
         lock (_lock)
         {
-            if (!_chroma.Matrices.TryGetValue(rzDeviceType, out SKColor[,]? colors))
+            if (!_chroma.Matrices.TryGetValue(rzDeviceType, out var colors))
                 return;
 
             if (!_deviceTypeCache.TryGetValue(rzDeviceType, out var deviceDataModel))
@@ -76,9 +76,9 @@ public class ChromaModule : Module<ChromaDataModel>
                 _deviceTypeCache.Add(rzDeviceType, deviceDataModel);
             }
 
-            for (int row = 0; row < colors.GetLength(0); row++)
+            for (var row = 0; row < colors.GetLength(0); row++)
             {
-                for (int col = 0; col < colors.GetLength(1); col++)
+                for (var col = 0; col < colors.GetLength(1); col++)
                 {
                     var ledId = DefaultChromaLedMap.DeviceTypes[rzDeviceType][row, col];
                     if (ledId == LedId.Invalid)
