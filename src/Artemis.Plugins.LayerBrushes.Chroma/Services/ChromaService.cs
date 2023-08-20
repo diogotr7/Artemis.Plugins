@@ -115,8 +115,16 @@ public class ChromaService : IPluginService, IDisposable
     {
         Apps.Clear();
         Pids.Clear();
-        CurrentAppId = (int?)app.CurrentAppId;
-        CurrentApp = app.CurrentAppName;
+        CurrentAppId = app.CurrentAppId == 0 ? null : (int)app.CurrentAppId;
+        CurrentApp = null;
+        for (var i = 0; i < app.AppCount; i++)
+        {
+            Apps.Add(app.AppInfo[i].AppName);
+            Pids.Add((int)app.AppInfo[i].AppId);
+            
+            if (app.AppInfo[i].AppId == app.CurrentAppId)
+                CurrentApp = app.AppInfo[i].AppName;
+        }
 
         AppListUpdated?.Invoke(this, EventArgs.Empty);
         _logger.Verbose("Updated Chroma app list");

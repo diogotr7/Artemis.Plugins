@@ -6,6 +6,7 @@ using Serilog;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Artemis.Plugins.LayerBrushes.Chroma.Module;
 
@@ -32,6 +33,7 @@ public class ChromaModule : Module<ChromaDataModel>
     {
         _chroma.MatrixUpdated += UpdateMatrix;
         _chroma.AppListUpdated += UpdateAppList;
+        UpdateAppList(null, EventArgs.Empty);
         try
         {
             DataModel.PriorityList = _registry.GetRazerSdkInfo().PriorityList;
@@ -59,8 +61,8 @@ public class ChromaModule : Module<ChromaDataModel>
     private void UpdateAppList(object? sender, EventArgs e)
     {
         DataModel.CurrentApplication = _chroma.CurrentApp;
-        DataModel.ApplicationList = _chroma.Apps;
-        DataModel.PidList = _chroma.Pids;
+        DataModel.ApplicationList = _chroma.Apps.ToList();
+        DataModel.PidList = _chroma.Pids.ToList();
     }
 
     private void UpdateMatrix(object? sender, RzDeviceType rzDeviceType)
