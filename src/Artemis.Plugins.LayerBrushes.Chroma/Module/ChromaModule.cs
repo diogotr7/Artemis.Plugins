@@ -6,6 +6,7 @@ using Serilog;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Artemis.Plugins.LayerBrushes.Chroma.Module;
 
@@ -32,6 +33,7 @@ public class ChromaModule : Module<ChromaDataModel>
     {
         _chroma.MatrixUpdated += UpdateMatrix;
         _chroma.AppListUpdated += UpdateAppList;
+        UpdateAppList(null, EventArgs.Empty);
         try
         {
             DataModel.PriorityList = _registry.GetRazerSdkInfo().PriorityList;
@@ -59,15 +61,15 @@ public class ChromaModule : Module<ChromaDataModel>
     private void UpdateAppList(object? sender, EventArgs e)
     {
         DataModel.CurrentApplication = _chroma.CurrentApp;
-        DataModel.ApplicationList = _chroma.Apps;
-        DataModel.PidList = _chroma.Pids;
+        DataModel.ApplicationList = _chroma.Apps.ToList();
+        DataModel.PidList = _chroma.Pids.ToList();
     }
 
     private void UpdateMatrix(object? sender, RzDeviceType rzDeviceType)
     {
         lock (_lock)
         {
-            if (!_chroma.Matrices.TryGetValue(rzDeviceType, out SKColor[,]? colors))
+            if (!_chroma.Matrices.TryGetValue(rzDeviceType, out var colors))
                 return;
 
             if (!_deviceTypeCache.TryGetValue(rzDeviceType, out var deviceDataModel))
@@ -76,9 +78,9 @@ public class ChromaModule : Module<ChromaDataModel>
                 _deviceTypeCache.Add(rzDeviceType, deviceDataModel);
             }
 
-            for (int row = 0; row < colors.GetLength(0); row++)
+            for (var row = 0; row < colors.GetLength(0); row++)
             {
-                for (int col = 0; col < colors.GetLength(1); col++)
+                for (var col = 0; col < colors.GetLength(1); col++)
                 {
                     var ledId = DefaultChromaLedMap.DeviceTypes[rzDeviceType][row, col];
                     if (ledId == LedId.Invalid)
