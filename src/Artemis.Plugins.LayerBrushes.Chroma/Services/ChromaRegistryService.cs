@@ -10,7 +10,7 @@ namespace Artemis.Plugins.LayerBrushes.Chroma.Services;
 /// <summary>
 ///  Service that handles data stored in the registry. 
 /// </summary>
-public class ChromaRegistryService : IPluginService, IDisposable
+public sealed class ChromaRegistryService : IPluginService, IDisposable
 {
     private readonly ILogger _logger;
 

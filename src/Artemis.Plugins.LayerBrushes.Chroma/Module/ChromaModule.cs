@@ -7,10 +7,11 @@ using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Artemis.Plugins.LayerBrushes.Chroma.Utils;
 
 namespace Artemis.Plugins.LayerBrushes.Chroma.Module;
 
-[PluginFeature(Name = "Chroma Grabber")]
+[PluginFeature(Name = "Chroma")]
 public class ChromaModule : Module<ChromaDataModel>
 {
     public override List<IModuleActivationRequirement> ActivationRequirements { get; } = new();
@@ -18,11 +19,9 @@ public class ChromaModule : Module<ChromaDataModel>
     private readonly ILogger _logger;
     private readonly ChromaService _chroma;
     private readonly ChromaRegistryService _registry;
-    private readonly object _lock = new();
     private readonly Dictionary<LedId, DynamicChild<SKColor>> _colorsCache = new();
-    private readonly Dictionary<RzDeviceType, DynamicChild<ChromaDeviceDataModel>> _deviceTypeCache = new();
 
-    public ChromaModule(ChromaService chroma,ChromaRegistryService registry, ILogger logger)
+    public ChromaModule(ChromaService chroma, ChromaRegistryService registry, ILogger logger)
     {
         _chroma = chroma;
         _registry = registry;
@@ -31,9 +30,12 @@ public class ChromaModule : Module<ChromaDataModel>
 
     public override void Enable()
     {
-        _chroma.MatrixUpdated += UpdateMatrix;
-        _chroma.AppListUpdated += UpdateAppList;
-        UpdateAppList(null, EventArgs.Empty);
+        CreateStructure();
+
+        _chroma.MatrixUpdated += OnMatrixUpdated;
+        _chroma.AppListUpdated += OnAppListUpdated;
+        OnAppListUpdated(this, EventArgs.Empty);
+
         try
         {
             DataModel.PriorityList = _registry.GetRazerSdkInfo().PriorityList;
@@ -43,56 +45,66 @@ public class ChromaModule : Module<ChromaDataModel>
             _logger.Error(e, "Error setting priority list.");
             DataModel.PriorityList = Array.Empty<string>();
         }
-        
+
         AddDefaultProfile(DefaultCategoryName.Games, Plugin.ResolveRelativePath("Chroma.json"));
     }
 
     public override void Disable()
     {
-        _chroma.MatrixUpdated -= UpdateMatrix;
-        _chroma.AppListUpdated -= UpdateAppList;
+        _chroma.MatrixUpdated -= OnMatrixUpdated;
+        _chroma.AppListUpdated -= OnAppListUpdated;
     }
 
     public override void Update(double deltaTime)
     {
-
     }
 
-    private void UpdateAppList(object? sender, EventArgs e)
+    private void OnAppListUpdated(object? sender, EventArgs args)
     {
+        DataModel.IsActive = _chroma.IsActive;
         DataModel.CurrentApplication = _chroma.CurrentApp;
-        DataModel.ApplicationList = _chroma.Apps.ToList();
-        DataModel.PidList = _chroma.Pids.ToList();
+        DataModel.ApplicationList = _chroma.AppNames.ToList();
+        DataModel.PidList = _chroma.AppIds.Select(p => (int)p).ToList();
     }
 
-    private void UpdateMatrix(object? sender, RzDeviceType rzDeviceType)
+    private void OnMatrixUpdated(object? sender, MatrixUpdatedEventArgs args)
     {
-        lock (_lock)
+        var colors = args.Matrix;
+        var deviceType = args.DeviceType;
+
+        if (!IsPropertyInUse(EnumToString<RzDeviceType>.Get(deviceType), true))
+            return;
+
+        for (var row = 0; row < colors.GetLength(0); row++)
         {
-            if (!_chroma.Matrices.TryGetValue(rzDeviceType, out var colors))
-                return;
-
-            if (!_deviceTypeCache.TryGetValue(rzDeviceType, out var deviceDataModel))
+            for (var col = 0; col < colors.GetLength(1); col++)
             {
-                deviceDataModel = DataModel.AddDynamicChild(rzDeviceType.ToString(), new ChromaDeviceDataModel());
-                _deviceTypeCache.Add(rzDeviceType, deviceDataModel);
+                var ledId = DefaultChromaLedMap.DeviceTypes[deviceType][row, col];
+                if (ledId == LedId.Invalid)
+                    continue;
+                var ledDataModel = _colorsCache[ledId];
+                ledDataModel.Value = colors[row, col];
             }
+        }
+    }
 
-            for (var row = 0; row < colors.GetLength(0); row++)
+    private void CreateStructure()
+    {
+        DataModel.ClearDynamicChildren();
+        foreach (var rzDeviceType in Enum.GetValues<RzDeviceType>())
+        {
+            var deviceDataModel = DataModel.AddDynamicChild(rzDeviceType.ToString(), new ChromaDeviceDataModel());
+
+            var map = DefaultChromaLedMap.DeviceTypes[rzDeviceType];
+            for (var row = 0; row < map.GetLength(0); row++)
             {
-                for (var col = 0; col < colors.GetLength(1); col++)
+                for (var col = 0; col < map.GetLength(1); col++)
                 {
-                    var ledId = DefaultChromaLedMap.DeviceTypes[rzDeviceType][row, col];
+                    var ledId = map[row, col];
                     if (ledId == LedId.Invalid)
                         continue;
 
-                    if (!_colorsCache.TryGetValue(ledId, out var ledDataModel))
-                    {
-                        ledDataModel = deviceDataModel.Value.AddDynamicChild<SKColor>(ledId.ToString(), default);
-                        _colorsCache.Add(ledId, ledDataModel);
-                    }
-
-                    ledDataModel.Value = colors[row, col];
+                    _colorsCache.Add(ledId, deviceDataModel.Value.AddDynamicChild<SKColor>(ledId.ToString(), default));
                 }
             }
         }

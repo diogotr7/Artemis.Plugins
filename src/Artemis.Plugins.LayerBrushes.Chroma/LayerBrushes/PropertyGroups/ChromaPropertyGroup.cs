@@ -6,15 +6,19 @@ namespace Artemis.Plugins.LayerBrushes.Chroma.LayerBrushes.PropertyGroups;
 public class ChromaPropertyGroup : LayerPropertyGroup
 {
     [PropertyDescription(Description = "Colors unmapped LEDs with the default color")]
-    public LayerProperty<bool> UseDefaultLed { get; set; }
+    public BoolLayerProperty UseDefaultLed { get; set; }
 
     [PropertyDescription(Description = "Turns black LEDs transparent")]
-    public LayerProperty<bool> TransparentBlack { get; set; }
+    public BoolLayerProperty TransparentBlack { get; set; }
+
+    [PropertyDescription(Description = "Enhances colors to be more vibrant")]
+    public BoolLayerProperty OverwatchEnhanceColors { get; set; }
 
     protected override void PopulateDefaults()
     {
         UseDefaultLed.DefaultValue = true;
         TransparentBlack.DefaultValue = false;
+        OverwatchEnhanceColors.DefaultValue = false;
     }
 
     protected override void EnableProperties()

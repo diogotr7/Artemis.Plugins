@@ -6,7 +6,7 @@ public class ChromaLayerBrushProvider : LayerBrushProvider
 {
     public override void Enable()
     {
-        RegisterLayerBrushDescriptor<ChromaLayerBrush>("Chroma Grabber Layer", "Allows you to have Razer Chroma lighting on all devices.", "Robber");
+        RegisterLayerBrushDescriptor<ChromaLayerBrush>("Chroma Reader Layer", "Allows you to have Razer Chroma lighting on all devices.", "Robber");
     }
 
     public override void Disable()

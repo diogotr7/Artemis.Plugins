@@ -1,12 +1,11 @@
+using System;
 using Artemis.Core;
 using Artemis.Core.LayerBrushes;
 using Artemis.Plugins.LayerBrushes.Chroma.Services;
 using Artemis.Plugins.LayerBrushes.Chroma.LayerBrushes.PropertyGroups;
 using RGB.NET.Core;
 using SkiaSharp;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Xml.Linq;
 
 namespace Artemis.Plugins.LayerBrushes.Chroma.LayerBrushes;
 
@@ -16,6 +15,8 @@ public class ChromaLayerBrush : PerLedLayerBrush<ChromaPropertyGroup>
     private readonly PluginSetting<Dictionary<RzDeviceType, LedId[,]>> _keyMapSetting;
     private readonly Dictionary<LedId, SKColor> _colors;
     private readonly object _lock;
+    private bool _shouldRender;
+    private bool _playingOverwatch;
 
     public ChromaLayerBrush(ChromaService chroma, PluginSettings pluginSettings)
     {
@@ -25,22 +26,29 @@ public class ChromaLayerBrush : PerLedLayerBrush<ChromaPropertyGroup>
         _lock = new();
     }
 
-    private double forceRefreshAppListTimer;
-
     public override void EnableLayerBrush()
     {
         _chroma.MatrixUpdated += OnMatrixUpdated;
+        _chroma.AppListUpdated += OnAppListUpdated;
+        OnAppListUpdated(this, EventArgs.Empty);
+    }
+
+    private void OnAppListUpdated(object? sender, EventArgs e)
+    {
+        _shouldRender = _chroma.IsActive;
+        _playingOverwatch = _chroma.CurrentApp == "Overwatch.exe";
     }
 
     public override void DisableLayerBrush()
     {
         _chroma.MatrixUpdated -= OnMatrixUpdated;
+        _chroma.AppListUpdated -= OnAppListUpdated;
     }
 
-    private void OnMatrixUpdated(object? sender, RzDeviceType e)
+    private void OnMatrixUpdated(object? sender, MatrixUpdatedEventArgs args)
     {
-        SKColor[,] matrix = _chroma.Matrices[e];
-        var dict = _keyMapSetting.Value[e];
+        var matrix = args.Matrix;
+        var dict = _keyMapSetting.Value![args.DeviceType];
 
         lock (_lock)
         {
@@ -54,26 +62,11 @@ public class ChromaLayerBrush : PerLedLayerBrush<ChromaPropertyGroup>
         }
     }
 
-    public override void Update(double deltaTime)
-    {
-        //when a chroma app is closed, the applist update event isn't fired for some reason.
-        //to prevent this brush being left hanging and painting everything black,
-        //we force update this every 5 seconds. This makes the brush paint transparent
-        //if no chroma apps are running.
-        if (forceRefreshAppListTimer < 5d)
-        {
-            forceRefreshAppListTimer += deltaTime;
-        }
-        else
-        {
-            _chroma.UpdateAppList();
-            forceRefreshAppListTimer = 0;
-        }
-    }
+    public override void Update(double deltaTime) { }
 
     public override SKColor GetColor(ArtemisLed led, SKPoint renderPoint)
     {
-        if (string.IsNullOrWhiteSpace(_chroma.CurrentApp) || _chroma.CurrentApp.Contains("Artemis.UI"))
+        if (!_shouldRender)
             return SKColor.Empty;
 
         lock (_lock)
@@ -82,7 +75,7 @@ public class ChromaLayerBrush : PerLedLayerBrush<ChromaPropertyGroup>
                 return ProcessColor(color);
             
             //According to razer docs, chromaLink1 is the "catchall" ledId. If an LED doesn't have a mapping, use this color.
-            if (Properties.UseDefaultLed.CurrentValue && _colors.TryGetValue(LedId.LedStripe1, out var chromaLink1))
+            if (Properties.UseDefaultLed && _colors.TryGetValue(LedId.LedStripe1, out var chromaLink1))
                 return ProcessColor(chromaLink1);
         }
 
@@ -91,8 +84,11 @@ public class ChromaLayerBrush : PerLedLayerBrush<ChromaPropertyGroup>
 
     private SKColor ProcessColor(SKColor color)
     {
-        if (Properties.TransparentBlack.CurrentValue && color == SKColors.Black)
+        if (Properties.TransparentBlack && color == SKColors.Black)
             return SKColor.Empty;
+        
+        if (_playingOverwatch && Properties.OverwatchEnhanceColors && OverwatchColorCorrection.ColorMap.TryGetValue(color, out var correctedColor))
+            return correctedColor;
 
         return color;
     }
