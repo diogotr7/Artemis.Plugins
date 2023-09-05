@@ -98,18 +98,19 @@ public sealed class ChromaService : IPluginService, IDisposable
     {
         _apps.Clear();
         _pids.Clear();
-        
-        CurrentAppId = app.CurrentAppId == 0 ? null : app.CurrentAppId;
-        CurrentApp = null;
+
+        CurrentAppId = app.CurrentAppId;
+        CurrentApp = app.CurrentAppName;
+
+        var span = app.AppInfo.AsSpan();
         for (var i = 0; i < app.AppCount; i++)
         {
-            _apps.Add(app.AppInfo[i].AppName);
-            _pids.Add(app.AppInfo[i].AppId);
+            ref var appInfo = ref span[i];
             
-            if (app.AppInfo[i].AppId == app.CurrentAppId)
-                CurrentApp = app.AppInfo[i].AppName;
+            _apps.Add(appInfo.AppName);
+            _pids.Add(appInfo.AppId);
         }
-
+        
         AppListUpdated?.Invoke(this, EventArgs.Empty);
     }
 
