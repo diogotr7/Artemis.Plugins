@@ -50,19 +50,19 @@ public sealed class ChromaService : IPluginService, IDisposable
 
     private void RazerEmulatorReaderOnAppDataUpdated(object? sender, in ChromaAppData e) => UpdateAppListData(in e);
 
-    private void RazerEmulatorReaderOnChromaLinkUpdated(object? sender, in ChromaLink e) => UpdateMatrix(RzDeviceType.ChromaLink,in e);
+    private void RazerEmulatorReaderOnChromaLinkUpdated(object? sender, in ChromaLink e) => UpdateMatrix(RzDeviceType.ChromaLink, in e);
 
-    private void RazerEmulatorReaderOnHeadsetUpdated(object? sender, in ChromaHeadset e) => UpdateMatrix(RzDeviceType.Headset,in e);
+    private void RazerEmulatorReaderOnHeadsetUpdated(object? sender, in ChromaHeadset e) => UpdateMatrix(RzDeviceType.Headset, in e);
 
-    private void RazerEmulatorReaderOnKeypadUpdated(object? sender, in ChromaKeypad e) => UpdateMatrix(RzDeviceType.Keypad,in e);
+    private void RazerEmulatorReaderOnKeypadUpdated(object? sender, in ChromaKeypad e) => UpdateMatrix(RzDeviceType.Keypad, in e);
 
-    private void RazerEmulatorReaderOnMousepadUpdated(object? sender, in ChromaMousepad e) => UpdateMatrix(RzDeviceType.Mousepad,in e);
+    private void RazerEmulatorReaderOnMousepadUpdated(object? sender, in ChromaMousepad e) => UpdateMatrix(RzDeviceType.Mousepad, in e);
 
-    private void RazerEmulatorReaderOnMouseUpdated(object? sender, in ChromaMouse e) => UpdateMatrix(RzDeviceType.Mouse,in e);
+    private void RazerEmulatorReaderOnMouseUpdated(object? sender, in ChromaMouse e) => UpdateMatrix(RzDeviceType.Mouse, in e);
 
-    private void RazerEmulatorReaderOnKeyboardUpdated(object? sender, in ChromaKeyboard e) => UpdateMatrix(RzDeviceType.Keyboard, e);
+    private void RazerEmulatorReaderOnKeyboardUpdated(object? sender, in ChromaKeyboard e) => UpdateMatrix(RzDeviceType.Keyboard, in e);
 
-    private void UpdateMatrix<T>(RzDeviceType deviceType, in T data) where T : unmanaged, IColorProvider
+    private void UpdateMatrix<T>(RzDeviceType deviceType, in T data) where T :  IColorProvider
     {
         var profilerName = EnumToString<RzDeviceType>.Get(deviceType);
         
