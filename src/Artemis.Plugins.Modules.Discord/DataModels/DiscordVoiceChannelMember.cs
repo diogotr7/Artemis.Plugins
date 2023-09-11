@@ -35,4 +35,15 @@ public class DiscordVoiceChannelMember
         IsSupressed = e.VoiceState.Suppress;
         IsMutedByMe = e.Mute;
     }
+
+    public void Reset()
+    {
+        IsServerMuted = false;
+        IsSelfMuted = false;
+        IsServerDeafened = false;
+        IsSelfDeafened = false;
+        IsSpeaking = false;
+        IsSupressed = false;
+        IsMutedByMe = false;
+    }
 }

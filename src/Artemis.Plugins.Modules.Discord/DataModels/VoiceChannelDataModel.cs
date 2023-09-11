@@ -25,4 +25,17 @@ public class DiscordVoiceChannelDataModel : DataModel
         Bitrate = e.Bitrate;
         UserLimit = e.UserLimit;
     }
+
+    public void Reset()
+    {
+        Id = string.Empty;
+        GuildId = string.Empty;
+        Name = string.Empty;
+        Type = 0;
+        Bitrate = 0;
+        UserLimit = 0;
+        IsAnyoneElseSpeaking = false;
+        Me.Reset();
+        Members.ClearDynamicChildren();
+    }
 }

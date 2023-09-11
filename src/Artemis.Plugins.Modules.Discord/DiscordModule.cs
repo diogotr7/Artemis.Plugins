@@ -24,7 +24,7 @@ public class DiscordModule : Module<DiscordDataModel>
     private readonly PluginSetting<SavedToken> _savedToken;
     private readonly object _discordClientLock;
 
-    private IDiscordRpcClient? discordClient;
+    private IDiscordRpcClient? _discordClient;
 
     public DiscordModule(ILogger logger, PluginSettings pluginSettings)
     {
@@ -40,7 +40,7 @@ public class DiscordModule : Module<DiscordDataModel>
 
         _clientId = pluginSettings.GetSetting("DiscordClientId", string.Empty);
         _clientSecret = pluginSettings.GetSetting("DiscordClientSecret", string.Empty);
-        _savedToken = pluginSettings.GetSetting<SavedToken>("DiscordToken", null);
+        _savedToken = pluginSettings.GetSetting<SavedToken>("DiscordToken");
 
         _discordClientLock = new();
     }
@@ -87,20 +87,20 @@ public class DiscordModule : Module<DiscordDataModel>
         
         lock (_discordClientLock)
         {
-            discordClient = new DiscordRpcClient(_clientId.Value, _clientSecret.Value, _savedToken);
-            discordClient.Authenticated += OnAuthenticated;
-            discordClient.Error += OnError;
-            discordClient.NotificationReceived += OnNotificationReceived;
-            discordClient.SpeakingStarted += OnSpeakingStarted;
-            discordClient.SpeakingStopped += OnSpeakingStopped;
-            discordClient.UnhandledEventReceived += OnUnhandledEventReceived;
-            discordClient.VoiceChannelUpdated += OnVoiceChannelUpdated;
-            discordClient.VoiceConnectionStatusUpdated += OnVoiceConnectionStatusUpdated;
-            discordClient.VoiceSettingsUpdated += OnVoiceSettingsUpdated;
-            discordClient.VoiceStateCreated += OnVoiceStateCreated;
-            discordClient.VoiceStateDeleted += OnVoiceStateDeleted;
-            discordClient.VoiceStateUpdated += OnVoiceStateUpdated;
-            discordClient.Connect();
+            _discordClient = new DiscordRpcClient(_clientId.Value, _clientSecret.Value, _savedToken);
+            _discordClient.Authenticated += OnAuthenticated;
+            _discordClient.Error += OnError;
+            _discordClient.NotificationReceived += OnNotificationReceived;
+            _discordClient.SpeakingStarted += OnSpeakingStarted;
+            _discordClient.SpeakingStopped += OnSpeakingStopped;
+            _discordClient.UnhandledEventReceived += OnUnhandledEventReceived;
+            _discordClient.VoiceChannelUpdated += OnVoiceChannelUpdated;
+            _discordClient.VoiceConnectionStatusUpdated += OnVoiceConnectionStatusUpdated;
+            _discordClient.VoiceSettingsUpdated += OnVoiceSettingsUpdated;
+            _discordClient.VoiceStateCreated += OnVoiceStateCreated;
+            _discordClient.VoiceStateDeleted += OnVoiceStateDeleted;
+            _discordClient.VoiceStateUpdated += OnVoiceStateUpdated;
+            _discordClient.Connect();
         }
     }
 
@@ -108,30 +108,30 @@ public class DiscordModule : Module<DiscordDataModel>
     {
         lock (_discordClientLock)
         {
-            if (discordClient is null)
+            if (_discordClient is null)
                 return;
             
-            discordClient.Authenticated -= OnAuthenticated;
-            discordClient.Error -= OnError;
-            discordClient.NotificationReceived -= OnNotificationReceived;
-            discordClient.SpeakingStarted -= OnSpeakingStarted;
-            discordClient.SpeakingStopped -= OnSpeakingStopped;
-            discordClient.UnhandledEventReceived -= OnUnhandledEventReceived;
-            discordClient.VoiceChannelUpdated -= OnVoiceChannelUpdated;
-            discordClient.VoiceConnectionStatusUpdated -= OnVoiceConnectionStatusUpdated;
-            discordClient.VoiceSettingsUpdated -= OnVoiceSettingsUpdated;
-            discordClient.VoiceStateCreated -= OnVoiceStateCreated;
-            discordClient.VoiceStateDeleted -= OnVoiceStateDeleted;
-            discordClient.VoiceStateUpdated -= OnVoiceStateUpdated;
-            discordClient.Dispose();
-            discordClient = null;
+            _discordClient.Authenticated -= OnAuthenticated;
+            _discordClient.Error -= OnError;
+            _discordClient.NotificationReceived -= OnNotificationReceived;
+            _discordClient.SpeakingStarted -= OnSpeakingStarted;
+            _discordClient.SpeakingStopped -= OnSpeakingStopped;
+            _discordClient.UnhandledEventReceived -= OnUnhandledEventReceived;
+            _discordClient.VoiceChannelUpdated -= OnVoiceChannelUpdated;
+            _discordClient.VoiceConnectionStatusUpdated -= OnVoiceConnectionStatusUpdated;
+            _discordClient.VoiceSettingsUpdated -= OnVoiceSettingsUpdated;
+            _discordClient.VoiceStateCreated -= OnVoiceStateCreated;
+            _discordClient.VoiceStateDeleted -= OnVoiceStateDeleted;
+            _discordClient.VoiceStateUpdated -= OnVoiceStateUpdated;
+            _discordClient.Dispose();
+            _discordClient = null;
         }
     }
 
     #region Event Handlers
     private async void OnAuthenticated(object? sender, Authenticate e)
     {
-        if (discordClient is null)
+        if (_discordClient is null)
             return;
 
         try
@@ -139,20 +139,20 @@ public class DiscordModule : Module<DiscordDataModel>
             DataModel.User.Apply(e.User);
 
             //Initial request for data, then use events after
-            var voiceSettings = await discordClient.GetAsync<VoiceSettings>(DiscordRpcCommand.GET_VOICE_SETTINGS);
+            var voiceSettings = await _discordClient.GetAsync<VoiceSettings>(DiscordRpcCommand.GET_VOICE_SETTINGS);
             DataModel.Voice.Settings.Apply(voiceSettings);
 
-            var selectedVoiceChannel = await discordClient.GetAsync<SelectedVoiceChannel>(DiscordRpcCommand.GET_SELECTED_VOICE_CHANNEL);
+            var selectedVoiceChannel = await _discordClient.GetAsync<SelectedVoiceChannel>(DiscordRpcCommand.GET_SELECTED_VOICE_CHANNEL);
             if (selectedVoiceChannel is not null)
             {
                 await HandleVoiceChannelConnected(selectedVoiceChannel);
             }
 
             //Subscribe to these events as well
-            await discordClient.SubscribeAsync(DiscordRpcEvent.VOICE_SETTINGS_UPDATE);
-            await discordClient.SubscribeAsync(DiscordRpcEvent.NOTIFICATION_CREATE);
-            await discordClient.SubscribeAsync(DiscordRpcEvent.VOICE_CONNECTION_STATUS);
-            await discordClient.SubscribeAsync(DiscordRpcEvent.VOICE_CHANNEL_SELECT);
+            await _discordClient.SubscribeAsync(DiscordRpcEvent.VOICE_SETTINGS_UPDATE);
+            await _discordClient.SubscribeAsync(DiscordRpcEvent.NOTIFICATION_CREATE);
+            await _discordClient.SubscribeAsync(DiscordRpcEvent.VOICE_CONNECTION_STATUS);
+            await _discordClient.SubscribeAsync(DiscordRpcEvent.VOICE_CHANNEL_SELECT);
         }
         catch (Exception exc)
         {
@@ -231,7 +231,7 @@ public class DiscordModule : Module<DiscordDataModel>
 
     private async void OnVoiceChannelUpdated(object? sender, VoiceChannelSelect e)
     {
-        if (discordClient is null)
+        if (_discordClient is null)
             return;
 
         try
@@ -239,7 +239,7 @@ public class DiscordModule : Module<DiscordDataModel>
             if (e.ChannelId is not null)//join voice channel
             {
                 DataModel.Voice.Connected.Trigger();
-                var selectedVoiceChannel = await discordClient.GetAsync<SelectedVoiceChannel>(DiscordRpcCommand.GET_SELECTED_VOICE_CHANNEL);
+                var selectedVoiceChannel = await _discordClient.GetAsync<SelectedVoiceChannel>(DiscordRpcCommand.GET_SELECTED_VOICE_CHANNEL);
                 await HandleVoiceChannelConnected(selectedVoiceChannel);
             }
             else//leave voice channel
@@ -316,22 +316,21 @@ public class DiscordModule : Module<DiscordDataModel>
 
     private async Task HandleVoiceChannelDisconnected()
     {
-        DataModel.Voice.Channel.Me = new();
-        DataModel.Voice.Channel.Members.ClearDynamicChildren();
+        DataModel.Voice.Channel.Reset();
 
         await UnsubscribeFromVoiceChannelEvents();
     }
 
     private async Task SubscribeToVoiceChannelEvents(string channelId)
     {
-        if (discordClient is null)
+        if (_discordClient is null)
             return;
 
-        await discordClient.SubscribeAsync(DiscordRpcEvent.SPEAKING_START, ("channel_id", channelId));
-        await discordClient.SubscribeAsync(DiscordRpcEvent.SPEAKING_STOP, ("channel_id", channelId));
-        await discordClient.SubscribeAsync(DiscordRpcEvent.VOICE_STATE_CREATE, ("channel_id", channelId));
-        await discordClient.SubscribeAsync(DiscordRpcEvent.VOICE_STATE_UPDATE, ("channel_id", channelId));
-        await discordClient.SubscribeAsync(DiscordRpcEvent.VOICE_STATE_DELETE, ("channel_id", channelId));
+        await _discordClient.SubscribeAsync(DiscordRpcEvent.SPEAKING_START, ("channel_id", channelId));
+        await _discordClient.SubscribeAsync(DiscordRpcEvent.SPEAKING_STOP, ("channel_id", channelId));
+        await _discordClient.SubscribeAsync(DiscordRpcEvent.VOICE_STATE_CREATE, ("channel_id", channelId));
+        await _discordClient.SubscribeAsync(DiscordRpcEvent.VOICE_STATE_UPDATE, ("channel_id", channelId));
+        await _discordClient.SubscribeAsync(DiscordRpcEvent.VOICE_STATE_DELETE, ("channel_id", channelId));
     }
 
     private Task UnsubscribeFromVoiceChannelEvents()

@@ -2,6 +2,6 @@
 
 public record VoiceChannelSelect
 (
-    string GuildId,
-    string ChannelId
+    string? GuildId,
+    string? ChannelId
 );
