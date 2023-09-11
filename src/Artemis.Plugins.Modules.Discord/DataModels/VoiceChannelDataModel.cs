@@ -11,6 +11,9 @@ public class DiscordVoiceChannelDataModel : DataModel
     public int Type { get; set; }
     public int Bitrate { get; set; }
     public int UserLimit { get; set; }
+    public bool IsAnyoneElseSpeaking { get; internal set; }
+    public DiscordVoiceChannelMember Me { get; internal set; } = new();
+    [DataModelProperty(Name = "Other Members")]
     public DiscordVoiceChannelMembers Members { get; } = new();
 
     internal void Apply(SelectedVoiceChannel e)
