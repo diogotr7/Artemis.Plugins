@@ -57,3 +57,9 @@ jobs:
         with:
           name: VoiceMeeter
           path: src/Artemis.Plugins.Modules.VoiceMeeter/bin/x64/Release/net7.0/publish
+
+      - name: Upload Ping
+        uses: actions/upload-artifact@v3
+        with:
+          name: Ping
+          path: src/Artemis.Plugins.Nodes.Ping/bin/x64/Release/net7.0/publish

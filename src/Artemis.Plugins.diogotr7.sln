@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.Modules.OBS
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.Modules.VoiceMeeter", "Artemis.Plugins.Modules.VoiceMeeter\Artemis.Plugins.Modules.VoiceMeeter.csproj", "{476B5980-33CC-4E9A-B8EB-E7E9E7564609}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Artemis.Plugins.Nodes.Ping", "Artemis.Plugins.Nodes.Ping\Artemis.Plugins.Nodes.Ping.csproj", "{D68D4879-F5DA-43E5-B7A6-C70259DF7E43}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -51,6 +53,10 @@ Global
 		{476B5980-33CC-4E9A-B8EB-E7E9E7564609}.Debug|x64.Build.0 = Debug|x64
 		{476B5980-33CC-4E9A-B8EB-E7E9E7564609}.Release|x64.ActiveCfg = Release|x64
 		{476B5980-33CC-4E9A-B8EB-E7E9E7564609}.Release|x64.Build.0 = Release|x64
+		{D68D4879-F5DA-43E5-B7A6-C70259DF7E43}.Debug|x64.ActiveCfg = Debug|x64
+		{D68D4879-F5DA-43E5-B7A6-C70259DF7E43}.Debug|x64.Build.0 = Debug|x64
+		{D68D4879-F5DA-43E5-B7A6-C70259DF7E43}.Release|x64.ActiveCfg = Release|x64
+		{D68D4879-F5DA-43E5-B7A6-C70259DF7E43}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

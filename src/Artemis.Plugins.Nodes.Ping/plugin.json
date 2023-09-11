@@ -1,0 +1,15 @@
+{
+    "Guid": "83C94EF3-553A-45CA-BA4F-59A56A3F94BC",
+    "Name": "Ping Node",
+    "Description": "Adds a node that can ping a host and return the result",
+    "Author": "diogotr7",
+    "Website": "https://github.com/diogotr7/Artemis.Plugins",
+    "Repository": "https://github.com/diogotr7/Artemis.Plugins",
+    "Icon": "QuestionMark",
+    "Version": "1.0.0.0",
+    "Main": "Artemis.Plugins.Nodes.Ping.dll",
+    "AutoEnableProperties": true,
+    "RequiresAdmin": false,
+    "Platforms": "Windows,Linux,OSX",
+    "Api": "1.0.0"
+}
