@@ -274,7 +274,7 @@ public class DiscordModule : Module<DiscordDataModel>
     {
         if (e.User.Id == DataModel.User.Id)
         {
-            DataModel.Voice.Channel.Me = new();
+            DataModel.Voice.Channel.Me.Reset();
             return;
         }
         
