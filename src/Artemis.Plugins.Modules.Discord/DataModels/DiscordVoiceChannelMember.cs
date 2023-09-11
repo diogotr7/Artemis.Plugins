@@ -6,9 +6,12 @@ namespace Artemis.Plugins.Modules.Discord.DataModels;
 public class DiscordVoiceChannelMembers : DataModel
 {
     public bool IsAnyoneElseSpeaking { get; internal set; }
+    public DiscordVoiceChannelMember Me { get; internal set; } = new();
+    
+    //DynamicDataModel with the other members
 }
 
-public class DiscordVoiceChannelMember : DataModel
+public class DiscordVoiceChannelMember
 {
     public DiscordUserDataModel User { get; } = new();
     public string Nickname { get; set; } = string.Empty;

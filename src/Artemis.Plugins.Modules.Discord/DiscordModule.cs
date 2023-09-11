@@ -189,20 +189,16 @@ public class DiscordModule : Module<DiscordDataModel>
 
     private void OnSpeakingStarted(object? sender, SpeakingStartStop e)
     {
-        if (DataModel.Voice.Channel.Members.TryGetDynamicChild<DiscordVoiceChannelMember>(e.UserId, out var member))
-        {
-            member.Value.IsSpeaking = true;
-        }
+        var member = GetMeOrOtherMember(e.UserId);
+        member.IsSpeaking = true;
 
         UpdateIsAnyoneElseSpeaking();
     }
 
     private void OnSpeakingStopped(object? sender, SpeakingStartStop e)
     {
-        if (DataModel.Voice.Channel.Members.TryGetDynamicChild<DiscordVoiceChannelMember>(e.UserId, out var member))
-        {
-            member.Value.IsSpeaking = false;
-        }
+        var member = GetMeOrOtherMember(e.UserId);
+        member.IsSpeaking = false;
 
         UpdateIsAnyoneElseSpeaking();
     }
@@ -214,7 +210,7 @@ public class DiscordModule : Module<DiscordDataModel>
             DataModel.Voice.Channel.Members.IsAnyoneElseSpeaking =
                 DataModel.Voice.Channel.Members.DynamicChildren.Values
                     .OfType<DynamicChild<DiscordVoiceChannelMember>>()
-                    .Any(dvcm => dvcm.Value.User.Id != DataModel.User.Id && dvcm.Value.IsSpeaking);
+                    .Any(dvcm => dvcm.Value.IsSpeaking);
         }
     }
 
@@ -270,23 +266,36 @@ public class DiscordModule : Module<DiscordDataModel>
 
     private void OnVoiceStateCreated(object? sender, UserVoiceState e)
     {
-        if (!DataModel.Voice.Channel.Members.TryGetDynamicChild<DiscordVoiceChannelMember>(e.User.Id, out var member))
-            member = DataModel.Voice.Channel.Members.AddDynamicChild<DiscordVoiceChannelMember>(e.User.Id, new(), e.Nick);
-
-        member.Value.Apply(e);
+        var member = GetMeOrOtherMember(e.User.Id);
+        member.Apply(e);
     }
 
     private void OnVoiceStateDeleted(object? sender, UserVoiceState e)
     {
+        if (e.User.Id == DataModel.User.Id)
+        {
+            DataModel.Voice.Channel.Members.Me = new();
+            return;
+        }
+        
         DataModel.Voice.Channel.Members.RemoveDynamicChildByKey(e.User.Id);
     }
 
     private void OnVoiceStateUpdated(object? sender, UserVoiceState e)
     {
-        if (DataModel.Voice.Channel.Members.TryGetDynamicChild<DiscordVoiceChannelMember>(e.User.Id, out var member))
-        {
-            member.Value.Apply(e);
-        }
+        var member = GetMeOrOtherMember(e.User.Id);
+        member.Apply(e);
+    }
+    
+    private DiscordVoiceChannelMember GetMeOrOtherMember(string userId)
+    {
+        if (userId == DataModel.User.Id)
+            return DataModel.Voice.Channel.Members.Me;
+
+        if (!DataModel.Voice.Channel.Members.TryGetDynamicChild<DiscordVoiceChannelMember>(userId, out var member))
+            member = DataModel.Voice.Channel.Members.AddDynamicChild<DiscordVoiceChannelMember>(userId, new(), string.Empty);
+
+        return member.Value;
     }
     #endregion
 
@@ -294,10 +303,8 @@ public class DiscordModule : Module<DiscordDataModel>
     {
         foreach (var voiceState in e.VoiceStates)
         {
-            if (!DataModel.Voice.Channel.Members.TryGetDynamicChild<DiscordVoiceChannelMember>(voiceState.User.Id, out var member))
-                member = DataModel.Voice.Channel.Members.AddDynamicChild<DiscordVoiceChannelMember>(voiceState.User.Id, new(), voiceState.Nick);
-
-            member.Value.Apply(voiceState);
+            var member = GetMeOrOtherMember(voiceState.User.Id);
+            member.Apply(voiceState);
         }
 
         DataModel.Voice.Channel.Apply(e);
@@ -307,6 +314,7 @@ public class DiscordModule : Module<DiscordDataModel>
 
     private async Task HandleVoiceChannelDisconnected()
     {
+        DataModel.Voice.Channel.Members.Me = new();
         DataModel.Voice.Channel.Members.ClearDynamicChildren();
 
         await UnsubscribeFromVoiceChannelEvents();
