@@ -9,3 +9,17 @@ public enum RzDeviceType
     Headset,
     ChromaLink
 }
+
+public static class EnumExtensions
+{
+    public static string ToStringFast(this RzDeviceType value) => value switch
+    {
+        RzDeviceType.Mousepad => nameof(RzDeviceType.Mousepad),
+        RzDeviceType.Mouse => nameof(RzDeviceType.Mouse),
+        RzDeviceType.Keypad => nameof(RzDeviceType.Keypad),
+        RzDeviceType.Keyboard => nameof(RzDeviceType.Keyboard),
+        RzDeviceType.Headset => nameof(RzDeviceType.Headset),
+        RzDeviceType.ChromaLink => nameof(RzDeviceType.ChromaLink),
+        _ => value.ToString(),
+    };
+}

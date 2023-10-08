@@ -1,11 +1,8 @@
 using Artemis.Core.Services;
-using Serilog;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Artemis.Core;
-using Artemis.Plugins.LayerBrushes.Chroma.Utils;
 using RazerSdkReader;
 using RazerSdkReader.Structures;
 
@@ -64,7 +61,7 @@ public sealed class ChromaService : IPluginService, IDisposable
 
     private void UpdateMatrix<T>(RzDeviceType deviceType, in T data) where T :  IColorProvider
     {
-        var profilerName = EnumToString<RzDeviceType>.Get(deviceType);
+        var profilerName = deviceType.ToStringFast();
         
         _profiler.StartMeasurement(profilerName);
         lock (_lock)

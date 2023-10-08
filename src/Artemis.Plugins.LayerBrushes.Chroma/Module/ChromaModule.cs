@@ -7,7 +7,6 @@ using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Artemis.Plugins.LayerBrushes.Chroma.Utils;
 
 namespace Artemis.Plugins.LayerBrushes.Chroma.Module;
 
@@ -72,7 +71,7 @@ public class ChromaModule : Module<ChromaDataModel>
         var colors = args.Matrix;
         var deviceType = args.DeviceType;
 
-        if (!IsPropertyInUse(EnumToString<RzDeviceType>.Get(deviceType), true))
+        if (!IsPropertyInUse(deviceType.ToStringFast(), true))
             return;
 
         for (var row = 0; row < colors.GetLength(0); row++)
