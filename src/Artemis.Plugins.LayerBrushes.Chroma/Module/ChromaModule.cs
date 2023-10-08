@@ -71,8 +71,8 @@ public class ChromaModule : Module<ChromaDataModel>
         var colors = args.Matrix;
         var deviceType = args.DeviceType;
 
-        if (!IsPropertyInUse(deviceType.ToStringFast(), true))
-            return;
+        //if (!IsPropertyInUse(deviceType.ToStringFast(), true))
+        //    return;
 
         for (var row = 0; row < colors.GetLength(0); row++)
         {
