@@ -1,6 +1,6 @@
 ﻿namespace Artemis.Plugins.Modules.Discord.Enums;
 
-internal enum RpcPacketType : int
+public enum RpcPacketType : int
 {
     HANDSHAKE = 0,
     FRAME = 1,

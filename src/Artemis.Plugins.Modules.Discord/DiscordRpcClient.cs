@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
 using System.Linq;
+using System.Net.WebSockets;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -37,9 +38,8 @@ public class DiscordRpcClient : IDiscordRpcClient
     private readonly Dictionary<Guid, TaskCompletionSource<DiscordResponse>> _pendingRequests;
     private readonly CancellationTokenSource _cancellationTokenSource;
     private readonly string _clientId;
-    private readonly DiscordAuthClient _authClient;
-    private readonly byte[] _headerBuffer;
-    private NamedPipeClientStream? _pipe;
+    private readonly IDiscordAuthClient _authClient;
+    private readonly IDiscordTransport _transport;
     private Task? _readLoopTask;
     private Task? _refreshTokenTask;
     private TaskCompletionSource<Ready>? _readyTcs;
@@ -111,15 +111,16 @@ public class DiscordRpcClient : IDiscordRpcClient
     public DiscordRpcClient(string clientId, string clientSecret, PluginSetting<SavedToken> tokenSetting)
     {
         _clientId = clientId;
-        _authClient = new(clientId, clientSecret, tokenSetting);
+        // _authClient = new DiscordStreamKitAuthClient(clientId, clientSecret, tokenSetting);
+        _authClient = new DiscordStreamKitAuthClient(tokenSetting);
+        _transport = new DiscordWebSocketTransport();
         _pendingRequests = new();
         _cancellationTokenSource = new();
-        _headerBuffer = new byte[HEADER_SIZE];
     }
 
     public void Connect(int timeoutMs = 500)
     {
-        if (_pipe?.IsConnected == true)
+        if (_transport?.IsConnected == true)
             throw new InvalidOperationException("Already connected");
 
         //we want discord to be open for at least 10 seconds 
@@ -135,8 +136,7 @@ public class DiscordRpcClient : IDiscordRpcClient
         {
             try
             {
-                _pipe = new(".", GetPipeName(i), PipeDirection.InOut, PipeOptions.Asynchronous);
-                _pipe.Connect(timeoutMs);
+                _transport.Connect("ws://127.0.0.1:6463", _cancellationTokenSource.Token);
                 _readLoopTask = Task.Run(ReadLoop, _cancellationTokenSource.Token);
                 Task.Run(InitializeAsync, _cancellationTokenSource.Token);
                 return;
@@ -173,18 +173,9 @@ public class DiscordRpcClient : IDiscordRpcClient
         return response.Data;
     }
 
-    private async Task HandshakeAsync()
-    {
-        string handshake = JsonConvert.SerializeObject(new { v = RPC_VERSION, client_id = _clientId }, _jsonSerializerSettings);
-
-        await SendPacketAsync(handshake, RpcPacketType.HANDSHAKE);
-    }
-
     private async Task InitializeAsync()
     {
         _readyTcs = new();
-
-        await HandshakeAsync();
 
         //this task will complete once the Ready event is received
         await _readyTcs.Task;
@@ -241,11 +232,11 @@ public class DiscordRpcClient : IDiscordRpcClient
 
     private async Task ReadLoop()
     {
-        while (!_cancellationTokenSource.IsCancellationRequested && _pipe?.IsConnected == true)
+        while (!_cancellationTokenSource.IsCancellationRequested && _transport?.IsConnected == true)
         {
             try
             {
-                var (opCode, data) = await ReadMessageAsync();
+                var (opCode, data) = await _transport.ReadMessageAsync(_cancellationTokenSource.Token);
 
                 await ProcessMessageAsync(opCode, data);
             }
@@ -273,39 +264,11 @@ public class DiscordRpcClient : IDiscordRpcClient
         }
     }
 
-    private async Task<(RpcPacketType, string)> ReadMessageAsync()
-    {
-        byte[]? dataBuffer = null;
-        try
-        {
-            int headerReadBytes = await _pipe!.ReadAsync(_headerBuffer.AsMemory(0, HEADER_SIZE), _cancellationTokenSource.Token);
-
-            if (headerReadBytes < HEADER_SIZE)
-                throw new DiscordRpcClientException("Read less than 4 bytes for the header");
-
-            var header = MemoryMarshal.AsRef<DiscordRpcHeader>(_headerBuffer);
-
-            if (header.PacketLength == 0)
-                throw new DiscordRpcClientException("Read zero bytes from the pipe");
-
-            dataBuffer = ArrayPool<byte>.Shared.Rent(header.PacketLength);
-
-            await _pipe.ReadAsync(dataBuffer.AsMemory(0, header.PacketLength), _cancellationTokenSource.Token);
-
-            return (header.PacketType, Encoding.UTF8.GetString(dataBuffer.AsSpan(0, header.PacketLength)));
-        }
-        finally
-        {
-            if (dataBuffer != null)
-                ArrayPool<byte>.Shared.Return(dataBuffer);
-        }
-    }
-
     private async Task ProcessMessageAsync(RpcPacketType opCode, string data)
     {
         if (opCode == RpcPacketType.PING)
         {
-            await SendPacketAsync(data, RpcPacketType.PONG);
+            await _transport.SendPacketAsync(data, RpcPacketType.PONG, _cancellationTokenSource.Token);
             return;
         }
         if (opCode == RpcPacketType.CLOSE)
@@ -356,31 +319,6 @@ public class DiscordRpcClient : IDiscordRpcClient
         }
     }
 
-    private async Task SendPacketAsync(string stringData, RpcPacketType rpcPacketType)
-    {
-        int stringByteLength = Encoding.UTF8.GetByteCount(stringData);
-        int bufferSize = HEADER_SIZE + stringByteLength;
-        byte[] buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
-
-        try
-        {
-            if (!BitConverter.TryWriteBytes(buffer.AsSpan(0, 4), (int)rpcPacketType))
-                throw new DiscordRpcClientException("Error writing rpc packet type.");
-
-            if (!BitConverter.TryWriteBytes(buffer.AsSpan(4, 4), stringByteLength))
-                throw new DiscordRpcClientException("Error writing string byte length.");
-
-            if (Encoding.UTF8.GetBytes(stringData, 0, stringData.Length, buffer, HEADER_SIZE) != stringData.Length)
-                throw new DiscordRpcClientException("Wrote wrong number of characters.");
-
-            await _pipe!.WriteAsync(buffer.AsMemory(0, bufferSize), _cancellationTokenSource.Token);
-        }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(buffer);
-        }
-    }
-
     private async Task<DiscordResponse> SendRequestAsync(DiscordRequest request, int timeoutMs)
     {
         TaskCompletionSource<DiscordResponse> responseCompletionSource = new();
@@ -389,7 +327,7 @@ public class DiscordRpcClient : IDiscordRpcClient
         _pendingRequests.Add(request.Nonce, responseCompletionSource);
 
         //and send the actual request to the discord client.
-        await SendPacketAsync(JsonConvert.SerializeObject(request, _jsonSerializerSettings), RpcPacketType.FRAME);
+        await _transport.SendPacketAsync(JsonConvert.SerializeObject(request, _jsonSerializerSettings), RpcPacketType.FRAME, _cancellationTokenSource.Token);
 
         CancellationTokenSource timeoutToken = new(TimeSpan.FromMilliseconds(timeoutMs));
         timeoutToken.Token.Register(() => responseCompletionSource.TrySetException(new TimeoutException($"Discord request timed out after {timeoutMs}")));
@@ -512,7 +450,7 @@ public class DiscordRpcClient : IDiscordRpcClient
                 try
                 {
                     _cancellationTokenSource.Cancel();
-                    _pipe?.Dispose();
+                    _transport?.Dispose();
                     _authClient.Dispose();
 
                     Error = null;
@@ -549,4 +487,148 @@ public class DiscordRpcClient : IDiscordRpcClient
         GC.SuppressFinalize(this);
     }
     #endregion
+}
+
+
+internal interface IDiscordTransport : IDisposable
+{
+    bool IsConnected { get; }
+    void Connect(string uri, CancellationToken cancellationToken = default);
+    Task SendPacketAsync(string stringData, RpcPacketType rpcPacketType, CancellationToken cancellationToken = default);
+    Task<(RpcPacketType, string)> ReadMessageAsync(CancellationToken cancellationToken = default);
+}
+
+public sealed class DiscordPipeTransport : IDiscordTransport
+{
+    private const string RPC_VERSION = "1";
+    private const int HEADER_SIZE = 8;
+    private static readonly JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings
+    {
+        ContractResolver = new DefaultContractResolver
+        {
+            NamingStrategy = new SnakeCaseNamingStrategy { ProcessDictionaryKeys = true }
+        }
+    };
+    
+    private readonly byte[] _headerBuffer;
+    private NamedPipeClientStream? _pipe;
+    private readonly string _clientId;
+
+    public DiscordPipeTransport(string clientId)
+    {
+        _clientId = clientId;
+        _headerBuffer = new byte[8];
+    }
+    
+    public bool IsConnected => _pipe?.IsConnected == true;
+
+    public void Connect(string uri, CancellationToken cancellationToken = default)
+    {
+        _pipe = new NamedPipeClientStream(".", uri, PipeDirection.InOut, PipeOptions.Asynchronous);
+        _pipe.ConnectAsync(cancellationToken).Wait(cancellationToken);
+        
+        string handshake = JsonConvert.SerializeObject(new { v = RPC_VERSION, client_id = _clientId }, _jsonSerializerSettings);
+        SendPacketAsync(handshake, RpcPacketType.HANDSHAKE, cancellationToken).Wait();
+    }
+
+    public async Task SendPacketAsync(string stringData, RpcPacketType rpcPacketType, CancellationToken cancellationToken = default)
+    {
+        int stringByteLength = Encoding.UTF8.GetByteCount(stringData);
+        int bufferSize = 8 + stringByteLength;
+        byte[] buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
+
+        try
+        {
+            if (!BitConverter.TryWriteBytes(buffer.AsSpan(0, 4), (int)rpcPacketType))
+                throw new DiscordRpcClientException("Error writing rpc packet type.");
+
+            if (!BitConverter.TryWriteBytes(buffer.AsSpan(4, 4), stringByteLength))
+                throw new DiscordRpcClientException("Error writing string byte length.");
+
+            if (Encoding.UTF8.GetBytes(stringData, 0, stringData.Length, buffer, 8) != stringData.Length)
+                throw new DiscordRpcClientException("Wrote wrong number of characters.");
+
+            await _pipe.WriteAsync(buffer.AsMemory(0, bufferSize), cancellationToken);
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(buffer);
+        }
+    }
+
+    public async Task<(RpcPacketType, string)> ReadMessageAsync(CancellationToken cancellationToken = default)
+    {
+        byte[]? dataBuffer = null;
+        try
+        {
+            int headerReadBytes = await _pipe.ReadAsync(_headerBuffer.AsMemory(0, 8));
+
+            if (headerReadBytes < 8)
+                throw new DiscordRpcClientException("Read less than 4 bytes for the header");
+
+            var header = MemoryMarshal.AsRef<DiscordRpcHeader>(_headerBuffer);
+
+            if (header.PacketLength == 0)
+                throw new DiscordRpcClientException("Read zero bytes from the pipe");
+
+            dataBuffer = ArrayPool<byte>.Shared.Rent(header.PacketLength);
+
+            await _pipe.ReadAsync(dataBuffer.AsMemory(0, header.PacketLength), cancellationToken);
+
+            return (header.PacketType, Encoding.UTF8.GetString(dataBuffer.AsSpan(0, header.PacketLength)));
+        }
+        finally
+        {
+            if (dataBuffer != null)
+                ArrayPool<byte>.Shared.Return(dataBuffer);
+        }
+    }
+
+    public void Dispose()
+    {
+        _pipe.Dispose();
+    }
+}
+
+public sealed class DiscordWebSocketTransport : IDiscordTransport
+{
+    private readonly ClientWebSocket _webSocket = new();
+    
+    public bool IsConnected => _webSocket.State == WebSocketState.Open;
+
+    public void Connect(string uri, CancellationToken cancellationToken = default)
+    {
+        _webSocket.Options.SetRequestHeader("Origin", "https://streamkit.discord.com");
+        _webSocket.ConnectAsync(new Uri($"{uri}?v=1&client_id=207646673902501888"), cancellationToken).Wait();
+    }
+
+    public async Task SendPacketAsync(string stringData, RpcPacketType rpcPacketType, CancellationToken cancellationToken = default)
+    {
+        Debug.WriteLine($"Sending {rpcPacketType}: {stringData}");
+        
+        var buffer = Encoding.UTF8.GetBytes(stringData);
+
+        await _webSocket.SendAsync(buffer, WebSocketMessageType.Text, true, cancellationToken);
+    }
+    
+    public async Task<(RpcPacketType, string)> ReadMessageAsync(CancellationToken cancellationToken = default)
+    {
+        var rent = ArrayPool<byte>.Shared.Rent(8192);
+        var result = await _webSocket.ReceiveAsync(rent, cancellationToken);
+
+        if (result.MessageType == WebSocketMessageType.Close)
+            throw new DiscordRpcClientException("WebSocket closed");
+        
+        var packetData = Encoding.UTF8.GetString(rent.AsSpan(0, result.Count));
+        ArrayPool<byte>.Shared.Return(rent);
+
+        Debug.WriteLine($"Received {result.MessageType}: {packetData}");
+        
+        return (RpcPacketType.FRAME, packetData);
+    }
+    
+    public void Dispose()
+    {
+        _webSocket.Dispose();
+    }
 }

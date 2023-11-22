@@ -40,7 +40,7 @@ public class DiscordModule : Module<DiscordDataModel>
 
         _clientId = pluginSettings.GetSetting("DiscordClientId", string.Empty);
         _clientSecret = pluginSettings.GetSetting("DiscordClientSecret", string.Empty);
-        _savedToken = pluginSettings.GetSetting<SavedToken>("DiscordToken");
+        _savedToken = pluginSettings.GetSetting<SavedToken>("DiscordTokenStreamKit");
 
         _discordClientLock = new();
     }
@@ -150,7 +150,7 @@ public class DiscordModule : Module<DiscordDataModel>
 
             //Subscribe to these events as well
             await _discordClient.SubscribeAsync(DiscordRpcEvent.VOICE_SETTINGS_UPDATE);
-            await _discordClient.SubscribeAsync(DiscordRpcEvent.NOTIFICATION_CREATE);
+            //await _discordClient.SubscribeAsync(DiscordRpcEvent.NOTIFICATION_CREATE);
             await _discordClient.SubscribeAsync(DiscordRpcEvent.VOICE_CONNECTION_STATUS);
             await _discordClient.SubscribeAsync(DiscordRpcEvent.VOICE_CHANNEL_SELECT);
         }
