@@ -101,7 +101,7 @@ public class DiscordRpcClient : IDiscordRpcClient
     {
         _pendingRequests = new Dictionary<Guid, TaskCompletionSource<DiscordResponse>>();
         _cancellationTokenSource = new CancellationTokenSource();
-        var rpcType = settings.GetSetting("RpcProvider", DiscordRpcProvider.StreamKit);
+        var rpcType = settings.GetSetting("DiscordRpcProvider", DiscordRpcProvider.StreamKit);
         
         //TODO: sometimes subscribing to NOTIFICATION_CREATE throws an error. investigate.
         // it might be dependent on the transport used, not 100% sure.

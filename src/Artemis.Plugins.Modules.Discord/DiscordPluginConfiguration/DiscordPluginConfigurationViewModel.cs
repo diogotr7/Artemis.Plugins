@@ -4,22 +4,34 @@ using Artemis.Core;
 using Artemis.UI.Shared;
 using ReactiveUI;
 using System.Reactive.Disposables;
+using System.Threading.Tasks;
 
 namespace Artemis.Plugins.Modules.Discord.DiscordPluginConfiguration;
 
 public class DiscordPluginConfigurationViewModel : PluginConfigurationViewModel
 {
     private readonly PluginSettings _pluginSettings;
-
+    private readonly Plugin _plugin;
+    
     public DiscordPluginConfigurationViewModel(Plugin plugin, PluginSettings pluginSettings) : base(plugin)
     {
         _pluginSettings = pluginSettings;
+        _plugin = plugin;
         
         this.WhenActivated(d =>
         {
             Disposable.Create(() =>
             {
-                _pluginSettings.SaveAllSettings();
+                Task.Run(async () =>
+                {
+                    _pluginSettings.SaveAllSettings();
+
+                    var feature = _plugin.GetFeature<DiscordModule>();
+                    
+                    feature?.DisconnectFromDiscord();
+                    await Task.Delay(1000);
+                    feature?.ConnectToDiscord();
+                });
             }).DisposeWith(d);
         });
     }

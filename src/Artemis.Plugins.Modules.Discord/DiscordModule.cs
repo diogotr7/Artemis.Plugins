@@ -64,7 +64,7 @@ public class DiscordModule : Module<DiscordDataModel>
         DisconnectFromDiscord();
     }
 
-    private void ConnectToDiscord()
+    internal void ConnectToDiscord()
     {
         lock (_discordClientLock)
         {
@@ -81,11 +81,11 @@ public class DiscordModule : Module<DiscordDataModel>
             _discordClient.VoiceStateCreated += OnVoiceStateCreated;
             _discordClient.VoiceStateDeleted += OnVoiceStateDeleted;
             _discordClient.VoiceStateUpdated += OnVoiceStateUpdated;
-            _discordClient.Connect();
+            _discordClient.Connect().Wait();
         }
     }
 
-    private void DisconnectFromDiscord()
+    internal void DisconnectFromDiscord()
     {
         lock (_discordClientLock)
         {
