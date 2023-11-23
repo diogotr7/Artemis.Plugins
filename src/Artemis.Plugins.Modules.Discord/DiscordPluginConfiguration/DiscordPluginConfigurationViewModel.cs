@@ -27,6 +27,4 @@ public class DiscordPluginConfigurationViewModel : PluginConfigurationViewModel
     public PluginSetting<string> ClientIdSetting => _pluginSettings.GetSetting("DiscordClientId", string.Empty);
     public PluginSetting<string> ClientSecretSetting => _pluginSettings.GetSetting("DiscordClientSecret", string.Empty);
     public PluginSetting<DiscordRpcProvider> Provider => _pluginSettings.GetSetting("DiscordRpcProvider", DiscordRpcProvider.StreamKit);
-
-    public ObservableCollection<string> RpcProviders { get; } = new(Enum.GetNames(typeof(DiscordRpcProvider)));
 }
