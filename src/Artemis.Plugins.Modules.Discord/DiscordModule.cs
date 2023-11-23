@@ -40,7 +40,8 @@ public class DiscordModule : Module<DiscordDataModel>
 
         _clientId = pluginSettings.GetSetting("DiscordClientId", string.Empty);
         _clientSecret = pluginSettings.GetSetting("DiscordClientSecret", string.Empty);
-        _savedToken = pluginSettings.GetSetting<SavedToken>("DiscordTokenStreamKit");
+        //TODO: when deploying, find another name that is NOT "DiscordToken" because that's for the old token
+        _savedToken = pluginSettings.GetSetting<SavedToken>("DiscordTokenDev");
 
         _discordClientLock = new();
     }

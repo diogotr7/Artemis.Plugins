@@ -21,7 +21,7 @@ public interface IDiscordRpcClient : IDisposable
     event EventHandler<UserVoiceState> VoiceStateDeleted;
     event EventHandler<UserVoiceState> VoiceStateUpdated;
 
-    void Connect(int timeoutMs = 500);
+    Task Connect(int timeoutMs = 500);
     Task<T> GetAsync<T>(DiscordRpcCommand command, params (string Key, object Value)[] parameters) where T : class;
     Task SubscribeAsync(DiscordRpcEvent evt, params (string Key, object Value)[] parameters);
     Task UnsubscribeAsync(DiscordRpcEvent evt, params (string Key, object Value)[] parameters);

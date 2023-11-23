@@ -18,7 +18,7 @@ public interface IDiscordAuthClient : IDisposable
     Task RefreshAccessTokenAsync();
 }
 
-public class DiscordAuthClient :  IDiscordAuthClient
+public class DiscordAuthClient : IDiscordAuthClient
 {
     private readonly string _clientId;
     private readonly string _clientSecret;
@@ -130,7 +130,7 @@ public class DiscordStreamKitAuthClient : IDiscordAuthClient
     public DiscordStreamKitAuthClient(PluginSetting<SavedToken> token)
     {
         _token = token;
-        _httpClient = new();
+        _httpClient = new HttpClient();
     }
 
     public bool HasToken => _token.Value != null;
@@ -154,9 +154,9 @@ public class DiscordStreamKitAuthClient : IDiscordAuthClient
     {
         var body = new StringContent(JsonConvert.SerializeObject(new { code = challengeCode }), Encoding.UTF8, "application/json");
         
-        using HttpResponseMessage response = await _httpClient.PostAsync("https://streamkit.discord.com/overlay/token", body);
+        using var response = await _httpClient.PostAsync("https://streamkit.discord.com/overlay/token", body);
         
-        string responseString = await response.Content.ReadAsStringAsync();
+        var responseString = await response.Content.ReadAsStringAsync();
         
         if (!response.IsSuccessStatusCode)
         {
@@ -169,13 +169,10 @@ public class DiscordStreamKitAuthClient : IDiscordAuthClient
         return token;
     }
 
-    public async Task RefreshAccessTokenAsync()
+    public Task RefreshAccessTokenAsync()
     {
-        return;
-        if (!HasToken)
-            throw new InvalidOperationException("No token to refresh");
-        
-        throw new NotImplementedException();
+        // Streamkit tokens don't support refreshing, or at least I can't find anything about it
+        return Task.CompletedTask;
     }
 
     private void SaveToken(TokenResponse newToken)
