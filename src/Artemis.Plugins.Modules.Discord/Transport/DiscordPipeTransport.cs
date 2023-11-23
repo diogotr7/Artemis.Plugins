@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Buffers;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
 using System.Runtime.InteropServices;
@@ -36,18 +35,19 @@ public sealed class DiscordPipeTransport : IDiscordTransport
             {
                 _pipe = new NamedPipeClientStream(".", GetPipeName(i), PipeDirection.InOut, PipeOptions.Asynchronous);
                 await _pipe.ConnectAsync(cancellationToken);
-                break;
+                        
+                var handshake = JsonConvert.SerializeObject(new { v = RpcVersion, client_id = _clientId });
+
+                await SendPacketAsync(handshake, RpcPacketType.HANDSHAKE, cancellationToken);
+                return;
             }
-            catch (Exception e)
+            catch
             {
-                //TODO: how to log here?? ignore?
-                Debug.WriteLine($"Error connecting to pipe {i}: {e.Message}");
+                await Task.Delay(1000, cancellationToken);
             }
         }
         
-        var handshake = JsonConvert.SerializeObject(new { v = RpcVersion, client_id = _clientId });
-
-        await SendPacketAsync(handshake, RpcPacketType.HANDSHAKE, cancellationToken);
+        throw new DiscordRpcClientException("Could not connect to any pipe.");
     }
 
     public async Task SendPacketAsync(string stringData, RpcPacketType rpcPacketType, CancellationToken cancellationToken = default)
@@ -67,7 +67,7 @@ public sealed class DiscordPipeTransport : IDiscordTransport
             if (Encoding.UTF8.GetBytes(stringData, 0, stringData.Length, buffer, HeaderSize) != stringData.Length)
                 throw new DiscordRpcClientException("Wrote wrong number of characters.");
 
-            await _pipe.WriteAsync(buffer.AsMemory(0, bufferSize), cancellationToken);
+            await _pipe!.WriteAsync(buffer.AsMemory(0, bufferSize), cancellationToken);
         }
         finally
         {
@@ -80,7 +80,7 @@ public sealed class DiscordPipeTransport : IDiscordTransport
         byte[]? dataBuffer = null;
         try
         {
-            int headerReadBytes = await _pipe.ReadAsync(_headerBuffer.AsMemory(0, HeaderSize));
+            int headerReadBytes = await _pipe!.ReadAsync(_headerBuffer.AsMemory(0, HeaderSize));
 
             if (headerReadBytes < HeaderSize)
                 throw new DiscordRpcClientException("Read less than 4 bytes for the header");
@@ -92,7 +92,7 @@ public sealed class DiscordPipeTransport : IDiscordTransport
 
             dataBuffer = ArrayPool<byte>.Shared.Rent(header.PacketLength);
 
-            await _pipe.ReadAsync(dataBuffer.AsMemory(0, header.PacketLength), cancellationToken);
+            await _pipe!.ReadAsync(dataBuffer.AsMemory(0, header.PacketLength), cancellationToken);
 
             return (header.PacketType, Encoding.UTF8.GetString(dataBuffer.AsSpan(0, header.PacketLength)));
         }
@@ -105,18 +105,16 @@ public sealed class DiscordPipeTransport : IDiscordTransport
 
     public void Dispose()
     {
-        _pipe.Dispose();
+        _pipe!.Dispose();
     }
-    
     
     private static string GetPipeName(int index)
     {
-        const string PIPE_NAME = "discord-ipc-{0}";
-        return Environment.OSVersion.Platform switch
-        {
-            PlatformID.Unix => Path.Combine(GetTemporaryDirectory(), string.Format(PIPE_NAME, index)),
-            _ => string.Format(PIPE_NAME, index)
-        };
+        var pipeName = $"discord-ipc-{index}";
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            return pipeName;
+        
+        return Path.Combine(GetTemporaryDirectory(), pipeName);
     }
 
     private static string GetTemporaryDirectory()
@@ -129,5 +127,4 @@ public sealed class DiscordPipeTransport : IDiscordTransport
                Environment.GetEnvironmentVariable("TEMP") ??
                "/tmp";
     }
-
 }
