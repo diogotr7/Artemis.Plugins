@@ -32,7 +32,22 @@ public class DiscordAuthClient : DiscordAuthClientBase
 
     public override async Task<TokenResponse> GetAccessTokenAsync(string challengeCode)
     {
-        var token = await GetCredentialsAsync("authorization_code", "code", challengeCode);
+        Dictionary<string, string> values = new()
+        {
+            ["grant_type"] = "authorization_code",
+            ["code"] = challengeCode,
+            ["client_id"] = ClientId,
+            ["client_secret"] = _clientSecret
+        };
+
+        using var response = await HttpClient.PostAsync("https://discord.com/api/oauth2/token", new FormUrlEncodedContent(values));
+        var responseString = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new UnauthorizedAccessException(responseString);
+        }
+
+        var token = JsonConvert.DeserializeObject<TokenResponse>(responseString)!;
         SaveToken(token);
         return token;
     }
@@ -42,27 +57,22 @@ public class DiscordAuthClient : DiscordAuthClientBase
         if (!HasToken)
             throw new InvalidOperationException("No token to refresh");
         
-        TokenResponse token = await GetCredentialsAsync("refresh_token", "refresh_token", Token.Value!.RefreshToken);
-        SaveToken(token);
-    }
-
-    private async Task<TokenResponse> GetCredentialsAsync(string grantType, string secretType, string secret)
-    {
         Dictionary<string, string> values = new()
         {
-            ["grant_type"] = grantType,
-            [secretType] = secret,
+            ["grant_type"] = "refresh_token",
+            ["refresh_token"] = Token.Value!.RefreshToken,
             ["client_id"] = ClientId,
             ["client_secret"] = _clientSecret
         };
 
-        using HttpResponseMessage response = await HttpClient.PostAsync("https://discord.com/api/oauth2/token", new FormUrlEncodedContent(values));
-        string responseString = await response.Content.ReadAsStringAsync();
+        using var response = await HttpClient.PostAsync("https://discord.com/api/oauth2/token", new FormUrlEncodedContent(values));
+        var responseString = await response.Content.ReadAsStringAsync();
         if (!response.IsSuccessStatusCode)
         {
             throw new UnauthorizedAccessException(responseString);
         }
 
-        return JsonConvert.DeserializeObject<TokenResponse>(responseString)!;
+        var token = JsonConvert.DeserializeObject<TokenResponse>(responseString)!;
+        SaveToken(token);
     }
 }
