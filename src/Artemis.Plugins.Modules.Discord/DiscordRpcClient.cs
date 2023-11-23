@@ -114,9 +114,13 @@ public class DiscordRpcClient : IDiscordRpcClient
             DiscordRpcProvider.Logitech => new LogitechAuthClient(settings),
             _ => throw new ArgumentOutOfRangeException()
         };
-
-        _transport = new DiscordWebSocketTransport(_authClient.ClientId, _authClient.Origin);
-        // _transport = new DiscordPipeTransport(_authClient.ClientId);
+        
+        // The Custom provider does not support the websocket transport.
+        _transport = rpcType.Value switch
+        {
+            DiscordRpcProvider.Custom => new DiscordPipeTransport(_authClient.ClientId),
+            _ => new DiscordWebSocketTransport(_authClient.ClientId, _authClient.Origin)
+        };
     }
 
     public async Task Connect(int timeoutMs = 500)
