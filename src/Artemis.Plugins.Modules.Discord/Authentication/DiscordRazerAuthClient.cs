@@ -12,8 +12,6 @@ public class DiscordRazerAuthClient : DiscordAuthClientBase
     private const string GrantEndpoint = "https://chroma.razer.com/discord/grant.php";
     private const string RedirectUri = "http://chroma.razer.com/discord/";
 
-    private readonly HttpClient _http = new HttpClient();
-
     public DiscordRazerAuthClient(PluginSettings token) : base(token.GetSetting<SavedToken>("DiscordTokenRazer"))
     {
     }
@@ -30,7 +28,7 @@ public class DiscordRazerAuthClient : DiscordAuthClientBase
             ["redirect_uri"] = RedirectUri
         };
 
-        using var response = await _http.PostAsync(GrantEndpoint, new FormUrlEncodedContent(values));
+        using var response = await HttpClient.PostAsync(GrantEndpoint, new FormUrlEncodedContent(values));
         var responseString = await response.Content.ReadAsStringAsync();
         var token = JsonConvert.DeserializeObject<TokenResponse>(responseString);
         SaveToken(token);
@@ -47,14 +45,9 @@ public class DiscordRazerAuthClient : DiscordAuthClientBase
             ["redirect_uri"] = RedirectUri
         };
 
-        using var response = await _http.PostAsync(RefreshEndpoint, new FormUrlEncodedContent(values));
+        using var response = await HttpClient.PostAsync(RefreshEndpoint, new FormUrlEncodedContent(values));
         var responseString = await response.Content.ReadAsStringAsync();
         var tkn = JsonConvert.DeserializeObject<TokenResponse>(responseString);
         SaveToken(tkn);
-    }
-
-    public override void Dispose()
-    {
-        _http.Dispose();
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Artemis.Core;
 
@@ -15,6 +16,7 @@ public interface IDiscordAuthClient : IDisposable
 
 public abstract class DiscordAuthClientBase : IDiscordAuthClient
 {
+    protected HttpClient HttpClient = new();
     protected readonly PluginSetting<SavedToken> Token;
     protected DiscordAuthClientBase(PluginSetting<SavedToken> token)
     {
@@ -26,7 +28,10 @@ public abstract class DiscordAuthClientBase : IDiscordAuthClient
     public string AccessToken => Token.Value?.AccessToken ?? throw new InvalidOperationException("No token available");
     public abstract Task<TokenResponse> GetAccessTokenAsync(string challengeCode);
     public abstract Task RefreshAccessTokenAsync();
-    public abstract void Dispose();
+    public void Dispose()
+    {
+        HttpClient.Dispose();
+    }
     
     protected void SaveToken(TokenResponse newToken)
     {

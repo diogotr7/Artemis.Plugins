@@ -12,7 +12,6 @@ public class DiscordAuthClient : DiscordAuthClientBase
 {
     public override string ClientId { get; }
     private readonly string _clientSecret;
-    private readonly HttpClient _httpClient;
 
     public DiscordAuthClient(PluginSettings settings) : base(settings.GetSetting<SavedToken>("DiscordToken"))
     {
@@ -24,7 +23,6 @@ public class DiscordAuthClient : DiscordAuthClientBase
         
         ClientId = clientIdSetting.Value!;
         _clientSecret = clientSecretSetting.Value!;
-        _httpClient = new();
     }
     
     private bool AreClientIdAndSecretValid(PluginSetting<string> clientId, PluginSetting<string> clientSecret)
@@ -58,7 +56,7 @@ public class DiscordAuthClient : DiscordAuthClientBase
             ["client_secret"] = _clientSecret
         };
 
-        using HttpResponseMessage response = await _httpClient.PostAsync("https://discord.com/api/oauth2/token", new FormUrlEncodedContent(values));
+        using HttpResponseMessage response = await HttpClient.PostAsync("https://discord.com/api/oauth2/token", new FormUrlEncodedContent(values));
         string responseString = await response.Content.ReadAsStringAsync();
         if (!response.IsSuccessStatusCode)
         {
@@ -66,10 +64,5 @@ public class DiscordAuthClient : DiscordAuthClientBase
         }
 
         return JsonConvert.DeserializeObject<TokenResponse>(responseString)!;
-    }
-    
-    public override void Dispose()
-    {
-        _httpClient.Dispose();
     }
 }

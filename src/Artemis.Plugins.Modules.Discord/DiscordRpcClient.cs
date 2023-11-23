@@ -112,9 +112,7 @@ public class DiscordRpcClient : IDiscordRpcClient
         //3. The authentication is different for the streamkit client. Discord is using something similar to
         // Razer, Logitech, Steelseries etc where they have a worker on some cloud accepting challenge codes
         // and returning tokens. For our own clientIds, we can just use the normal oauth flow.
-        
-        //4. Idea: It would be relatively easy to add Razer/Logitech/Steelseries clientId's and auth to this 
-        // just in case one of them breaks.
+
         _authClient = new DiscordRazerAuthClient(settings);
         _transport = new DiscordPipeTransport(_authClient.ClientId);
     }
