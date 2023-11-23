@@ -1,25 +1,22 @@
-﻿using Artemis.Core;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
+using Artemis.Core;
+using Newtonsoft.Json;
 
 namespace Artemis.Plugins.Modules.Discord.Authentication;
 
-public class DiscordAuthClient : IDiscordAuthClient
+public class DiscordStreamKitAuthClient : IDiscordAuthClient
 {
-    private readonly string _clientId;
-    private readonly string _clientSecret;
     private readonly PluginSetting<SavedToken> _token;
     private readonly HttpClient _httpClient;
 
-    public DiscordAuthClient(string clientId, string clientSecret, PluginSetting<SavedToken> token)
+    public DiscordStreamKitAuthClient(PluginSetting<SavedToken> token)
     {
-        _clientId = clientId;
-        _clientSecret = clientSecret;
         _token = token;
-        _httpClient = new();
+        _httpClient = new HttpClient();
     }
 
     public bool HasToken => _token.Value != null;
@@ -41,38 +38,27 @@ public class DiscordAuthClient : IDiscordAuthClient
 
     public async Task<TokenResponse> GetAccessTokenAsync(string challengeCode)
     {
-        var token = await GetCredentialsAsync("authorization_code", "code", challengeCode);
-        SaveToken(token);
-        return token;
-    }
-
-    public async Task RefreshAccessTokenAsync()
-    {
-        if (!HasToken)
-            throw new InvalidOperationException("No token to refresh");
+        var body = new StringContent(JsonConvert.SerializeObject(new { code = challengeCode }), Encoding.UTF8, "application/json");
         
-        TokenResponse token = await GetCredentialsAsync("refresh_token", "refresh_token", _token.Value!.RefreshToken);
-        SaveToken(token);
-    }
-
-    private async Task<TokenResponse> GetCredentialsAsync(string grantType, string secretType, string secret)
-    {
-        Dictionary<string, string> values = new()
-        {
-            ["grant_type"] = grantType,
-            [secretType] = secret,
-            ["client_id"] = _clientId,
-            ["client_secret"] = _clientSecret
-        };
-
-        using HttpResponseMessage response = await _httpClient.PostAsync("https://discord.com/api/oauth2/token", new FormUrlEncodedContent(values));
-        string responseString = await response.Content.ReadAsStringAsync();
+        using var response = await _httpClient.PostAsync("https://streamkit.discord.com/overlay/token", body);
+        
+        var responseString = await response.Content.ReadAsStringAsync();
+        
         if (!response.IsSuccessStatusCode)
         {
             throw new UnauthorizedAccessException(responseString);
         }
+        
+        var token = JsonConvert.DeserializeObject<TokenResponse>(responseString)!;
+        SaveToken(token);
+        
+        return token;
+    }
 
-        return JsonConvert.DeserializeObject<TokenResponse>(responseString)!;
+    public Task RefreshAccessTokenAsync()
+    {
+        // Streamkit tokens don't support refreshing, or at least I can't find anything about it
+        return Task.CompletedTask;
     }
 
     private void SaveToken(TokenResponse newToken)

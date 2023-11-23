@@ -6,22 +6,21 @@ using Artemis.Plugins.Modules.Discord.Enums;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.IO.Pipes;
 using System.Linq;
-using System.Net.WebSockets;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Artemis.Plugins.Modules.Discord.Transport;
 
 namespace Artemis.Plugins.Modules.Discord;
 
 public class DiscordRpcClient : IDiscordRpcClient
 {
+    private const string StreamkitClientId = "207646673902501888";
+    private const string StreamkitOrigin = "https://streamkit.discord.com";
+    private const string StreamkitWebsocketUri = "ws://localhost:6463";
+    
     private static readonly JsonSerializerSettings JsonSerializerSettings = new JsonSerializerSettings
     {
         ContractResolver = new DefaultContractResolver
@@ -112,23 +111,29 @@ public class DiscordRpcClient : IDiscordRpcClient
         tokenSetting.Value = null;
         tokenSetting.Save();
         
-        var streamkit = true;
-
-        if (streamkit)
-        {
-            _clientId = "207646673902501888";
-            _transport = new DiscordWebSocketTransport(
-                _clientId,
-                "ws://127.0.0.1:6463",
-                "https://streamkit.discord.com");
-            _authClient = new DiscordStreamKitAuthClient(tokenSetting);
-        }
-        else
-        {
-            _clientId = clientId;
-            _transport = new DiscordPipeTransport(_clientId);
-            _authClient = new DiscordAuthClient(_clientId, clientSecret, tokenSetting);
-        }
+        //1. the websocket transport works fine, but we lose access to the notifications event.
+        //the pipe transport has it, so we'll use that for now.
+        
+        //2. the pipe transport works for both our custom clientIds and the streamkit one,
+        // but the websocket transport only works for the streamkit. This is because the websocket transport
+        // requires the origin header to be set correctly, which we can't do with our custom clientIds (afaik).
+        // _transport = new DiscordWebSocketTransport(_clientId, StreamkitWebsocketUri, StreamkitOrigin);
+        
+        //3. The authentication is different for the streamkit client. Discord is using something similar to
+        // Razer, Logitech, Steelseries etc where they have a worker on some cloud accepting challenge codes
+        // and returning tokens. For our own clientIds, we can just use the normal oauth flow.
+        
+        //4. Idea: It would be relatively easy to add Razer/Logitech/Steelseries clientId's and auth to this 
+        // just in case one of them breaks.
+        
+        _clientId = StreamkitClientId;
+        _transport = new DiscordPipeTransport(_clientId);
+        _authClient = new DiscordStreamKitAuthClient(tokenSetting);
+        
+        //old impl for custom clientIds
+        // _clientId = clientId;
+        // _transport = new DiscordPipeTransport(_clientId);
+        // _authClient = new DiscordAuthClient(_clientId, clientSecret, tokenSetting);
     }
 
     public async Task Connect(int timeoutMs = 500)
@@ -477,186 +482,4 @@ public class DiscordRpcClient : IDiscordRpcClient
     }
 
     #endregion
-}
-
-public interface IDiscordTransport : IDisposable
-{
-    bool IsConnected { get; }
-    Task Connect(CancellationToken cancellationToken = default);
-    Task SendPacketAsync(string stringData, RpcPacketType rpcPacketType, CancellationToken cancellationToken = default);
-    Task<(RpcPacketType, string)> ReadMessageAsync(CancellationToken cancellationToken = default);
-}
-
-public sealed class DiscordPipeTransport : IDiscordTransport
-{
-    private const string RpcVersion = "1";
-    private const int HeaderSize = 8;
-    
-    private readonly byte[] _headerBuffer = new byte[8];
-    private readonly string _clientId;
-    private NamedPipeClientStream? _pipe;
-    public bool IsConnected => _pipe?.IsConnected == true;
-    
-    public DiscordPipeTransport(string clientId)
-    {
-        _clientId = clientId;
-    }
-
-    public async Task Connect(CancellationToken cancellationToken = default)
-    {
-        const int MAX_TRIES = 10;
-        for (var i = 0; i < MAX_TRIES; i++)
-        {
-            try
-            {
-                _pipe = new NamedPipeClientStream(".", GetPipeName(i), PipeDirection.InOut, PipeOptions.Asynchronous);
-                await _pipe.ConnectAsync(cancellationToken);
-                break;
-            }
-            catch (Exception e)
-            {
-                //TODO: how to log here?? ignore?
-                Debug.WriteLine($"Error connecting to pipe {i}: {e.Message}");
-            }
-        }
-        
-        var handshake = JsonConvert.SerializeObject(new { v = RpcVersion, client_id = _clientId });
-
-        await SendPacketAsync(handshake, RpcPacketType.HANDSHAKE, cancellationToken);
-    }
-
-    public async Task SendPacketAsync(string stringData, RpcPacketType rpcPacketType, CancellationToken cancellationToken = default)
-    {
-        int stringByteLength = Encoding.UTF8.GetByteCount(stringData);
-        int bufferSize = HeaderSize + stringByteLength;
-        byte[] buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
-
-        try
-        {
-            if (!BitConverter.TryWriteBytes(buffer.AsSpan(0, 4), (int)rpcPacketType))
-                throw new DiscordRpcClientException("Error writing rpc packet type.");
-
-            if (!BitConverter.TryWriteBytes(buffer.AsSpan(4, 4), stringByteLength))
-                throw new DiscordRpcClientException("Error writing string byte length.");
-
-            if (Encoding.UTF8.GetBytes(stringData, 0, stringData.Length, buffer, HeaderSize) != stringData.Length)
-                throw new DiscordRpcClientException("Wrote wrong number of characters.");
-
-            await _pipe.WriteAsync(buffer.AsMemory(0, bufferSize), cancellationToken);
-        }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(buffer);
-        }
-    }
-
-    public async Task<(RpcPacketType, string)> ReadMessageAsync(CancellationToken cancellationToken = default)
-    {
-        byte[]? dataBuffer = null;
-        try
-        {
-            int headerReadBytes = await _pipe.ReadAsync(_headerBuffer.AsMemory(0, HeaderSize));
-
-            if (headerReadBytes < HeaderSize)
-                throw new DiscordRpcClientException("Read less than 4 bytes for the header");
-
-            var header = MemoryMarshal.AsRef<DiscordRpcHeader>(_headerBuffer);
-
-            if (header.PacketLength == 0)
-                throw new DiscordRpcClientException("Read zero bytes from the pipe");
-
-            dataBuffer = ArrayPool<byte>.Shared.Rent(header.PacketLength);
-
-            await _pipe.ReadAsync(dataBuffer.AsMemory(0, header.PacketLength), cancellationToken);
-
-            return (header.PacketType, Encoding.UTF8.GetString(dataBuffer.AsSpan(0, header.PacketLength)));
-        }
-        finally
-        {
-            if (dataBuffer != null)
-                ArrayPool<byte>.Shared.Return(dataBuffer);
-        }
-    }
-
-    public void Dispose()
-    {
-        _pipe.Dispose();
-    }
-    
-    
-    private static string GetPipeName(int index)
-    {
-        const string PIPE_NAME = "discord-ipc-{0}";
-        return Environment.OSVersion.Platform switch
-        {
-            PlatformID.Unix => Path.Combine(GetTemporaryDirectory(), string.Format(PIPE_NAME, index)),
-            _ => string.Format(PIPE_NAME, index)
-        };
-    }
-
-    private static string GetTemporaryDirectory()
-    {
-        //source: https://github.com/Lachee/discord-rpc-csharp/
-        //try all these possible paths it could be, depending on system configuration
-        return Environment.GetEnvironmentVariable("XDG_RUNTIME_DIR") ??
-               Environment.GetEnvironmentVariable("TMPDIR") ??
-               Environment.GetEnvironmentVariable("TMP") ??
-               Environment.GetEnvironmentVariable("TEMP") ??
-               "/tmp";
-    }
-
-}
-
-public sealed class DiscordWebSocketTransport : IDiscordTransport
-{
-    private readonly ClientWebSocket _webSocket;
-    private readonly string _clientId;
-    private readonly string _uri;
-    private readonly string _origin;
-    
-    public bool IsConnected => _webSocket.State == WebSocketState.Open;
-
-    public DiscordWebSocketTransport(string clientId, string uri, string origin)
-    {
-        _webSocket = new ClientWebSocket();
-        _clientId = clientId;
-        _uri = uri;
-        _origin = origin;
-    }
-
-    public  async Task Connect(CancellationToken cancellationToken = default)
-    {
-        _webSocket.Options.SetRequestHeader("Origin", _origin);
-        await _webSocket.ConnectAsync(new Uri($"{_uri}?v=1&client_id={_clientId}"), cancellationToken);
-    }
-
-    public async Task SendPacketAsync(string stringData, RpcPacketType rpcPacketType, CancellationToken cancellationToken = default)
-    {
-        Debug.WriteLine($"Sending {rpcPacketType}: {stringData}");
-
-        var buffer = Encoding.UTF8.GetBytes(stringData);
-
-        await _webSocket.SendAsync(buffer, WebSocketMessageType.Text, true, cancellationToken);
-    }
-
-    public async Task<(RpcPacketType, string)> ReadMessageAsync(CancellationToken cancellationToken = default)
-    {
-        var rent = ArrayPool<byte>.Shared.Rent(8192);
-        var result = await _webSocket.ReceiveAsync(rent, cancellationToken);
-
-        if (result.MessageType == WebSocketMessageType.Close)
-            throw new DiscordRpcClientException("WebSocket closed");
-
-        var packetData = Encoding.UTF8.GetString(rent.AsSpan(0, result.Count));
-        ArrayPool<byte>.Shared.Return(rent);
-
-        Debug.WriteLine($"Received {result.MessageType}: {packetData}");
-
-        return (RpcPacketType.FRAME, packetData);
-    }
-
-    public void Dispose()
-    {
-        _webSocket.Dispose();
-    }
 }
