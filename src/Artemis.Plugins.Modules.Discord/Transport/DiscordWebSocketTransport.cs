@@ -12,6 +12,8 @@ namespace Artemis.Plugins.Modules.Discord.Transport;
 [Obsolete("Use DiscordPipeTransport instead, this one doesn't support notification events...")]
 public sealed class DiscordWebSocketTransport : IDiscordTransport
 {
+    private const string StreamkitWebsocketUri = "ws://localhost:6463";
+    
     private readonly ClientWebSocket _webSocket;
     private readonly string _clientId;
     private readonly string _uri;

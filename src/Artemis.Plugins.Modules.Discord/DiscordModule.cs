@@ -19,7 +19,7 @@ public class DiscordModule : Module<DiscordDataModel>
     public override List<IModuleActivationRequirement> ActivationRequirements { get; }
 
     private readonly ILogger _logger;
-    private readonly PluginSetting<SavedToken> _savedToken;
+    private readonly PluginSettings _pluginSettings;
     private readonly object _discordClientLock;
 
     private IDiscordRpcClient? _discordClient;
@@ -35,7 +35,7 @@ public class DiscordModule : Module<DiscordDataModel>
         };
 
         _logger = logger;
-        _savedToken = pluginSettings.GetSetting<SavedToken>("DiscordTokenStreamKit");
+        _pluginSettings = pluginSettings;
         _discordClientLock = new object();
     }
 
@@ -68,7 +68,7 @@ public class DiscordModule : Module<DiscordDataModel>
     {
         lock (_discordClientLock)
         {
-            _discordClient = new DiscordRpcClient(_savedToken);
+            _discordClient = new DiscordRpcClient(_pluginSettings);
             _discordClient.Authenticated += OnAuthenticated;
             _discordClient.Error += OnError;
             _discordClient.NotificationReceived += OnNotificationReceived;

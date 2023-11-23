@@ -1,5 +1,4 @@
 using Artemis.Core;
-using Artemis.Plugins.Modules.Discord.Authentication;
 using Artemis.Plugins.Modules.Discord.DiscordPackets;
 using Artemis.Plugins.Modules.Discord.DiscordPackets.CommandData;
 using Artemis.Plugins.Modules.Discord.Enums;
@@ -11,17 +10,14 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Artemis.Plugins.Modules.Discord.Authentication;
 using Artemis.Plugins.Modules.Discord.Transport;
 
 namespace Artemis.Plugins.Modules.Discord;
 
 public class DiscordRpcClient : IDiscordRpcClient
 {
-    private const string StreamkitClientId = "207646673902501888";
-    private const string StreamkitOrigin = "https://streamkit.discord.com";
-    private const string StreamkitWebsocketUri = "ws://localhost:6463";
-    
-    private static readonly JsonSerializerSettings JsonSerializerSettings = new JsonSerializerSettings
+    private static readonly JsonSerializerSettings JsonSerializerSettings = new()
     {
         ContractResolver = new DefaultContractResolver
         {
@@ -31,11 +27,9 @@ public class DiscordRpcClient : IDiscordRpcClient
 
     private readonly Dictionary<Guid, TaskCompletionSource<DiscordResponse>> _pendingRequests;
     private readonly CancellationTokenSource _cancellationTokenSource;
-    private readonly string _clientId;
     private readonly IDiscordAuthClient _authClient;
     private readonly IDiscordTransport _transport;
     private Task? _readLoopTask;
-    private Task? _refreshTokenTask;
     private TaskCompletionSource<Ready>? _readyTcs;
 
     #region Events
@@ -102,7 +96,7 @@ public class DiscordRpcClient : IDiscordRpcClient
 
     #endregion
 
-    public DiscordRpcClient(PluginSetting<SavedToken> tokenSetting)
+    public DiscordRpcClient(PluginSettings settings)
     {
         _pendingRequests = new Dictionary<Guid, TaskCompletionSource<DiscordResponse>>();
         _cancellationTokenSource = new CancellationTokenSource();
@@ -121,15 +115,8 @@ public class DiscordRpcClient : IDiscordRpcClient
         
         //4. Idea: It would be relatively easy to add Razer/Logitech/Steelseries clientId's and auth to this 
         // just in case one of them breaks.
-        
-        _clientId = StreamkitClientId;
-        _transport = new DiscordPipeTransport(_clientId);
-        _authClient = new DiscordStreamKitAuthClient(tokenSetting);
-        
-        //old impl for custom clientIds
-        // _clientId = clientId;
-        // _transport = new DiscordPipeTransport(_clientId);
-        // _authClient = new DiscordAuthClient(_clientId, clientSecret, tokenSetting);
+        _authClient = new DiscordRazerAuthClient(settings);
+        _transport = new DiscordPipeTransport(_authClient.ClientId);
     }
 
     public async Task Connect(int timeoutMs = 500)
@@ -182,7 +169,6 @@ public class DiscordRpcClient : IDiscordRpcClient
         await _readyTcs.Task;
 
         var authenticatedData = await HandleAuthenticationAsync();
-        _refreshTokenTask = Task.Run(RefreshTokenLoop, _cancellationTokenSource.Token);
 
         Authenticated?.Invoke(this, authenticatedData);
     }
@@ -191,13 +177,14 @@ public class DiscordRpcClient : IDiscordRpcClient
     {
         var authorizeResponse = await SendRequestWithResponseTypeAsync<Authorize>(
             new DiscordRequest(DiscordRpcCommand.AUTHORIZE,
-                ("client_id", _clientId),
+                ("client_id", _authClient.ClientId),
                 ("scopes", new string[] { "rpc", "identify", "rpc.notifications.read" })),
             timeoutMs: 30000); //high timeout so the user has time to click the button
 
         await _authClient.GetAccessTokenAsync(authorizeResponse.Data.Code);
     }
 
+    //TODO: fix
     private async Task<Authenticate> HandleAuthenticationAsync()
     {
         if (!_authClient.HasToken)
@@ -214,6 +201,7 @@ public class DiscordRpcClient : IDiscordRpcClient
         //Then, authenticate.
         try
         {
+            //TODO: What if we do not support refreshing?
             await _authClient.RefreshAccessTokenAsync();
         }
         catch (UnauthorizedAccessException e)
@@ -244,23 +232,6 @@ public class DiscordRpcClient : IDiscordRpcClient
             catch (Exception e)
             {
                 Error?.Invoke(this, new DiscordRpcClientException("Error in Discord read loop", e, true));
-            }
-        }
-    }
-
-    private async Task RefreshTokenLoop()
-    {
-        while (!_cancellationTokenSource.IsCancellationRequested)
-        {
-            try
-            {
-                await _authClient.RefreshTokenIfNeededAsync();
-
-                await Task.Delay(TimeSpan.FromDays(1), _cancellationTokenSource.Token);
-            }
-            catch
-            {
-                //we can safely ignore this error
             }
         }
     }
@@ -433,7 +404,7 @@ public class DiscordRpcClient : IDiscordRpcClient
                 try
                 {
                     _cancellationTokenSource.Cancel();
-                    _transport?.Dispose();
+                    _transport.Dispose();
                     _authClient.Dispose();
 
                     Error = null;
@@ -451,7 +422,6 @@ public class DiscordRpcClient : IDiscordRpcClient
                     try
                     {
                         _readLoopTask?.Wait();
-                        _refreshTokenTask?.Wait();
                     }
                     catch
                     {
