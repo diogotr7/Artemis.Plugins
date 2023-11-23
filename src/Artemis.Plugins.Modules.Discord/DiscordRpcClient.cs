@@ -113,7 +113,7 @@ public class DiscordRpcClient : IDiscordRpcClient
         // Razer, Logitech, Steelseries etc where they have a worker on some cloud accepting challenge codes
         // and returning tokens. For our own clientIds, we can just use the normal oauth flow.
 
-        _authClient = new DiscordRazerAuthClient(settings);
+        _authClient = new StreamKitAuthClient(settings);
         _transport = new DiscordPipeTransport(_authClient.ClientId);
     }
 

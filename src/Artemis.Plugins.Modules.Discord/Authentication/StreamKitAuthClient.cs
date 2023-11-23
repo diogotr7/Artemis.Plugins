@@ -8,10 +8,10 @@ using Newtonsoft.Json;
 
 namespace Artemis.Plugins.Modules.Discord.Authentication;
 
-public class DiscordStreamKitAuthClient : DiscordAuthClientBase
+public class StreamKitAuthClient : DiscordAuthClientBase
 {
 
-    public DiscordStreamKitAuthClient(PluginSettings token) : base(token.GetSetting<SavedToken>("DiscordTokenStreamKit"))
+    public StreamKitAuthClient(PluginSettings token) : base(token.GetSetting<SavedToken>("DiscordTokenStreamKit"))
     {
     }
 

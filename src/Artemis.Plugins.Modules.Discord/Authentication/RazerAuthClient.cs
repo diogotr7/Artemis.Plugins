@@ -6,13 +6,13 @@ using Newtonsoft.Json;
 
 namespace Artemis.Plugins.Modules.Discord.Authentication;
 
-public class DiscordRazerAuthClient : DiscordAuthClientBase
+public class RazerAuthClient : DiscordAuthClientBase
 {
     private const string RefreshEndpoint = "https://chroma.razer.com/discord/refreshtoken.php";
     private const string GrantEndpoint = "https://chroma.razer.com/discord/grant.php";
     private const string RedirectUri = "http://chroma.razer.com/discord/";
 
-    public DiscordRazerAuthClient(PluginSettings token) : base(token.GetSetting<SavedToken>("DiscordTokenRazer"))
+    public RazerAuthClient(PluginSettings token) : base(token.GetSetting<SavedToken>("DiscordTokenRazer"))
     {
     }
 
