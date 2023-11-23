@@ -102,14 +102,10 @@ public class DiscordRpcClient : IDiscordRpcClient
 
     #endregion
 
-    public DiscordRpcClient(string clientId, string clientSecret, PluginSetting<SavedToken> tokenSetting)
+    public DiscordRpcClient(PluginSetting<SavedToken> tokenSetting)
     {
         _pendingRequests = new Dictionary<Guid, TaskCompletionSource<DiscordResponse>>();
         _cancellationTokenSource = new CancellationTokenSource();
-        
-        //DEBUG, REMOVE
-        tokenSetting.Value = null;
-        tokenSetting.Save();
         
         //1. the websocket transport works fine, but we lose access to the notifications event.
         //the pipe transport has it, so we'll use that for now.

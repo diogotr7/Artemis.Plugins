@@ -8,6 +8,7 @@ public class DiscordPluginBootstrapper : PluginBootstrapper
 {
     public override void OnPluginLoaded(Plugin plugin)
     {
-        plugin.ConfigurationDialog = new PluginConfigurationDialog<DiscordPluginConfigurationViewModel>();
+        //New version works without any configuration, so we don't need this
+        //plugin.ConfigurationDialog = new PluginConfigurationDialog<DiscordPluginConfigurationViewModel>();
     }
 }

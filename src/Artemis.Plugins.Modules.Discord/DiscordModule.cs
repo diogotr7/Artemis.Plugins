@@ -19,8 +19,6 @@ public class DiscordModule : Module<DiscordDataModel>
     public override List<IModuleActivationRequirement> ActivationRequirements { get; }
 
     private readonly ILogger _logger;
-    private readonly PluginSetting<string> _clientId;
-    private readonly PluginSetting<string> _clientSecret;
     private readonly PluginSetting<SavedToken> _savedToken;
     private readonly object _discordClientLock;
 
@@ -37,21 +35,12 @@ public class DiscordModule : Module<DiscordDataModel>
         };
 
         _logger = logger;
-
-        _clientId = pluginSettings.GetSetting("DiscordClientId", string.Empty);
-        _clientSecret = pluginSettings.GetSetting("DiscordClientSecret", string.Empty);
-        //TODO: when deploying, find another name that is NOT "DiscordToken" because that's for the old token
-        _savedToken = pluginSettings.GetSetting<SavedToken>("DiscordTokenDev");
-
-        _discordClientLock = new();
+        _savedToken = pluginSettings.GetSetting<SavedToken>("DiscordTokenStreamKit");
+        _discordClientLock = new object();
     }
 
     public override void Enable()
     {
-        if (!AreClientIdAndSecretValid())
-        {
-            _logger.Error("Discord client ID or secret invalid");
-        }
     }
 
     public override void Disable()
@@ -67,12 +56,6 @@ public class DiscordModule : Module<DiscordDataModel>
         if (isOverride)
             return;
 
-        if (!AreClientIdAndSecretValid())
-        {
-            _logger.Error("Discord client ID or secret invalid");
-            return;
-        }
-
         ConnectToDiscord();
     }
 
@@ -83,12 +66,9 @@ public class DiscordModule : Module<DiscordDataModel>
 
     private void ConnectToDiscord()
     {
-        ArgumentException.ThrowIfNullOrEmpty(_clientId.Value, nameof(_clientId));
-        ArgumentException.ThrowIfNullOrEmpty(_clientSecret.Value, nameof(_clientSecret));
-        
         lock (_discordClientLock)
         {
-            _discordClient = new DiscordRpcClient(_clientId.Value, _clientSecret.Value, _savedToken);
+            _discordClient = new DiscordRpcClient(_savedToken);
             _discordClient.Authenticated += OnAuthenticated;
             _discordClient.Error += OnError;
             _discordClient.NotificationReceived += OnNotificationReceived;
@@ -343,10 +323,5 @@ public class DiscordModule : Module<DiscordDataModel>
         //await discordClient.UnsubscribeAsync(DiscordRpcEvent.VOICE_STATE_UPDATE, ("channel_id", channelId));
         //await discordClient.UnsubscribeAsync(DiscordRpcEvent.VOICE_STATE_DELETE, ("channel_id", channelId));
         return Task.CompletedTask;
-    }
-
-    private bool AreClientIdAndSecretValid()
-    {
-        return _clientId.Value?.All(c => char.IsDigit(c)) == true && _clientSecret.Value?.Length > 0;
     }
 }
