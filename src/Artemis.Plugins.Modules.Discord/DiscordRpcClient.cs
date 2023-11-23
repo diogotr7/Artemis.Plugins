@@ -101,20 +101,16 @@ public class DiscordRpcClient : IDiscordRpcClient
         _pendingRequests = new Dictionary<Guid, TaskCompletionSource<DiscordResponse>>();
         _cancellationTokenSource = new CancellationTokenSource();
         
-        //1. the websocket transport works fine, but we lose access to the notifications event.
-        //the pipe transport has it, so we'll use that for now.
-        
-        //2. the pipe transport works for both our custom clientIds and the streamkit one,
-        // but the websocket transport only works for the streamkit. This is because the websocket transport
-        // requires the origin header to be set correctly, which we can't do with our custom clientIds (afaik).
-        // _transport = new DiscordWebSocketTransport(_clientId, StreamkitWebsocketUri, StreamkitOrigin);
-        
-        //3. The authentication is different for the streamkit client. Discord is using something similar to
-        // Razer, Logitech, Steelseries etc where they have a worker on some cloud accepting challenge codes
-        // and returning tokens. For our own clientIds, we can just use the normal oauth flow.
+        //TODO: sometimes subscribing to NOTIFICATION_CREATE throws an error. investigate.
+        // it might be dependent on the transport used, not 100% sure.
 
         _authClient = new StreamKitAuthClient(settings);
-        _transport = new DiscordPipeTransport(_authClient.ClientId);
+        // _authClient = new RazerAuthClient(settings);
+        // _authClient = new SteelseriesAuthClient(settings);
+        // _authClient = new LogitechAuthClient(settings);
+        _transport = new DiscordWebSocketTransport(_authClient.ClientId, _authClient.Origin);
+        // _transport = new DiscordPipeTransport(_authClient.ClientId);
+
     }
 
     public async Task Connect(int timeoutMs = 500)

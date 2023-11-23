@@ -16,6 +16,7 @@ public class StreamKitAuthClient : DiscordAuthClientBase
     }
 
     public override string ClientId => "207646673902501888";
+    public override string Origin => "https://streamkit.discord.com";
 
     public override async Task<TokenResponse> GetAccessTokenAsync(string challengeCode)
     {

@@ -1,4 +1,4 @@
-﻿using Artemis.Core;
+using Artemis.Core;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -11,6 +11,7 @@ namespace Artemis.Plugins.Modules.Discord.Authentication;
 public class DiscordAuthClient : DiscordAuthClientBase
 {
     public override string ClientId { get; }
+    public override string Origin => throw new NotSupportedException("Discord does not support a custom origin");
     private readonly string _clientSecret;
 
     public DiscordAuthClient(PluginSettings settings) : base(settings.GetSetting<SavedToken>("DiscordToken"))

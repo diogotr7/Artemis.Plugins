@@ -16,7 +16,8 @@ public class LogitechAuthClient : DiscordAuthClientBase
     }
 
     public override string ClientId => "227491271223017472";
-    
+    public override string Origin => "http://localhost";
+
     public override async Task<TokenResponse> GetAccessTokenAsync(string challengeCode)
     {
         var values = new Dictionary<string, string>

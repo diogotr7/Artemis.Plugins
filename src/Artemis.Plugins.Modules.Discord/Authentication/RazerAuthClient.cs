@@ -17,6 +17,7 @@ public class RazerAuthClient : DiscordAuthClientBase
     }
 
     public override string ClientId => "331511201655685132";
+    public override string Origin => "http://chroma.razer.com";
 
     public override async Task<TokenResponse> GetAccessTokenAsync(string challengeCode)
     {

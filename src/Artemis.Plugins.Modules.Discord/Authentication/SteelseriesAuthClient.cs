@@ -15,6 +15,8 @@ public class SteelseriesAuthClient : DiscordAuthClientBase
     }
 
     public override string ClientId => "211138759029293067";
+    public override string Origin => "https://steelseries.com";
+
     public override async Task<TokenResponse> GetAccessTokenAsync(string challengeCode)
     {
         var values = new Dictionary<string, string>

@@ -9,30 +9,27 @@ using Artemis.Plugins.Modules.Discord.Enums;
 
 namespace Artemis.Plugins.Modules.Discord.Transport;
 
-[Obsolete("Use DiscordPipeTransport instead, this one doesn't support notification events...")]
 public sealed class DiscordWebSocketTransport : IDiscordTransport
 {
-    private const string StreamkitWebsocketUri = "ws://localhost:6463";
+    private const string WebsocketUri = "ws://localhost:6463";
     
     private readonly ClientWebSocket _webSocket;
     private readonly string _clientId;
-    private readonly string _uri;
     private readonly string _origin;
     
     public bool IsConnected => _webSocket.State == WebSocketState.Open;
 
-    public DiscordWebSocketTransport(string clientId, string uri, string origin)
+    public DiscordWebSocketTransport(string clientId, string origin)
     {
         _webSocket = new ClientWebSocket();
         _clientId = clientId;
-        _uri = uri;
         _origin = origin;
     }
 
     public  async Task Connect(CancellationToken cancellationToken = default)
     {
         _webSocket.Options.SetRequestHeader("Origin", _origin);
-        await _webSocket.ConnectAsync(new Uri($"{_uri}?v=1&client_id={_clientId}"), cancellationToken);
+        await _webSocket.ConnectAsync(new Uri($"{WebsocketUri}?v=1&client_id={_clientId}"), cancellationToken);
     }
 
     public async Task SendPacketAsync(string stringData, RpcPacketType rpcPacketType, CancellationToken cancellationToken = default)
