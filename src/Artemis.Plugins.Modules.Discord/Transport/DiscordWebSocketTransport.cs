@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.Diagnostics;
+using System.IO;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
@@ -34,25 +35,42 @@ public sealed class DiscordWebSocketTransport : IDiscordTransport
 
     public async Task SendPacketAsync(string stringData, RpcPacketType rpcPacketType, CancellationToken cancellationToken = default)
     {
-        Debug.WriteLine($"Sending {rpcPacketType}: {stringData}");
+        var length = Encoding.UTF8.GetByteCount(stringData);
+        var rent = ArrayPool<byte>.Shared.Rent(length);
+        Encoding.UTF8.GetBytes(stringData, 0, stringData.Length, rent, 0);
 
-        var buffer = Encoding.UTF8.GetBytes(stringData);
-
-        await _webSocket.SendAsync(buffer, WebSocketMessageType.Text, true, cancellationToken);
+        try
+        {
+            await _webSocket.SendAsync(rent.AsMemory(0, length), WebSocketMessageType.Text, true, cancellationToken);
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(rent);
+        }
     }
 
     public async Task<(RpcPacketType, string)> ReadMessageAsync(CancellationToken cancellationToken = default)
     {
-        var rent = ArrayPool<byte>.Shared.Rent(32768);
-        var result = await _webSocket.ReceiveAsync(rent, cancellationToken);
-
-        if (result.MessageType == WebSocketMessageType.Close)
+        using var memoryStream = new MemoryStream();
+        WebSocketReceiveResult result;
+        do
+        {
+            var rent = ArrayPool<byte>.Shared.Rent(4096);
+            try
+            {
+                result = await _webSocket.ReceiveAsync(rent, cancellationToken);
+                memoryStream.Write(rent, 0, result.Count);
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(rent);
+            }
+        } while (!result.EndOfMessage);
+        
+        if (result.MessageType != WebSocketMessageType.Text)
             throw new DiscordRpcClientException("WebSocket closed");
 
-        var packetData = Encoding.UTF8.GetString(rent.AsSpan(0, result.Count));
-        ArrayPool<byte>.Shared.Return(rent);
-
-        Debug.WriteLine($"Received {result.MessageType}: {packetData}");
+        var packetData = Encoding.UTF8.GetString(memoryStream.ToArray());
 
         return (RpcPacketType.FRAME, packetData);
     }
