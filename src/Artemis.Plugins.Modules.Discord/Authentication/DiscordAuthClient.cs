@@ -1,112 +1,79 @@
-﻿using Artemis.Core;
+using Artemis.Core;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Artemis.Plugins.Modules.Discord.Authentication;
 
-public class DiscordAuthClient : IDisposable
+public class DiscordAuthClient : DiscordAuthClientBase
 {
-    private readonly string _clientId;
+    public override string ClientId { get; }
+    public override string Origin => throw new NotSupportedException("Discord does not support a custom origin");
     private readonly string _clientSecret;
-    private readonly PluginSetting<SavedToken> _token;
-    private readonly HttpClient _httpClient;
 
-    public DiscordAuthClient(string clientId, string clientSecret, PluginSetting<SavedToken> token)
+    public DiscordAuthClient(PluginSettings settings) : base(settings.GetSetting<SavedToken>("DiscordToken"))
     {
-        _clientId = clientId;
-        _clientSecret = clientSecret;
-        _token = token;
-        _httpClient = new();
-    }
-
-    public bool HasToken => _token.Value != null;
-
-    public bool IsTokenValid => HasToken && _token.Value!.ExpirationDate >= DateTime.UtcNow;
-
-    public string AccessToken => _token.Value?.AccessToken ?? throw new InvalidOperationException("No token available");
-
-    public async Task RefreshTokenIfNeededAsync()
-    {
-        if (!HasToken)
-            return;
-
-        if (_token.Value!.ExpirationDate >= DateTime.UtcNow.AddDays(1))
-            return;
-
-        await RefreshAccessTokenAsync();
-    }
-
-    public async Task<TokenResponse> GetAccessTokenAsync(string challengeCode)
-    {
-        var token = await GetCredentialsAsync("authorization_code", "code", challengeCode);
-        SaveToken(token);
-        return token;
-    }
-
-    public async Task RefreshAccessTokenAsync()
-    {
-        if (!HasToken)
-            throw new InvalidOperationException("No token to refresh");
+        var clientIdSetting = settings.GetSetting<string>("DiscordClientId");
+        var clientSecretSetting = settings.GetSetting<string>("DiscordClientSecret");
         
-        TokenResponse token = await GetCredentialsAsync("refresh_token", "refresh_token", _token.Value!.RefreshToken);
-        SaveToken(token);
+        if (!AreClientIdAndSecretValid(clientIdSetting, clientSecretSetting))
+            throw new InvalidOperationException("Invalid client id or secret. Please check your settings.");
+        
+        ClientId = clientIdSetting.Value!;
+        _clientSecret = clientSecretSetting.Value!;
+    }
+    
+    private bool AreClientIdAndSecretValid(PluginSetting<string> clientId, PluginSetting<string> clientSecret)
+    {
+        return clientId.Value?.All(c => char.IsDigit(c)) == true && clientSecret.Value?.Length > 0;
     }
 
-    private async Task<TokenResponse> GetCredentialsAsync(string grantType, string secretType, string secret)
+    public override async Task<TokenResponse> GetAccessTokenAsync(string challengeCode)
     {
         Dictionary<string, string> values = new()
         {
-            ["grant_type"] = grantType,
-            [secretType] = secret,
-            ["client_id"] = _clientId,
+            ["grant_type"] = "authorization_code",
+            ["code"] = challengeCode,
+            ["client_id"] = ClientId,
             ["client_secret"] = _clientSecret
         };
 
-        using HttpResponseMessage response = await _httpClient.PostAsync("https://discord.com/api/oauth2/token", new FormUrlEncodedContent(values));
-        string responseString = await response.Content.ReadAsStringAsync();
+        using var response = await HttpClient.PostAsync("https://discord.com/api/oauth2/token", new FormUrlEncodedContent(values));
+        var responseString = await response.Content.ReadAsStringAsync();
         if (!response.IsSuccessStatusCode)
         {
             throw new UnauthorizedAccessException(responseString);
         }
 
-        return JsonConvert.DeserializeObject<TokenResponse>(responseString)!;
+        var token = JsonConvert.DeserializeObject<TokenResponse>(responseString)!;
+        SaveToken(token);
+        return token;
     }
 
-    private void SaveToken(TokenResponse newToken)
+    public override async Task RefreshAccessTokenAsync()
     {
-        _token.Value = new SavedToken
+        if (!HasToken)
+            throw new InvalidOperationException("No token to refresh");
+        
+        Dictionary<string, string> values = new()
         {
-            AccessToken = newToken.AccessToken,
-            RefreshToken = newToken.RefreshToken,
-            ExpirationDate = DateTime.UtcNow.AddSeconds(newToken.ExpiresIn)
+            ["grant_type"] = "refresh_token",
+            ["refresh_token"] = Token.Value!.RefreshToken,
+            ["client_id"] = ClientId,
+            ["client_secret"] = _clientSecret
         };
-        _token.Save();
-    }
 
-    #region IDisposable
-    private bool disposedValue;
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!disposedValue)
+        using var response = await HttpClient.PostAsync("https://discord.com/api/oauth2/token", new FormUrlEncodedContent(values));
+        var responseString = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
         {
-            if (disposing)
-            {
-                _httpClient?.Dispose();
-            }
-
-            disposedValue = true;
+            throw new UnauthorizedAccessException(responseString);
         }
-    }
 
-    public void Dispose()
-    {
-        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
+        var token = JsonConvert.DeserializeObject<TokenResponse>(responseString)!;
+        SaveToken(token);
     }
-    #endregion
 }

@@ -1,51 +1,40 @@
 using Artemis.Core;
-using Artemis.Plugins.Modules.Discord.Authentication;
 using Artemis.Plugins.Modules.Discord.DiscordPackets;
 using Artemis.Plugins.Modules.Discord.DiscordPackets.CommandData;
 using Artemis.Plugins.Modules.Discord.Enums;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.IO.Pipes;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Artemis.Plugins.Modules.Discord.Authentication;
+using Artemis.Plugins.Modules.Discord.DiscordPluginConfiguration;
+using Artemis.Plugins.Modules.Discord.Transport;
 
 namespace Artemis.Plugins.Modules.Discord;
 
 public class DiscordRpcClient : IDiscordRpcClient
 {
-    #region RPC Constants
-    private const string RPC_VERSION = "1";
-    private const int HEADER_SIZE = 8;
-    private static readonly JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings
+    private static readonly JsonSerializerSettings JsonSerializerSettings = new()
     {
         ContractResolver = new DefaultContractResolver
         {
             NamingStrategy = new SnakeCaseNamingStrategy { ProcessDictionaryKeys = true }
         }
     };
-    #endregion
 
-    #region Fields
     private readonly Dictionary<Guid, TaskCompletionSource<DiscordResponse>> _pendingRequests;
     private readonly CancellationTokenSource _cancellationTokenSource;
-    private readonly string _clientId;
-    private readonly DiscordAuthClient _authClient;
-    private readonly byte[] _headerBuffer;
-    private NamedPipeClientStream? _pipe;
+    private readonly IDiscordAuthClient _authClient;
+    private readonly IDiscordTransport _transport;
     private Task? _readLoopTask;
-    private Task? _refreshTokenTask;
     private TaskCompletionSource<Ready>? _readyTcs;
-    #endregion
 
     #region Events
+
     /// <summary>
     /// Sent when an error occurs.
     /// </summary>
@@ -108,18 +97,31 @@ public class DiscordRpcClient : IDiscordRpcClient
 
     #endregion
 
-    public DiscordRpcClient(string clientId, string clientSecret, PluginSetting<SavedToken> tokenSetting)
+    public DiscordRpcClient(PluginSettings settings)
     {
-        _clientId = clientId;
-        _authClient = new(clientId, clientSecret, tokenSetting);
-        _pendingRequests = new();
-        _cancellationTokenSource = new();
-        _headerBuffer = new byte[HEADER_SIZE];
+        _pendingRequests = new Dictionary<Guid, TaskCompletionSource<DiscordResponse>>();
+        _cancellationTokenSource = new CancellationTokenSource();
+        var rpcType = settings.GetSetting("DiscordRpcProvider", DiscordRpcProvider.StreamKit);
+        
+        //TODO: sometimes subscribing to NOTIFICATION_CREATE throws an error. investigate.
+        // it might be dependent on the transport used, not 100% sure.
+        _authClient = rpcType.Value switch
+        {
+            DiscordRpcProvider.StreamKit => new StreamKitAuthClient(settings),
+            DiscordRpcProvider.Custom => new DiscordAuthClient(settings),
+            DiscordRpcProvider.Razer => new RazerAuthClient(settings),
+            DiscordRpcProvider.Steelseries => new SteelseriesAuthClient(settings),
+            DiscordRpcProvider.Logitech => new LogitechAuthClient(settings),
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
+        _transport = new DiscordWebSocketTransport(_authClient.ClientId, _authClient.Origin);
+        // _transport = new DiscordPipeTransport(_authClient.ClientId);
     }
 
-    public void Connect(int timeoutMs = 500)
+    public async Task Connect(int timeoutMs = 500)
     {
-        if (_pipe?.IsConnected == true)
+        if (_transport.IsConnected)
             throw new InvalidOperationException("Already connected");
 
         //we want discord to be open for at least 10 seconds 
@@ -128,26 +130,12 @@ public class DiscordRpcClient : IDiscordRpcClient
         var now = DateTime.Now;
         var desiredTime = startTime + TimeSpan.FromSeconds(10);
         if (now < desiredTime)
-            Thread.Sleep(desiredTime - now);
+            await Task.Delay(desiredTime - now);
 
-        const int MAX_TRIES = 10;
-        for (int i = 0; i < MAX_TRIES; i++)
-        {
-            try
-            {
-                _pipe = new(".", GetPipeName(i), PipeDirection.InOut, PipeOptions.Asynchronous);
-                _pipe.Connect(timeoutMs);
-                _readLoopTask = Task.Run(ReadLoop, _cancellationTokenSource.Token);
-                Task.Run(InitializeAsync, _cancellationTokenSource.Token);
-                return;
-            }
-            catch (Exception e)
-            {
-                Error?.Invoke(this, new DiscordRpcClientException("Error connecting to discord", e));
-            }
-        }
-
-        throw new DiscordRpcClientException("Failed to connect to Discord");
+        await _transport.Connect(_cancellationTokenSource.Token);
+        _readLoopTask = Task.Run(ReadLoop, _cancellationTokenSource.Token);
+        //fire and forget, it should be fiiiiine
+        _ = Task.Run(InitializeAsync, _cancellationTokenSource.Token);
     }
 
     public async Task SubscribeAsync(DiscordRpcEvent evt, params (string Key, object Value)[] parameters)
@@ -168,44 +156,35 @@ public class DiscordRpcClient : IDiscordRpcClient
     {
         var request = new DiscordRequest(command, parameters);
 
-        DiscordResponse<T> response = await SendRequestWithResponseTypeAsync<T>(request);
+        var response = await SendRequestWithResponseTypeAsync<T>(request);
 
         return response.Data;
     }
 
-    private async Task HandshakeAsync()
-    {
-        string handshake = JsonConvert.SerializeObject(new { v = RPC_VERSION, client_id = _clientId }, _jsonSerializerSettings);
-
-        await SendPacketAsync(handshake, RpcPacketType.HANDSHAKE);
-    }
-
     private async Task InitializeAsync()
     {
-        _readyTcs = new();
-
-        await HandshakeAsync();
+        _readyTcs = new TaskCompletionSource<Ready>();
 
         //this task will complete once the Ready event is received
         await _readyTcs.Task;
 
         var authenticatedData = await HandleAuthenticationAsync();
-        _refreshTokenTask = Task.Run(RefreshTokenLoop, _cancellationTokenSource.Token);
-        
+
         Authenticated?.Invoke(this, authenticatedData);
     }
-    
+
     private async Task AuthorizeAsync()
     {
-        DiscordResponse<Authorize> authorizeResponse = await SendRequestWithResponseTypeAsync<Authorize>(
+        var authorizeResponse = await SendRequestWithResponseTypeAsync<Authorize>(
             new DiscordRequest(DiscordRpcCommand.AUTHORIZE,
-                ("client_id", _clientId),
+                ("client_id", _authClient.ClientId),
                 ("scopes", new string[] { "rpc", "identify", "rpc.notifications.read" })),
-            timeoutMs: 30000);//high timeout so the user has time to click the button
-        
+            timeoutMs: 30000); //high timeout so the user has time to click the button
+
         await _authClient.GetAccessTokenAsync(authorizeResponse.Data.Code);
     }
 
+    //TODO: fix
     private async Task<Authenticate> HandleAuthenticationAsync()
     {
         if (!_authClient.HasToken)
@@ -215,13 +194,14 @@ public class DiscordRpcClient : IDiscordRpcClient
             //to get a token from discord. 
             await AuthorizeAsync();
         }
-        
+
         //Now that we have a token for sure,
         //we need to check if it expired or not.
         //If yes, refresh it.
         //Then, authenticate.
         try
         {
+            //TODO: What if we do not support refreshing?
             await _authClient.RefreshAccessTokenAsync();
         }
         catch (UnauthorizedAccessException e)
@@ -231,9 +211,9 @@ public class DiscordRpcClient : IDiscordRpcClient
             await AuthorizeAsync();
         }
 
-        DiscordResponse<Authenticate> authenticateResponse = await SendRequestWithResponseTypeAsync<Authenticate>(
-                new DiscordRequest(DiscordRpcCommand.AUTHENTICATE,
-                    ("access_token", _authClient.AccessToken))
+        var authenticateResponse = await SendRequestWithResponseTypeAsync<Authenticate>(
+            new DiscordRequest(DiscordRpcCommand.AUTHENTICATE,
+                ("access_token", _authClient.AccessToken))
         );
 
         return authenticateResponse.Data;
@@ -241,11 +221,11 @@ public class DiscordRpcClient : IDiscordRpcClient
 
     private async Task ReadLoop()
     {
-        while (!_cancellationTokenSource.IsCancellationRequested && _pipe?.IsConnected == true)
+        while (!_cancellationTokenSource.IsCancellationRequested && _transport?.IsConnected == true)
         {
             try
             {
-                var (opCode, data) = await ReadMessageAsync();
+                var (opCode, data) = await _transport.ReadMessageAsync(_cancellationTokenSource.Token);
 
                 await ProcessMessageAsync(opCode, data);
             }
@@ -256,58 +236,14 @@ public class DiscordRpcClient : IDiscordRpcClient
         }
     }
 
-    private async Task RefreshTokenLoop()
-    {
-        while (!_cancellationTokenSource.IsCancellationRequested)
-        {
-            try
-            {
-                await _authClient.RefreshTokenIfNeededAsync();
-
-                await Task.Delay(TimeSpan.FromDays(1), _cancellationTokenSource.Token);
-            }
-            catch
-            {
-                //we can safely ignore this error
-            }
-        }
-    }
-
-    private async Task<(RpcPacketType, string)> ReadMessageAsync()
-    {
-        byte[]? dataBuffer = null;
-        try
-        {
-            int headerReadBytes = await _pipe!.ReadAsync(_headerBuffer.AsMemory(0, HEADER_SIZE), _cancellationTokenSource.Token);
-
-            if (headerReadBytes < HEADER_SIZE)
-                throw new DiscordRpcClientException("Read less than 4 bytes for the header");
-
-            var header = MemoryMarshal.AsRef<DiscordRpcHeader>(_headerBuffer);
-
-            if (header.PacketLength == 0)
-                throw new DiscordRpcClientException("Read zero bytes from the pipe");
-
-            dataBuffer = ArrayPool<byte>.Shared.Rent(header.PacketLength);
-
-            await _pipe.ReadAsync(dataBuffer.AsMemory(0, header.PacketLength), _cancellationTokenSource.Token);
-
-            return (header.PacketType, Encoding.UTF8.GetString(dataBuffer.AsSpan(0, header.PacketLength)));
-        }
-        finally
-        {
-            if (dataBuffer != null)
-                ArrayPool<byte>.Shared.Return(dataBuffer);
-        }
-    }
-
     private async Task ProcessMessageAsync(RpcPacketType opCode, string data)
     {
         if (opCode == RpcPacketType.PING)
         {
-            await SendPacketAsync(data, RpcPacketType.PONG);
+            await _transport.SendPacketAsync(data, RpcPacketType.PONG, _cancellationTokenSource.Token);
             return;
         }
+
         if (opCode == RpcPacketType.CLOSE)
         {
             Error?.Invoke(this, new DiscordRpcClientException($"Discord sent RpcPacketType.CLOSE: {data}"));
@@ -328,13 +264,13 @@ public class DiscordRpcClient : IDiscordRpcClient
         //TODO: investigate
         //}
 
-        if (data.Contains("\"evt\":\"ERROR\""))//this looks kinda stupid ¯\_(ツ)_/¯
+        if (data.Contains("\"evt\":\"ERROR\"")) //this looks kinda stupid ¯\_(ツ)_/¯
             throw new DiscordRpcClientException($"Discord response contained an error: {data}");
 
         IDiscordMessage discordMessage;
         try
         {
-            discordMessage = JsonConvert.DeserializeObject<IDiscordMessage>(data, _jsonSerializerSettings)!;
+            discordMessage = JsonConvert.DeserializeObject<IDiscordMessage>(data, JsonSerializerSettings)!;
         }
         catch (Exception exc)
         {
@@ -356,31 +292,6 @@ public class DiscordRpcClient : IDiscordRpcClient
         }
     }
 
-    private async Task SendPacketAsync(string stringData, RpcPacketType rpcPacketType)
-    {
-        int stringByteLength = Encoding.UTF8.GetByteCount(stringData);
-        int bufferSize = HEADER_SIZE + stringByteLength;
-        byte[] buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
-
-        try
-        {
-            if (!BitConverter.TryWriteBytes(buffer.AsSpan(0, 4), (int)rpcPacketType))
-                throw new DiscordRpcClientException("Error writing rpc packet type.");
-
-            if (!BitConverter.TryWriteBytes(buffer.AsSpan(4, 4), stringByteLength))
-                throw new DiscordRpcClientException("Error writing string byte length.");
-
-            if (Encoding.UTF8.GetBytes(stringData, 0, stringData.Length, buffer, HEADER_SIZE) != stringData.Length)
-                throw new DiscordRpcClientException("Wrote wrong number of characters.");
-
-            await _pipe!.WriteAsync(buffer.AsMemory(0, bufferSize), _cancellationTokenSource.Token);
-        }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(buffer);
-        }
-    }
-
     private async Task<DiscordResponse> SendRequestAsync(DiscordRequest request, int timeoutMs)
     {
         TaskCompletionSource<DiscordResponse> responseCompletionSource = new();
@@ -389,10 +300,12 @@ public class DiscordRpcClient : IDiscordRpcClient
         _pendingRequests.Add(request.Nonce, responseCompletionSource);
 
         //and send the actual request to the discord client.
-        await SendPacketAsync(JsonConvert.SerializeObject(request, _jsonSerializerSettings), RpcPacketType.FRAME);
+        await _transport.SendPacketAsync(JsonConvert.SerializeObject(request, JsonSerializerSettings), RpcPacketType.FRAME,
+            _cancellationTokenSource.Token);
 
         CancellationTokenSource timeoutToken = new(TimeSpan.FromMilliseconds(timeoutMs));
-        timeoutToken.Token.Register(() => responseCompletionSource.TrySetException(new TimeoutException($"Discord request timed out after {timeoutMs}")));
+        timeoutToken.Token.Register(() =>
+            responseCompletionSource.TrySetException(new TimeoutException($"Discord request timed out after {timeoutMs}")));
 
         //this will wait until the response with the expected Guid is received
         //and processed by the read loop.
@@ -401,7 +314,7 @@ public class DiscordRpcClient : IDiscordRpcClient
 
     private async Task<DiscordResponse<T>> SendRequestWithResponseTypeAsync<T>(DiscordRequest request, int timeoutMs = 1000) where T : class
     {
-        DiscordResponse response = await SendRequestAsync(request, timeoutMs);
+        var response = await SendRequestAsync(request, timeoutMs);
 
         if (response is not DiscordResponse<T> typedResponse)
             throw new DiscordRpcClientException("Discord response was not of the specified type.", new InvalidCastException());
@@ -464,29 +377,6 @@ public class DiscordRpcClient : IDiscordRpcClient
         }
     }
 
-    #region Helper Pipe Methods
-    private static string GetPipeName(int index)
-    {
-        const string PIPE_NAME = "discord-ipc-{0}";
-        return Environment.OSVersion.Platform switch
-        {
-            PlatformID.Unix => Path.Combine(GetTemporaryDirectory(), string.Format(PIPE_NAME, index)),
-            _ => string.Format(PIPE_NAME, index)
-        };
-    }
-
-    private static string GetTemporaryDirectory()
-    {
-        //source: https://github.com/Lachee/discord-rpc-csharp/
-        //try all these possible paths it could be, depending on system configuration
-        return Environment.GetEnvironmentVariable("XDG_RUNTIME_DIR") ??
-            Environment.GetEnvironmentVariable("TMPDIR") ??
-            Environment.GetEnvironmentVariable("TMP") ??
-            Environment.GetEnvironmentVariable("TEMP") ??
-            "/tmp";
-    }
-    #endregion
-
     private DateTime GetDiscordStartTime()
     {
         var processNames = new string[]
@@ -502,7 +392,9 @@ public class DiscordRpcClient : IDiscordRpcClient
     }
 
     #region IDisposable
+
     private bool disposedValue;
+
     protected virtual void Dispose(bool disposing)
     {
         if (!disposedValue)
@@ -512,7 +404,7 @@ public class DiscordRpcClient : IDiscordRpcClient
                 try
                 {
                     _cancellationTokenSource.Cancel();
-                    _pipe?.Dispose();
+                    _transport.Dispose();
                     _authClient.Dispose();
 
                     Error = null;
@@ -527,8 +419,14 @@ public class DiscordRpcClient : IDiscordRpcClient
                     VoiceStateUpdated = null;
                     VoiceStateDeleted = null;
 
-                    try { _readLoopTask?.Wait(); _refreshTokenTask?.Wait(); }
-                    catch { /*catch everything*/ }
+                    try
+                    {
+                        _readLoopTask?.Wait();
+                    }
+                    catch
+                    {
+                        /*catch everything*/
+                    }
 
                     _cancellationTokenSource.Dispose();
                 }
@@ -548,5 +446,6 @@ public class DiscordRpcClient : IDiscordRpcClient
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
+
     #endregion
 }
