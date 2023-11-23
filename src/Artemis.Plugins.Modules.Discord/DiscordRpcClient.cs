@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Artemis.Plugins.Modules.Discord.Authentication;
+using Artemis.Plugins.Modules.Discord.DiscordPluginConfiguration;
 using Artemis.Plugins.Modules.Discord.Transport;
 
 namespace Artemis.Plugins.Modules.Discord;
@@ -100,17 +101,22 @@ public class DiscordRpcClient : IDiscordRpcClient
     {
         _pendingRequests = new Dictionary<Guid, TaskCompletionSource<DiscordResponse>>();
         _cancellationTokenSource = new CancellationTokenSource();
+        var rpcType = settings.GetSetting("RpcProvider", DiscordRpcProvider.StreamKit);
         
         //TODO: sometimes subscribing to NOTIFICATION_CREATE throws an error. investigate.
         // it might be dependent on the transport used, not 100% sure.
+        _authClient = rpcType.Value switch
+        {
+            DiscordRpcProvider.StreamKit => new StreamKitAuthClient(settings),
+            DiscordRpcProvider.Custom => new DiscordAuthClient(settings),
+            DiscordRpcProvider.Razer => new RazerAuthClient(settings),
+            DiscordRpcProvider.Steelseries => new SteelseriesAuthClient(settings),
+            DiscordRpcProvider.Logitech => new LogitechAuthClient(settings),
+            _ => throw new ArgumentOutOfRangeException()
+        };
 
-        _authClient = new StreamKitAuthClient(settings);
-        // _authClient = new RazerAuthClient(settings);
-        // _authClient = new SteelseriesAuthClient(settings);
-        // _authClient = new LogitechAuthClient(settings);
         _transport = new DiscordWebSocketTransport(_authClient.ClientId, _authClient.Origin);
         // _transport = new DiscordPipeTransport(_authClient.ClientId);
-
     }
 
     public async Task Connect(int timeoutMs = 500)

@@ -2,18 +2,99 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:Artemis.Plugins.Modules.Discord.DiscordPluginConfiguration"
+             xmlns:shared="clr-namespace:Artemis.UI.Shared;assembly=Artemis.UI.Shared"
+             xmlns:converters="clr-namespace:Artemis.UI.Shared.Converters;assembly=Artemis.UI.Shared"
              xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="local:DiscordPluginConfigurationViewModel"
              x:Class="Artemis.Plugins.Modules.Discord.DiscordPluginConfiguration.DiscordPluginConfigurationView">
+    <UserControl.Resources>
+        <converters:EnumToBooleanConverter x:Key="EnumBoolConverter" />
+    </UserControl.Resources>
 
-  <Border Classes="card" Margin="10" Width="400" Height="180" >
-    <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
-      <TextBox Text="{Binding ClientId}" Watermark="Client Id" Margin="0 10" />
-      <TextBox Text="{Binding ClientSecret}" Watermark="Client Secret" Margin="0 10" />
-      <Button Command="{Binding Save}">SAVE</Button>
-      <controls:HyperlinkButton NavigateUri="https://wiki.artemis-rgb.com/en/guides/user/plugins/discord">
-        Help
-      </controls:HyperlinkButton>
-    </StackPanel>
-  </Border>
+    <Border Classes="card" Margin="10">
+        <StackPanel>
+            
+            <Grid RowDefinitions="*,*" ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0">
+                    <TextBlock>
+                        Discord Rpc Provider
+                    </TextBlock>
+                    <TextBlock Classes="subtitle" TextWrapping="Wrap">
+                        Sets the provider used for authentication. Custom allows you to use your own client id and secret. Check the wiki for more information.
+                    </TextBlock>
+                </StackPanel>
+                <StackPanel Grid.Row="0" Grid.Column="1" VerticalAlignment="Center">
+                    <shared:EnumComboBox Width="250" Value="{CompiledBinding Provider.Value}" />
+                </StackPanel>
+            </Grid>
+            
+            <Border Classes="card-separator" />
+            
+            <Grid RowDefinitions="*,*" ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0">
+                    <TextBlock>
+                        Client Id
+                    </TextBlock>
+                    <TextBlock Classes="subtitle" TextWrapping="Wrap">
+                        Only required if you use the custom provider. Used to authenticate your application with discord. You can find it in the discord developer portal. 
+                    </TextBlock>
+                </StackPanel>
+                <StackPanel Grid.Row="0" Grid.Column="1" VerticalAlignment="Center">
+                    <TextBox 
+                        IsEnabled="{CompiledBinding Provider.Value,
+                                     Converter={StaticResource EnumBoolConverter},
+                                     ConverterParameter={x:Static local:DiscordRpcProvider.Custom}}"
+                        Text="{CompiledBinding ClientIdSetting.Value}"
+                        Watermark="Client Id"
+                        Width="250"
+                    />
+                </StackPanel>
+            </Grid>
+
+            <Border Classes="card-separator" />
+            
+            <Grid RowDefinitions="*,*" ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0">
+                    <TextBlock>
+                        Client Secret
+                    </TextBlock>
+                    <TextBlock Classes="subtitle" TextWrapping="Wrap">
+                        Only required if you use the custom provider. Used to authenticate your application with discord. You can find it in the discord developer portal.
+                    </TextBlock>
+                </StackPanel>
+                <StackPanel Grid.Row="0" Grid.Column="1" VerticalAlignment="Center">
+                    <TextBox 
+                        IsEnabled="{CompiledBinding Provider.Value,
+                                     Converter={StaticResource EnumBoolConverter},
+                                     ConverterParameter={x:Static local:DiscordRpcProvider.Custom}}"
+                        Text="{CompiledBinding ClientSecretSetting.Value}"
+                        Width="250"
+                        PasswordChar="*"
+                        Watermark="Client Secret"
+                    />
+                </StackPanel>
+            </Grid>
+            
+            <Border Classes="card-separator" />
+            
+            <Grid RowDefinitions="*,*" ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0">
+                    <TextBlock>
+                        Wiki
+                    </TextBlock>
+                    <TextBlock Classes="subtitle" TextWrapping="Wrap">
+                        Check the wiki for information before making any changes, this should work out of the box.
+                    </TextBlock>
+                </StackPanel>
+                <StackPanel Grid.Row="0" Grid.Column="1" VerticalAlignment="Center">
+                    <controls:HyperlinkButton
+                        Content="Help"
+                        NavigateUri="https://wiki.artemis-rgb.com/en/guides/user/plugins/discord"
+                    />
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+    </Border>
 </UserControl>

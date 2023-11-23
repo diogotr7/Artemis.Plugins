@@ -43,7 +43,7 @@ public sealed class DiscordWebSocketTransport : IDiscordTransport
 
     public async Task<(RpcPacketType, string)> ReadMessageAsync(CancellationToken cancellationToken = default)
     {
-        var rent = ArrayPool<byte>.Shared.Rent(8192);
+        var rent = ArrayPool<byte>.Shared.Rent(32768);
         var result = await _webSocket.ReceiveAsync(rent, cancellationToken);
 
         if (result.MessageType == WebSocketMessageType.Close)
