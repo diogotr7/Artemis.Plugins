@@ -12,13 +12,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="SpotifyAPI.Web" Version="7.0.0" />
-        <PackageReference Include="SpotifyAPI.Web.Auth" Version="7.0.0" />
+        <PackageReference Include="SpotifyAPI.Web" Version="7.0.2" />
+        <PackageReference Include="SpotifyAPI.Web.Auth" Version="7.0.2" />
     </ItemGroup>
 
     <ItemGroup>
         <Content Include="plugin.json" CopyToOutputDirectory="PreserveNewest" />
-        <Content Include="Spotify.json" CopyToOutputDirectory="PreserveNewest" />
+        <Content Include="Spotify.zip" CopyToOutputDirectory="PreserveNewest" />
         <Content Include="no-user.png" CopyToOutputDirectory="PreserveNewest" />
         <PackageReference Include="ArtemisRGB.Plugins.BuildTask" Version="2.0.0">
           <PrivateAssets>all</PrivateAssets>

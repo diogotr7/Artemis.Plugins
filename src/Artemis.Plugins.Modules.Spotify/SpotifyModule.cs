@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Artemis.Core.Services;
 
 namespace Artemis.Plugins.Modules.Spotify;
 
@@ -19,23 +20,21 @@ public class SpotifyModule : Module<SpotifyDataModel>
 {
     public override List<IModuleActivationRequirement> ActivationRequirements { get; } = new();
 
-        #region Constructor and readonly fields
-        private readonly ILogger _logger;
-        private readonly PluginSetting<PKCETokenResponse> _token;
-        private readonly PluginSetting<Dictionary<string, ColorSwatch>> _cache;
-        private readonly HttpClient _httpClient;
+    private readonly ILogger _logger;
+    private readonly PluginSetting<PKCETokenResponse> _token;
+    private readonly PluginSetting<Dictionary<string, ColorSwatch>> _cache;
+    private readonly HttpClient _httpClient;
 
-        public SpotifyModule(PluginSettings settings, ILogger logger)
+    public SpotifyModule(PluginSettings settings, ILogger logger)
+    {
+        _logger = logger;
+        _token = settings.GetSetting<PKCETokenResponse>(Constants.SPOTIFY_AUTH_SETTING);
+        _cache = settings.GetSetting<Dictionary<string, ColorSwatch>>("AlbumArtCache", new());
+        _httpClient = new HttpClient
         {
-            _logger = logger;
-            _token = settings.GetSetting<PKCETokenResponse>(Constants.SPOTIFY_AUTH_SETTING);
-            _cache = settings.GetSetting<Dictionary<string, ColorSwatch>>("AlbumArtCache", new());
-            _httpClient = new HttpClient
-            {
-                Timeout = TimeSpan.FromSeconds(2)
-            };
-        }
-        #endregion
+            Timeout = TimeSpan.FromSeconds(2)
+        };
+    }
 
     private SpotifyClient? _spotify;
     private string? _trackId;
@@ -43,7 +42,6 @@ public class SpotifyModule : Module<SpotifyDataModel>
     private string? _albumArtUrl;
     private TrackAudioAnalysis? _analysis;
 
-    #region Plugin Methods
     public override void Enable()
     {
         try
@@ -54,14 +52,15 @@ public class SpotifyModule : Module<SpotifyDataModel>
             }
             catch (Exception e)
             {
-                _logger.Error("Failed spotify authentication, login in the settings dialog:" + e.ToString());
+                _logger.Error(e, "Failed spotify authentication, login in the settings dialog");
             }
+
             AddTimedUpdate(TimeSpan.FromSeconds(2), UpdatePlayback, nameof(UpdatePlayback));
-            AddDefaultProfile(DefaultCategoryName.Applications, Plugin.ResolveRelativePath("Spotify.json"));
+            AddDefaultProfile(DefaultCategoryName.Applications, Plugin.ResolveRelativePath("Spotify.zip"));
         }
         catch (Exception e)
         {
-            _logger.Error("Failed spotify authentication, login in the settings dialog:" + e.ToString());
+            _logger.Error(e, "Failed spotify authentication, login in the settings dialog");
         }
     }
 
@@ -98,9 +97,7 @@ public class SpotifyModule : Module<SpotifyDataModel>
             DataModel.Track.Analysis.CurrentSegment = currentSegment;
         }
     }
-    #endregion
 
-    #region DataModel update methods
     private async Task UpdatePlayback(double deltaTime)
     {
         //this will be null before authentication
@@ -119,7 +116,7 @@ public class SpotifyModule : Module<SpotifyDataModel>
         }
 
         if (playing is null || DataModel is null)
-            return;//weird
+            return; //weird
 
         try
         {
@@ -142,16 +139,15 @@ public class SpotifyModule : Module<SpotifyDataModel>
     {
         if (_spotify is null)
             return;
-        
-        string trackId = track.Uri.Split(':').Last();
-        if (trackId == _trackId)
+
+        if (track.Id == _trackId)
             return;
-        
+
         UpdateBasicTrackInfo(track);
 
         try
         {
-            TrackAudioFeatures features = await _spotify.Tracks.GetAudioFeatures(trackId);
+            TrackAudioFeatures features = await _spotify.Tracks.GetAudioFeatures(track.Id);
             UpdateTrackFeatures(features);
         }
         catch (Exception e)
@@ -161,7 +157,7 @@ public class SpotifyModule : Module<SpotifyDataModel>
 
         try
         {
-            _analysis = await _spotify.Tracks.GetAudioAnalysis(trackId);
+            _analysis = await _spotify.Tracks.GetAudioAnalysis(track.Id);
         }
         catch (Exception e)
         {
@@ -175,14 +171,14 @@ public class SpotifyModule : Module<SpotifyDataModel>
             _albumArtUrl = image.Url;
         }
 
-        _trackId = trackId;
+        _trackId = track.Id;
     }
 
     private async Task UpdatePlayerInfo(CurrentlyPlayingContext playing)
     {
         if (_spotify is null)
             return;
-        
+
         DataModel.Device.Name = playing.Device.Name;
         DataModel.Device.Type = playing.Device.Type;
         DataModel.Player.Shuffle = playing.ShuffleState;
@@ -279,9 +275,6 @@ public class SpotifyModule : Module<SpotifyDataModel>
         DataModel.Track.Features.TimeSignature = features.TimeSignature;
     }
 
-    #endregion
-
-    #region VM interaction
     internal bool LoggedIn => _spotify != null;
 
     internal void Login()
@@ -309,7 +302,7 @@ public class SpotifyModule : Module<SpotifyDataModel>
     {
         if (_spotify is null)
             return null;
-        
+
         try
         {
             return await _spotify.UserProfile.Current();
@@ -319,5 +312,4 @@ public class SpotifyModule : Module<SpotifyDataModel>
             return null;
         }
     }
-        #endregion
-    }
+}

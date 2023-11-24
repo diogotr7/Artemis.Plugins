@@ -81,21 +81,16 @@ public enum Key
 {
     None = -1,
     C = 0,
-    [Description("C#")]
-    Cs = 1,
+    [Description("C#")] Cs = 1,
     D = 2,
-    [Description("D#")]
-    Ds = 3,
+    [Description("D#")] Ds = 3,
     E = 4,
     F = 5,
-    [Description("F#")]
-    Fs = 6,
+    [Description("F#")] Fs = 6,
     G = 7,
-    [Description("G#")]
-    Gs = 8,
+    [Description("G#")] Gs = 8,
     A = 9,
-    [Description("A#")]
-    As = 10,
+    [Description("A#")] As = 10,
     B = 11,
 }
 
