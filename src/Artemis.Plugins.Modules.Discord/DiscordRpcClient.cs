@@ -182,7 +182,7 @@ public class DiscordRpcClient : IDiscordRpcClient
         var authorizeResponse = await SendRequestWithResponseTypeAsync<Authorize>(
             new DiscordRequest(DiscordRpcCommand.AUTHORIZE,
                 ("client_id", _authClient.ClientId),
-                ("scopes", new string[] { "rpc", "identify", "rpc.notifications.read" })),
+                ("scopes", new[] { "rpc", "identify", "rpc.notifications.read" })),
             timeoutMs: 30000); //high timeout so the user has time to click the button
 
         await _authClient.GetAccessTokenAsync(authorizeResponse.Data.Code);
@@ -225,7 +225,7 @@ public class DiscordRpcClient : IDiscordRpcClient
 
     private async Task ReadLoop()
     {
-        while (!_cancellationTokenSource.IsCancellationRequested && _transport?.IsConnected == true)
+        while (!_cancellationTokenSource.IsCancellationRequested && _transport.IsConnected)
         {
             try
             {
@@ -345,34 +345,34 @@ public class DiscordRpcClient : IDiscordRpcClient
     {
         switch (discordEvent)
         {
-            case DiscordEvent<Ready> ready:
+            case DiscordReadyEvent ready:
                 _readyTcs?.SetResult(ready.Data);
                 break;
-            case DiscordEvent<VoiceSettings> voice:
+            case DiscordVoiceSettingsUpdateEvent voice:
                 VoiceSettingsUpdated?.Invoke(this, voice.Data);
                 break;
-            case DiscordEvent<VoiceConnectionStatus> voiceStatus:
+            case DiscordVoiceConnectionStatusEvent voiceStatus:
                 VoiceConnectionStatusUpdated?.Invoke(this, voiceStatus.Data);
                 break;
-            case DiscordEvent<Notification> notif:
+            case DiscordNotificationCreateEvent notif:
                 NotificationReceived?.Invoke(this, notif.Data);
                 break;
-            case DiscordEvent<SpeakingStartStop> stop when stop.Event == DiscordRpcEvent.SPEAKING_STOP:
+            case DiscordSpeakingStopEvent stop:
                 SpeakingStopped?.Invoke(this, stop.Data);
                 break;
-            case DiscordEvent<SpeakingStartStop> start when start.Event == DiscordRpcEvent.SPEAKING_START:
+            case DiscordSpeakingStartEvent start:
                 SpeakingStarted?.Invoke(this, start.Data);
                 break;
-            case DiscordEvent<VoiceChannelSelect> voiceSelect:
+            case DiscordVoiceChannelSelectEvent voiceSelect:
                 VoiceChannelUpdated?.Invoke(this, voiceSelect.Data);
                 break;
-            case DiscordEvent<UserVoiceState> voiceCreate when voiceCreate.Event == DiscordRpcEvent.VOICE_STATE_CREATE:
+            case DiscordVoiceStateCreateEvent voiceCreate:
                 VoiceStateCreated?.Invoke(this, voiceCreate.Data);
                 break;
-            case DiscordEvent<UserVoiceState> voiceUpdate when voiceUpdate.Event == DiscordRpcEvent.VOICE_STATE_UPDATE:
+            case DiscordVoiceStateUpdateEvent voiceUpdate:
                 VoiceStateUpdated?.Invoke(this, voiceUpdate.Data);
                 break;
-            case DiscordEvent<UserVoiceState> voiceDelete when voiceDelete.Event == DiscordRpcEvent.VOICE_STATE_DELETE:
+            case DiscordVoiceStateDeleteEvent voiceDelete:
                 VoiceStateDeleted?.Invoke(this, voiceDelete.Data);
                 break;
             default:
@@ -383,7 +383,7 @@ public class DiscordRpcClient : IDiscordRpcClient
 
     private DateTime GetDiscordStartTime()
     {
-        var processNames = new string[]
+        var processNames = new[]
         {
             "discord",
             "discordptb",
@@ -397,11 +397,11 @@ public class DiscordRpcClient : IDiscordRpcClient
 
     #region IDisposable
 
-    private bool disposedValue;
+    private bool _disposedValue;
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!disposedValue)
+        if (!_disposedValue)
         {
             if (disposing)
             {
@@ -440,7 +440,7 @@ public class DiscordRpcClient : IDiscordRpcClient
                 }
             }
 
-            disposedValue = true;
+            _disposedValue = true;
         }
     }
 
