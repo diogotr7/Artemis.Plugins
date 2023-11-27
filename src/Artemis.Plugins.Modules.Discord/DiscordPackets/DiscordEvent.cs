@@ -16,7 +16,7 @@ namespace Artemis.Plugins.Modules.Discord.DiscordPackets;
 [KnownSubType(typeof(DiscordVoiceChannelSelectEvent), DiscordRpcEvent.VOICE_CHANNEL_SELECT)]
 [KnownSubType(typeof(DiscordVoiceStateCreateEvent), DiscordRpcEvent.VOICE_STATE_CREATE)]
 [KnownSubType(typeof(DiscordVoiceStateUpdateEvent), DiscordRpcEvent.VOICE_STATE_UPDATE)]
-[KnownSubType(typeof(DiscordEvent<UserVoiceState>), DiscordRpcEvent.VOICE_STATE_DELETE)]
+[KnownSubType(typeof(DiscordVoiceStateDeleteEvent), DiscordRpcEvent.VOICE_STATE_DELETE)]
 public class DiscordEvent : IDiscordMessage
 {
     [JsonProperty("evt")] 
