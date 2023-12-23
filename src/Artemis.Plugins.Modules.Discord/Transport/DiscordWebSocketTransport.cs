@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Artemis.Plugins.Modules.Discord.Enums;
+using Microsoft.IO;
 
 namespace Artemis.Plugins.Modules.Discord.Transport;
 
@@ -14,6 +15,7 @@ public sealed class DiscordWebSocketTransport : IDiscordTransport
 {
     private const string WebsocketUri = "ws://localhost:6463";
     
+    private readonly RecyclableMemoryStreamManager _memoryStreamManager;
     private readonly ClientWebSocket _webSocket;
     private readonly string _clientId;
     private readonly string _origin;
@@ -22,6 +24,7 @@ public sealed class DiscordWebSocketTransport : IDiscordTransport
 
     public DiscordWebSocketTransport(string clientId, string origin)
     {
+        _memoryStreamManager = new RecyclableMemoryStreamManager();
         _webSocket = new ClientWebSocket();
         _clientId = clientId;
         _origin = origin;
@@ -51,26 +54,18 @@ public sealed class DiscordWebSocketTransport : IDiscordTransport
 
     public async Task<(RpcPacketType, string)> ReadMessageAsync(CancellationToken cancellationToken = default)
     {
-        using var memoryStream = new MemoryStream();
-        WebSocketReceiveResult result;
+        using var memoryStream = (_memoryStreamManager.GetStream() as RecyclableMemoryStream)!; 
+        ValueWebSocketReceiveResult result;
         do
         {
-            var rent = ArrayPool<byte>.Shared.Rent(4096);
-            try
-            {
-                result = await _webSocket.ReceiveAsync(rent, cancellationToken);
-                memoryStream.Write(rent, 0, result.Count);
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(rent);
-            }
+            result = await _webSocket.ReceiveAsync(memoryStream.GetMemory(), cancellationToken);
+            memoryStream.Advance(result.Count);
         } while (!result.EndOfMessage);
         
         if (result.MessageType != WebSocketMessageType.Text)
             throw new DiscordRpcClientException("WebSocket closed");
 
-        var packetData = Encoding.UTF8.GetString(memoryStream.ToArray());
+        var packetData = Encoding.UTF8.GetString(memoryStream.GetSpan());
 
         return (RpcPacketType.FRAME, packetData);
     }
