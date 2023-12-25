@@ -19,6 +19,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Artemis.Plugins.Modules.Voi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Artemis.Plugins.Nodes.Ping", "Artemis.Plugins.Nodes.Ping\Artemis.Plugins.Nodes.Ping.csproj", "{D68D4879-F5DA-43E5-B7A6-C70259DF7E43}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Artemis.Plugins.Modules.KeyboardLayout", "Artemis.Plugins.Modules.KeyboardLayout\Artemis.Plugins.Modules.KeyboardLayout.csproj", "{1F7083C5-440E-4E95-A0C3-4E183BCBED08}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GithubActions", "GithubActions", "{87BB1199-B6B2-4FF5-8891-F8E4C951ABCA}"
+	ProjectSection(SolutionItems) = preProject
+		..\.github\workflows\dotnet-core.yml = ..\.github\workflows\dotnet-core.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -57,6 +64,10 @@ Global
 		{D68D4879-F5DA-43E5-B7A6-C70259DF7E43}.Debug|x64.Build.0 = Debug|x64
 		{D68D4879-F5DA-43E5-B7A6-C70259DF7E43}.Release|x64.ActiveCfg = Release|x64
 		{D68D4879-F5DA-43E5-B7A6-C70259DF7E43}.Release|x64.Build.0 = Release|x64
+		{1F7083C5-440E-4E95-A0C3-4E183BCBED08}.Debug|x64.ActiveCfg = Debug|x64
+		{1F7083C5-440E-4E95-A0C3-4E183BCBED08}.Debug|x64.Build.0 = Debug|x64
+		{1F7083C5-440E-4E95-A0C3-4E183BCBED08}.Release|x64.ActiveCfg = Release|x64
+		{1F7083C5-440E-4E95-A0C3-4E183BCBED08}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

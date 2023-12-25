@@ -1,0 +1,15 @@
+{
+    "Guid": "D34A47E6-341B-4E64-A570-32B34367A48E",
+    "Name": "Keyboard Layout",
+    "Description": "Adds a module with the current selected keyboard layout in windows",
+    "Author": "diogotr7",
+    "Website": "https://github.com/diogotr7/Artemis.Plugins",
+    "Repository": "https://github.com/diogotr7/Artemis.Plugins",
+    "Icon": "QuestionMark",
+    "Version": "1.0.0.0",
+    "Main": "Artemis.Plugins.Modules.KeyboardLayout.dll",
+    "AutoEnableProperties": true,
+    "RequiresAdmin": false,
+    "Platforms": "Windows",
+    "Api": "1.0.0"
+}

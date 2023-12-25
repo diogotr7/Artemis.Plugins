@@ -63,3 +63,9 @@ jobs:
         with:
           name: Ping
           path: src/Artemis.Plugins.Nodes.Ping/bin/x64/Release/net7.0/publish
+          
+      - name: Upload Keyboard Layout
+        uses: actions/upload-artifact@v3
+        with:
+          name: Keyboard Layout
+          path: src/Artemis.Plugins.Modules.KeyboardLayout/bin/x64/Release/net7.0-windows/publish
