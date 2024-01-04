@@ -14,12 +14,12 @@ namespace Artemis.Plugins.Modules.Discord.Transport;
 public sealed class DiscordWebSocketTransport : IDiscordTransport
 {
     private const string WebsocketUri = "ws://localhost:6463";
-    
+
     private readonly RecyclableMemoryStreamManager _memoryStreamManager;
     private readonly ClientWebSocket _webSocket;
     private readonly string _clientId;
     private readonly string _origin;
-    
+
     public bool IsConnected => _webSocket.State == WebSocketState.Open;
 
     public DiscordWebSocketTransport(string clientId, string origin)
@@ -30,7 +30,7 @@ public sealed class DiscordWebSocketTransport : IDiscordTransport
         _origin = origin;
     }
 
-    public  async Task Connect(CancellationToken cancellationToken = default)
+    public async Task Connect(CancellationToken cancellationToken = default)
     {
         _webSocket.Options.SetRequestHeader("Origin", _origin);
         await _webSocket.ConnectAsync(new Uri($"{WebsocketUri}?v=1&client_id={_clientId}"), cancellationToken);
@@ -54,18 +54,18 @@ public sealed class DiscordWebSocketTransport : IDiscordTransport
 
     public async Task<(RpcPacketType, string)> ReadMessageAsync(CancellationToken cancellationToken = default)
     {
-        using var memoryStream = (_memoryStreamManager.GetStream() as RecyclableMemoryStream)!; 
+        using var memoryStream = _memoryStreamManager.GetStream();
         ValueWebSocketReceiveResult result;
         do
         {
             result = await _webSocket.ReceiveAsync(memoryStream.GetMemory(), cancellationToken);
             memoryStream.Advance(result.Count);
         } while (!result.EndOfMessage);
-        
+
         if (result.MessageType != WebSocketMessageType.Text)
             throw new DiscordRpcClientException("WebSocket closed");
 
-        var packetData = Encoding.UTF8.GetString(memoryStream.GetSpan());
+        var packetData = Encoding.UTF8.GetString(memoryStream.GetReadOnlySequence());
 
         return (RpcPacketType.FRAME, packetData);
     }
