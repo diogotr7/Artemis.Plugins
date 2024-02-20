@@ -8,7 +8,7 @@
 
     <ItemGroup>
         <PackageReference Include="ArtemisRGB.UI.Shared" IncludeAssets="compile;build;buildTransitive" Version="1.2024.219.2" />
-        <PackageReference Include="RazerSdkReader" Version="1.6.0" />
+        <PackageReference Include="RazerSdkReader" Version="1.8.0" />
     </ItemGroup>
 
     <ItemGroup>

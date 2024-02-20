@@ -66,24 +66,19 @@ public class ChromaModule : Module<ChromaDataModel>
         DataModel.PidList = _chroma.AppIds.Select(p => (int)p).ToList();
     }
 
-    private void OnMatrixUpdated(object? sender, MatrixUpdatedEventArgs args)
+    private void OnMatrixUpdated(object? sender, RzDeviceType deviceType)
     {
-        var colors = args.Matrix;
-        var deviceType = args.DeviceType;
+        var colors = _chroma.Matrices[(int)deviceType];
 
-        if (!IsPropertyInUse(deviceType.ToStringFast(), true))
-            return;
+        var map = DefaultChromaLedMap.GetDeviceMap(deviceType);
 
-        for (var row = 0; row < colors.GetLength(0); row++)
+        for (var i = 0; i < colors.Length; i++)
         {
-            for (var col = 0; col < colors.GetLength(1); col++)
-            {
-                var ledId = DefaultChromaLedMap.DeviceTypes[deviceType][row, col];
-                if (ledId == LedId.Invalid)
-                    continue;
-                var ledDataModel = _colorsCache[ledId];
-                ledDataModel.Value = colors[row, col];
-            }
+            var ledId = map[i];
+            if (ledId == LedId.Invalid)
+                continue;
+
+            _colorsCache[ledId].Value = colors[i];
         }
     }
 
@@ -92,19 +87,16 @@ public class ChromaModule : Module<ChromaDataModel>
         DataModel.ClearDynamicChildren();
         foreach (var rzDeviceType in Enum.GetValues<RzDeviceType>())
         {
-            var deviceDataModel = DataModel.AddDynamicChild(rzDeviceType.ToString(), new ChromaDeviceDataModel());
+            var deviceDataModel = DataModel.AddDynamicChild(rzDeviceType.ToStringFast(), new ChromaDeviceDataModel());
 
-            var map = DefaultChromaLedMap.DeviceTypes[rzDeviceType];
-            for (var row = 0; row < map.GetLength(0); row++)
+            var map = DefaultChromaLedMap.GetDeviceMap(rzDeviceType);
+            for (var i = 0; i < map.Length; i++)
             {
-                for (var col = 0; col < map.GetLength(1); col++)
-                {
-                    var ledId = map[row, col];
-                    if (ledId == LedId.Invalid)
-                        continue;
+                var ledId = map[i];
+                if (ledId == LedId.Invalid)
+                    continue;
 
-                    _colorsCache.Add(ledId, deviceDataModel.Value.AddDynamicChild<SKColor>(ledId.ToString(), default));
-                }
+                _colorsCache.Add(ledId, deviceDataModel.Value.AddDynamicChild<SKColor>(ledId.ToString(), default));
             }
         }
     }

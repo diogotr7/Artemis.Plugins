@@ -1,4 +1,6 @@
-﻿namespace Artemis.Plugins.LayerBrushes.Chroma;
+﻿using RazerSdkReader.Structures;
+
+namespace Artemis.Plugins.LayerBrushes.Chroma;
 
 public enum RzDeviceType
 {
@@ -7,7 +9,7 @@ public enum RzDeviceType
     Keypad,
     Keyboard,
     Headset,
-    ChromaLink
+    ChromaLink,
 }
 
 public static class EnumExtensions
@@ -21,5 +23,16 @@ public static class EnumExtensions
         RzDeviceType.Headset => nameof(RzDeviceType.Headset),
         RzDeviceType.ChromaLink => nameof(RzDeviceType.ChromaLink),
         _ => value.ToString(),
+    };
+
+    public static int GetLength(this RzDeviceType value) => value switch
+    {
+        RzDeviceType.Mousepad => ChromaMousepad.COUNT,
+        RzDeviceType.Mouse => ChromaMouse.COUNT,
+        RzDeviceType.Keypad => ChromaKeypad.COUNT,
+        RzDeviceType.Keyboard => ChromaKeyboard.COUNT,
+        RzDeviceType.Headset => ChromaHeadset.COUNT,
+        RzDeviceType.ChromaLink => ChromaLink.COUNT,
+        _ => 0,
     };
 }

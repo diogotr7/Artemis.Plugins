@@ -12,16 +12,14 @@ namespace Artemis.Plugins.LayerBrushes.Chroma.LayerBrushes;
 public class ChromaLayerBrush : PerLedLayerBrush<ChromaPropertyGroup>
 {
     private readonly ChromaService _chroma;
-    private readonly PluginSetting<Dictionary<RzDeviceType, LedId[,]>> _keyMapSetting;
     private readonly Dictionary<LedId, SKColor> _colors;
     private readonly object _lock;
     private bool _shouldRender;
     private bool _playingOverwatch;
 
-    public ChromaLayerBrush(ChromaService chroma, PluginSettings pluginSettings)
+    public ChromaLayerBrush(ChromaService chroma)
     {
         _chroma = chroma;
-        _keyMapSetting = pluginSettings.GetSetting("ChromaKeymap", DefaultChromaLedMap.Clone());
         _colors = new();
         _lock = new();
     }
@@ -45,24 +43,23 @@ public class ChromaLayerBrush : PerLedLayerBrush<ChromaPropertyGroup>
         _chroma.AppListUpdated -= OnAppListUpdated;
     }
 
-    private void OnMatrixUpdated(object? sender, MatrixUpdatedEventArgs args)
+    private void OnMatrixUpdated(object? sender, RzDeviceType deviceType)
     {
-        var matrix = args.Matrix;
-        var dict = _keyMapSetting.Value![args.DeviceType];
+        var dict = DefaultChromaLedMap.GetDeviceMap(deviceType);
+        var matrix = _chroma.Matrices[(int) deviceType];
 
         lock (_lock)
         {
-            for (var i = 0; i < matrix.GetLength(0); i++)
+            for (var i = 0; i < matrix.Length; i++)
             {
-                for (var j = 0; j < matrix.GetLength(1); j++)
-                {
-                    _colors[dict[i, j]] = matrix[i, j];
-                }
+                _colors[dict[i]] = matrix[i];
             }
         }
     }
 
-    public override void Update(double deltaTime) { }
+    public override void Update(double deltaTime)
+    {
+    }
 
     public override SKColor GetColor(ArtemisLed led, SKPoint renderPoint)
     {
@@ -73,7 +70,7 @@ public class ChromaLayerBrush : PerLedLayerBrush<ChromaPropertyGroup>
         {
             if (_colors.TryGetValue(led.RgbLed.Id, out var color))
                 return ProcessColor(color);
-            
+
             //According to razer docs, chromaLink1 is the "catchall" ledId. If an LED doesn't have a mapping, use this color.
             if (Properties.UseDefaultLed && _colors.TryGetValue(LedId.LedStripe1, out var chromaLink1))
                 return ProcessColor(chromaLink1);
@@ -86,7 +83,7 @@ public class ChromaLayerBrush : PerLedLayerBrush<ChromaPropertyGroup>
     {
         if (Properties.TransparentBlack && color == SKColors.Black)
             return SKColor.Empty;
-        
+
         if (_playingOverwatch && Properties.OverwatchEnhanceColors && OverwatchColorCorrection.ColorMap.TryGetValue(color, out var correctedColor))
             return correctedColor;
 
