@@ -17,24 +17,22 @@ public class ChromaSdkPluginPrerequisite : PluginPrerequisite
 
     public override bool IsMet()
     {
-        const string registryPath = @"SOFTWARE\WOW6432Node\Razer Chroma SDK";
-        using var key = Registry.LocalMachine.OpenSubKey(registryPath);
+        using var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Razer Chroma SDK");
 
         return key != null;
     }
 
-    public ChromaSdkPluginPrerequisite(Plugin plugin)
+    public ChromaSdkPluginPrerequisite()
     {
-        string installerFilename = Path.Combine(plugin.Directory.FullName, "Resources", "RazerChromaSdkCoreSetup.exe");
         var programFilesX86 = System.Environment.GetFolderPath(System.Environment.SpecialFolder.ProgramFilesX86);
         var uninstallerPath = Path.Combine(programFilesX86, "Razer Chroma SDK", "Razer_Chroma_SDK_Uninstaller.exe");
 
-        InstallActions = new()
+        InstallActions = new List<PluginPrerequisiteAction>
         {
-            new ExecuteFileAction("Install Chroma SDK", installerFilename, elevate: true, arguments: "/S")
+            new DownloadAndInstallChromaSdkAction(),
         };
 
-        UninstallActions = new()
+        UninstallActions = new List<PluginPrerequisiteAction>
         {
             new ExecuteFileAction("Uninstall Chroma SDK", uninstallerPath, elevate: true, arguments: "/S")
         };

@@ -11,14 +11,9 @@
         <PackageReference Include="RazerSdkReader" Version="1.6.0" />
     </ItemGroup>
 
-    <Target Name="DownloadChromaSdk" BeforeTargets="PrepareForBuild">
-        <Exec Command="pwsh -NoProfile -ExecutionPolicy Unrestricted -file $(ProjectDir)Scripts\download-razer-chroma-sdk.ps1 $(ProjectDir)" />
-    </Target>
-    
     <ItemGroup>
-        <Content Include="Resources/RazerChromaSdkCoreSetup.exe" CopyToOutputDirectory="PreserveNewest" />
         <Content Include="plugin.json" CopyToOutputDirectory="PreserveNewest" />
-        <Content Include="Chroma.json" CopyToOutputDirectory="PreserveNewest" />
+        <Content Include="profile.zip" CopyToOutputDirectory="PreserveNewest" />
         <PackageReference Include="ArtemisRGB.Plugins.BuildTask" Version="2.0.0">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

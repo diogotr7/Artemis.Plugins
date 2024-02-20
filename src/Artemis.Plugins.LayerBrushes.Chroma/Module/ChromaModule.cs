@@ -45,7 +45,7 @@ public class ChromaModule : Module<ChromaDataModel>
             DataModel.PriorityList = Array.Empty<string>();
         }
 
-        AddDefaultProfile(DefaultCategoryName.Games, Plugin.ResolveRelativePath("Chroma.json"));
+        AddDefaultProfile(DefaultCategoryName.Games, Plugin.ResolveRelativePath("profile.zip"));
     }
 
     public override void Disable()

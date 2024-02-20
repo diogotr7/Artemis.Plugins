@@ -7,6 +7,6 @@ public class ChromaPluginBootstrapper : PluginBootstrapper
 {
     public override void OnPluginLoaded(Plugin plugin)
     {
-        AddPluginPrerequisite(new ChromaSdkPluginPrerequisite(plugin));
+        AddPluginPrerequisite(new ChromaSdkPluginPrerequisite());
     }
 }
