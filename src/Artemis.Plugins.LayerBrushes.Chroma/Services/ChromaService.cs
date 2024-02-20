@@ -71,7 +71,7 @@ public sealed class ChromaService : IPluginService, IDisposable
                 matrix = new SKColor[data.Height, data.Width];
                 _matrices.Add(deviceType, matrix);
             }
-            
+
             for (var i = 0; i < data.Height; i++)
             {
                 for (var j = 0; j < data.Width; j++)
