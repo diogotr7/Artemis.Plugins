@@ -12,8 +12,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="SpotifyAPI.Web" Version="7.0.2" />
-        <PackageReference Include="SpotifyAPI.Web.Auth" Version="7.0.2" />
+        <PackageReference Include="SpotifyAPI.Web" Version="7.1.1" />
+        <PackageReference Include="SpotifyAPI.Web.Auth" Version="7.1.1" />
     </ItemGroup>
 
     <ItemGroup>
