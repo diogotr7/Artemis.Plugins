@@ -269,7 +269,13 @@ public class DiscordRpcClient : IDiscordRpcClient
         //}
 
         if (data.Contains("\"evt\":\"ERROR\"")) //this looks kinda stupid ¯\_(ツ)_/¯
+        {
+            #if DEBUG
+            var desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            System.IO.File.WriteAllText(System.IO.Path.Combine(desktop, $"discord_error_{Environment.TickCount64}.json"), data);
+            #endif
             throw new DiscordRpcClientException($"Discord response contained an error: {data}");
+        }
 
         IDiscordMessage discordMessage;
         try

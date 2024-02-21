@@ -38,23 +38,26 @@ public class KeyboardLayoutModule : Module<KeyboardLayoutDataModel>
     private static extern uint GetWindowThreadProcessId(nint hWnd, nint ProcessId);
 
     [DllImport("user32.dll")]
-    private static extern int ActivateKeyboardLayout(int HKL, int flags);
+    private static extern int ActivateKeyboardLayout(uint HKL, int flags);
 
     public void UpdateKeyboardLayout(double deltaTime)
     {
         var hkl = GetHkl();
+        var lowWord = (ushort)hkl;
+        var highWord = (ushort)(hkl >> 16);
         var klid = GetKlidFromHkl(hkl);
         var name = GetNameFromKlid(klid);
         
         DataModel.Hkl = hkl;
         DataModel.Klid = klid;
         DataModel.Name = name;
+        DataModel.HklLowWord = lowWord;
+        DataModel.HklHighWord = highWord;
     }
 
-    private static int GetHkl()
+    private static uint GetHkl()
     {
-        int hkl = (int)GetKeyboardLayout(GetWindowThreadProcessId(GetForegroundWindow(), nint.Zero));
-        return hkl;
+        return (uint)GetKeyboardLayout(GetWindowThreadProcessId(GetForegroundWindow(), nint.Zero));
     }
 
     private readonly Dictionary<string, string> _klidToName = new();
@@ -70,12 +73,14 @@ public class KeyboardLayoutModule : Module<KeyboardLayoutDataModel>
     }
     
     private readonly Dictionary<string, string> _hklToKlid = new();
-    public string GetKlidFromHkl(int hkl)
+    public string GetKlidFromHkl(uint hkl)
     {
         if (_hklToKlid.TryGetValue(hkl.ToString(), out var x))
             return x;
         
-        ActivateKeyboardLayout(hkl, 100);
+        var previousLayout = ActivateKeyboardLayout(hkl, 100);
+        if (previousLayout == 0)
+            return string.Empty;
 
         StringBuilder sb = new(KL_NAMELENGTH);
         GetKeyboardLayoutNameA(sb);
