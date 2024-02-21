@@ -11,55 +11,11 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Build Plugins
-        run: dotnet publish -c Release src/Artemis.Plugins.diogotr7.sln
+        run: dotnet publish -c Release src
 
-        #msbuild is dumb so we have to upload one at a time :)
-        #https://github.com/dotnet/sdk/issues/7238
+      - name: Install Plugin Uploader
+        run: dotnet tool install ArtemisRGB.Tools.PluginUploader --global
 
-      - name: Upload Discord
-        uses: actions/upload-artifact@v3
-        with:
-          name: Discord
-          path: src/Artemis.Plugins.Modules.Discord/bin/x64/Release/net8.0/publish
-
-      - name: Upload OBS
-        uses: actions/upload-artifact@v3
-        with:
-          name: OBS
-          path: src/Artemis.Plugins.Modules.OBS/bin/x64/Release/net8.0/publish
-
-      - name: Upload Spotify
-        uses: actions/upload-artifact@v3
-        with:
-          name: Spotify
-          path: src/Artemis.Plugins.Modules.Spotify/bin/x64/Release/net8.0/publish
-
-      - name: Upload Chroma
-        uses: actions/upload-artifact@v3
-        with:
-          name: Chroma
-          path: src/Artemis.Plugins.LayerBrushes.Chroma/bin/x64/Release/net8.0-windows/publish
-
-      - name: Upload Gif
-        uses: actions/upload-artifact@v3
-        with:
-          name: Gif
-          path: src/Artemis.Plugins.LayerBrushes.Gif/bin/x64/Release/net8.0/publish
-          
-      - name: Upload VoiceMeeter
-        uses: actions/upload-artifact@v3
-        with:
-          name: VoiceMeeter
-          path: src/Artemis.Plugins.Modules.VoiceMeeter/bin/x64/Release/net8.0/publish
-
-      - name: Upload Ping
-        uses: actions/upload-artifact@v3
-        with:
-          name: Ping
-          path: src/Artemis.Plugins.Nodes.Ping/bin/x64/Release/net8.0/publish
-          
-      - name: Upload Keyboard Layout
-        uses: actions/upload-artifact@v3
-        with:
-          name: Keyboard Layout
-          path: src/Artemis.Plugins.Modules.KeyboardLayout/bin/x64/Release/net8.0/publish
+      - name: Upload
+        if: github.ref == 'refs/heads/master'
+        run: artemis-plugin-uploader upload-all --pat ${{ secrets.WORKSHOP_PAT }} --folder src
