@@ -1,0 +1,22 @@
+name: Build Plugins
+
+on:
+  branch:
+    - master
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Clone Plugins
+        uses: actions/checkout@v3
+
+      - name: Build Plugins
+        run: dotnet publish -c Release src/Artemis.Plugins.diogotr7.sln
+
+      - name: Install Plugin Uploader
+        run: dotnet tool install ArtemisRGB.Tools.PluginUploader
+        
+      - name: Upload
+        run: artemis-plugin-uploader --pat ${{ secrets.WORKSHOP_PAT }} --path .
