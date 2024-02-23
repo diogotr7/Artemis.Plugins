@@ -7,11 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="ArtemisRGB.UI.Shared" IncludeAssets="compile;build;buildTransitive" Version="1.2024.219.2" />
+        <PackageReference Include="ArtemisRGB.UI.Shared" IncludeAssets="compile;build;buildTransitive" Version="1.2024.223.16" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="obs-websocket-dotnet" Version="4.9.0" />
+        <PackageReference Include="obs-websocket-dotnet" Version="4.9.1" />
     </ItemGroup>
 
     <ItemGroup>
