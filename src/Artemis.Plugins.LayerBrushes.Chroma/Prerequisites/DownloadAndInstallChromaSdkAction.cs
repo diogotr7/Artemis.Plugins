@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Artemis.Core;
-using Newtonsoft.Json;
 
 namespace Artemis.Plugins.LayerBrushes.Chroma.Prerequisites;
 
@@ -43,7 +42,7 @@ public class DownloadAndInstallChromaSdkAction : PluginPrerequisiteAction
         //a bunch of nullable overrides here but i don't care
         const string ENDPOINT = "prod";
         var endpointsJson = await httpClient.GetStringAsync("https://discovery.razerapi.com/user/endpoints");
-        var endpoints = JsonConvert.DeserializeObject<RazerRoot>(endpointsJson);
+        var endpoints = JsonSerializer.Deserialize<RazerRoot>(endpointsJson);
         var prodEndpoint = endpoints!.Endpoints.Find(ep => ep.Name == ENDPOINT);
 
         const string PLATFORM_DATA = """

@@ -9,7 +9,7 @@ namespace Artemis.Plugins.LayerBrushes.Chroma;
 public static class DefaultChromaLedMap
 {
     private static readonly LedId[] Keyboard =
-    {
+    [
         LedId.Invalid,
         LedId.Keyboard_Escape,
         LedId.Invalid,
@@ -141,11 +141,11 @@ public static class DefaultChromaLedMap
         LedId.Invalid,
         LedId.Keyboard_Num0,
         LedId.Keyboard_NumPeriodAndDelete,
-        LedId.Invalid,
-    };
+        LedId.Invalid
+    ];
 
     private static readonly LedId[] Mouse =
-    {
+    [
         LedId.Invalid,
         LedId.Invalid,
         LedId.Invalid,
@@ -208,11 +208,11 @@ public static class DefaultChromaLedMap
         LedId.Mouse20,
         LedId.Mouse21,
         LedId.Mouse22,
-        LedId.Invalid,
-    };
+        LedId.Invalid
+    ];
 
     private static readonly LedId[] Mousepad =
-    {
+    [
         LedId.Mousepad20,
         LedId.Mousepad19,
         LedId.Mousepad18,
@@ -232,20 +232,20 @@ public static class DefaultChromaLedMap
         LedId.Mousepad4,
         LedId.Mousepad3,
         LedId.Mousepad2,
-        LedId.Mousepad1,
-    };
+        LedId.Mousepad1
+    ];
 
     private static readonly LedId[] Headset =
-    {
+    [
         LedId.Headset1,
         LedId.Headset2,
         LedId.Headset3,
         LedId.Headset4,
-        LedId.Headset5,
-    };
+        LedId.Headset5
+    ];
 
     private static readonly LedId[] Keypad =
-    {
+    [
         LedId.Keypad1,
         LedId.Keypad2,
         LedId.Keypad3,
@@ -265,17 +265,17 @@ public static class DefaultChromaLedMap
         LedId.Keypad17,
         LedId.Keypad18,
         LedId.Keypad19,
-        LedId.Keypad20,
-    };
+        LedId.Keypad20
+    ];
 
     private static readonly LedId[] ChromaLink =
-    {
+    [
         LedId.LedStripe1,
         LedId.LedStripe2,
         LedId.LedStripe3,
         LedId.LedStripe4,
-        LedId.LedStripe5,
-    };
+        LedId.LedStripe5
+    ];
 
     public static LedId[] GetDeviceMap(RzDeviceType r) => r switch
     {
