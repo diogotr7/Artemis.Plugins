@@ -42,8 +42,8 @@ public class DownloadAndInstallChromaSdkAction : PluginPrerequisiteAction
         //a bunch of nullable overrides here but i don't care
         const string ENDPOINT = "prod";
         var endpointsJson = await httpClient.GetStringAsync("https://discovery.razerapi.com/user/endpoints");
-        var endpoints = JsonSerializer.Deserialize<RazerRoot>(endpointsJson);
-        var prodEndpoint = endpoints!.Endpoints.Find(ep => ep.Name == ENDPOINT);
+        var endpoints = JsonSerializer.Deserialize<RazerRoot>(endpointsJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        var prodEndpoint = endpoints!.endpoints.Find(ep => ep.name == ENDPOINT);
 
         const string PLATFORM_DATA = """
                                      <PlatformRoot xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
@@ -59,7 +59,7 @@ public class DownloadAndInstallChromaSdkAction : PluginPrerequisiteAction
                                      </PlatformRoot>
                                      """;
         using var response2 = await httpClient.PostAsync(
-            $"https://manifest.razerapi.com/api/legacy/{prodEndpoint!.Hash}/{ENDPOINT}/productlist/get",
+            $"https://manifest.razerapi.com/api/legacy/{prodEndpoint!.hash}/{ENDPOINT}/productlist/get",
             new StringContent(PLATFORM_DATA, Encoding.UTF8, "application/xml"));
         var a = await response2.Content.ReadAsStringAsync();
 
@@ -75,7 +75,7 @@ public class DownloadAndInstallChromaSdkAction : PluginPrerequisiteAction
         throw new ArtemisPluginException("Failed to retrieve Razer API download URL");
     }
 
-    private record RazerEndpoint(string Name, string Hash);
+    private record RazerEndpoint(string name, string hash);
 
-    private record RazerRoot(List<RazerEndpoint> Endpoints);
+    private record RazerRoot(List<RazerEndpoint> endpoints);
 }
