@@ -2,12 +2,13 @@ using Artemis.Core.Services;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using Artemis.Core;
 using RazerSdkReader;
 using RazerSdkReader.Structures;
 
 namespace Artemis.Plugins.LayerBrushes.Chroma.Services;
+
+public readonly record struct MatrixUpdatedEventArgs(RzDeviceType DeviceType, SKColor[] Matrix);
 
 public sealed class ChromaService : IPluginService, IDisposable
 {
@@ -18,23 +19,21 @@ public sealed class ChromaService : IPluginService, IDisposable
     private readonly Profiler _profiler;
     private readonly object _lock;
     
-    public event EventHandler<RzDeviceType>? MatrixUpdated;
+    public event EventHandler<MatrixUpdatedEventArgs>? MatrixUpdated;
     public event EventHandler? AppListUpdated;
     
     public bool IsActive => !string.IsNullOrWhiteSpace(CurrentApp) && CurrentApp != "Artemis.UI.Windows.exe";
     public string? CurrentApp { get; private set; }
     public uint? CurrentAppId { get; private set; }
     public IEnumerable<string> AppNames => _apps;
-    public IEnumerable<uint> AppIds => _pids; 
-    
-    public SKColor[][] Matrices => _matrices;
-    
+    public IEnumerable<uint> AppIds => _pids;
+
     public ChromaService(Plugin plugin)
     {
         _profiler = plugin.GetProfiler("Chroma Service");
         _lock = new object();
-        _apps = new();
-        _pids = new();
+        _apps = [];
+        _pids = [];
         
         var deviceTypes = Enum.GetValues<RzDeviceType>();
         _matrices = new SKColor[deviceTypes.Length][];
@@ -85,7 +84,7 @@ public sealed class ChromaService : IPluginService, IDisposable
                 matrix[i] = new SKColor(rzColor.R, rzColor.G, rzColor.B);
             }
 
-            MatrixUpdated?.Invoke(this, deviceType);
+            MatrixUpdated?.Invoke(this, new MatrixUpdatedEventArgs(deviceType, matrix));
         }
 
         _profiler.StopMeasurement(profilerName);

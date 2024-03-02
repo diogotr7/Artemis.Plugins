@@ -66,9 +66,9 @@ public class ChromaModule : Module<ChromaDataModel>
         DataModel.PidList = _chroma.AppIds.Select(p => (int)p).ToList();
     }
 
-    private void OnMatrixUpdated(object? sender, RzDeviceType deviceType)
+    private void OnMatrixUpdated(object? sender, MatrixUpdatedEventArgs e)
     {
-        var colors = _chroma.Matrices[(int)deviceType];
+        var (deviceType, colors) = e;
 
         var map = DefaultChromaLedMap.GetDeviceMap(deviceType);
 

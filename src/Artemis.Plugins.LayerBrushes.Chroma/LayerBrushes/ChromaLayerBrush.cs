@@ -43,10 +43,10 @@ public class ChromaLayerBrush : PerLedLayerBrush<ChromaPropertyGroup>
         _chroma.AppListUpdated -= OnAppListUpdated;
     }
 
-    private void OnMatrixUpdated(object? sender, RzDeviceType deviceType)
+    private void OnMatrixUpdated(object? sender, MatrixUpdatedEventArgs e)
     {
+        var (deviceType, matrix) = e;
         var dict = DefaultChromaLedMap.GetDeviceMap(deviceType);
-        var matrix = _chroma.Matrices[(int) deviceType];
 
         lock (_lock)
         {
