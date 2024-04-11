@@ -12,7 +12,7 @@ public class RazerAuthClient : DiscordAuthClientBase
     private const string GrantEndpoint = "https://chroma.razer.com/discord/grant.php";
     private const string RedirectUri = "http://chroma.razer.com/discord/";
 
-    public RazerAuthClient(PluginSettings token) : base(token.GetSetting<SavedToken>("DiscordTokenRazer"))
+    public RazerAuthClient(PluginSettings token) : base(token.GetSetting<string>("DiscordAccessTokenRazer"))
     {
     }
 
@@ -35,20 +35,20 @@ public class RazerAuthClient : DiscordAuthClientBase
         SaveToken(token);
         return token;
     }
-
-    public override async Task RefreshAccessTokenAsync()
-    {
-        var values = new Dictionary<string, string>
-        {
-            ["client_id"] = ClientId,
-            ["grant_type"] = "refresh_token",
-            ["refresh_token"] = Token.Value.RefreshToken,
-            ["redirect_uri"] = RedirectUri
-        };
-
-        using var response = await HttpClient.PostAsync(RefreshEndpoint, new FormUrlEncodedContent(values));
-        var responseString = await response.Content.ReadAsStringAsync();
-        var tkn = JsonConvert.DeserializeObject<TokenResponse>(responseString);
-        SaveToken(tkn);
-    }
+    
+    // public override async Task RefreshAccessTokenAsync()
+    // {
+    //     var values = new Dictionary<string, string>
+    //     {
+    //         ["client_id"] = ClientId,
+    //         ["grant_type"] = "refresh_token",
+    //         ["refresh_token"] = Token.Value.RefreshToken,
+    //         ["redirect_uri"] = RedirectUri
+    //     };
+    //
+    //     using var response = await HttpClient.PostAsync(RefreshEndpoint, new FormUrlEncodedContent(values));
+    //     var responseString = await response.Content.ReadAsStringAsync();
+    //     var tkn = JsonConvert.DeserializeObject<TokenResponse>(responseString);
+    //     SaveToken(tkn);
+    // }
 }

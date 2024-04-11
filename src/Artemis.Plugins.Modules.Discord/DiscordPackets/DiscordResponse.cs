@@ -20,3 +20,4 @@ public sealed class DiscordAuthenticateResponse : DiscordResponse<Authenticate> 
 public sealed class DiscordGetVoiceSettingsResponse : DiscordResponse<VoiceSettings> { }
 public sealed class DiscordSubscribeResponse : DiscordResponse<Subscription> { }
 public sealed class DiscordGetSelectedVoiceChannelResponse : DiscordResponse<SelectedVoiceChannel> { }
+public sealed class DiscordErrorResponse : DiscordResponse<Error> { }

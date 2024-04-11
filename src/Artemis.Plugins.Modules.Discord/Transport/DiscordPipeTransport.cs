@@ -80,7 +80,7 @@ public sealed class DiscordPipeTransport : IDiscordTransport
         byte[]? dataBuffer = null;
         try
         {
-            int headerReadBytes = await _pipe!.ReadAsync(_headerBuffer.AsMemory(0, HeaderSize));
+            int headerReadBytes = await _pipe!.ReadAsync(_headerBuffer.AsMemory(0, HeaderSize), cancellationToken);
 
             if (headerReadBytes < HeaderSize)
                 throw new DiscordRpcClientException("Read less than 4 bytes for the header");
@@ -92,7 +92,10 @@ public sealed class DiscordPipeTransport : IDiscordTransport
 
             dataBuffer = ArrayPool<byte>.Shared.Rent(header.PacketLength);
 
-            await _pipe!.ReadAsync(dataBuffer.AsMemory(0, header.PacketLength), cancellationToken);
+            var readAsync = await _pipe!.ReadAsync(dataBuffer.AsMemory(0, header.PacketLength), cancellationToken);
+            
+            if (readAsync < header.PacketLength)
+                throw new DiscordRpcClientException("Read less bytes than expected");
 
             return (header.PacketType, Encoding.UTF8.GetString(dataBuffer.AsSpan(0, header.PacketLength)));
         }

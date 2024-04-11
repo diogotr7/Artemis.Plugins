@@ -10,8 +10,7 @@ namespace Artemis.Plugins.Modules.Discord.Authentication;
 
 public class StreamKitAuthClient : DiscordAuthClientBase
 {
-
-    public StreamKitAuthClient(PluginSettings token) : base(token.GetSetting<SavedToken>("DiscordTokenStreamKit"))
+    public StreamKitAuthClient(PluginSettings token) : base(token.GetSetting<string>("DiscordAccessTokenStreamKit"))
     {
     }
 
@@ -37,9 +36,9 @@ public class StreamKitAuthClient : DiscordAuthClientBase
         return token;
     }
 
-    public override Task RefreshAccessTokenAsync()
-    {
-        // Streamkit tokens don't support refreshing, or at least I can't find anything about it
-        return Task.CompletedTask;
-    }
+    // public override Task RefreshAccessTokenAsync()
+    // {
+    //     // Streamkit tokens don't support refreshing, or at least I can't find anything about it
+    //     return Task.CompletedTask;
+    // }
 }

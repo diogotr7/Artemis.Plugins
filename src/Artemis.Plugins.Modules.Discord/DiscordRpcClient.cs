@@ -182,16 +182,26 @@ public class DiscordRpcClient : IDiscordRpcClient
         var authorizeResponse = await SendRequestWithResponseTypeAsync<Authorize>(
             new DiscordRequest(DiscordRpcCommand.AUTHORIZE,
                 ("client_id", _authClient.ClientId),
+                ("prompt", "none"),
                 ("scopes", new[] { "rpc", "identify", "rpc.notifications.read" })),
             timeoutMs: 30000); //high timeout so the user has time to click the button
 
         await _authClient.GetAccessTokenAsync(authorizeResponse.Data.Code);
     }
+    
+    public async Task<Authenticate> AuthenticateAsync()
+    {
+        var authenticateResponse = await SendRequestWithResponseTypeAsync<Authenticate>(
+            new DiscordRequest(DiscordRpcCommand.AUTHENTICATE,
+                ("access_token", _authClient.AccessToken!))
+        );
+        
+        return authenticateResponse.Data;
+    }
 
-    //TODO: fix
     private async Task<Authenticate> HandleAuthenticationAsync()
     {
-        if (!_authClient.HasToken)
+        if (string.IsNullOrWhiteSpace(_authClient.AccessToken))
         {
             //We have no token saved. This means it's probably the first time
             //the user is using the plugin. We need to ask for their permission
@@ -199,28 +209,16 @@ public class DiscordRpcClient : IDiscordRpcClient
             await AuthorizeAsync();
         }
 
-        //Now that we have a token for sure,
-        //we need to check if it expired or not.
-        //If yes, refresh it.
-        //Then, authenticate.
         try
         {
-            //TODO: What if we do not support refreshing?
-            await _authClient.RefreshAccessTokenAsync();
+            return await AuthenticateAsync();
         }
-        catch (UnauthorizedAccessException e)
+        catch (DiscordException)//this is not the IO exception, it's thrown when discord responds with an error
         {
-            //if we get here, the token is invalid and we need to get a new one.
-            Error?.Invoke(this, new DiscordRpcClientException("Token is invalid. Please re-authorize the plugin.", e));
+            //something is wrong with our token, authorize again
             await AuthorizeAsync();
+            return await AuthenticateAsync();
         }
-
-        var authenticateResponse = await SendRequestWithResponseTypeAsync<Authenticate>(
-            new DiscordRequest(DiscordRpcCommand.AUTHENTICATE,
-                ("access_token", _authClient.AccessToken))
-        );
-
-        return authenticateResponse.Data;
     }
 
     private async Task ReadLoop()
@@ -270,11 +268,13 @@ public class DiscordRpcClient : IDiscordRpcClient
 
         if (data.Contains("\"evt\":\"ERROR\"")) //this looks kinda stupid ¯\_(ツ)_/¯
         {
-            #if DEBUG
+#if DEBUG
             var desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            System.IO.File.WriteAllText(System.IO.Path.Combine(desktop, $"discord_error_{Environment.TickCount64}.json"), data);
-            #endif
-            throw new DiscordRpcClientException($"Discord response contained an error: {data}");
+            await System.IO.File.WriteAllTextAsync(System.IO.Path.Combine(desktop, $"discord_error_{Environment.TickCount64}.json"), data);
+#endif
+            var error = JsonConvert.DeserializeObject<DiscordErrorResponse>(data, JsonSerializerSettings)!;
+            HandlePendingRequest(error);
+            return;
         }
 
         IDiscordMessage discordMessage;
@@ -326,15 +326,19 @@ public class DiscordRpcClient : IDiscordRpcClient
     {
         var response = await SendRequestAsync(request, timeoutMs);
 
-        if (response is not DiscordResponse<T> typedResponse)
-            throw new DiscordRpcClientException("Discord response was not of the specified type.", new InvalidCastException());
-
-        return typedResponse;
+        if (response is DiscordResponse<T> typedResponse) return typedResponse;
+        
+        if (response is DiscordErrorResponse errorResponse)
+        {
+            throw new DiscordException($"Discord responded with an error: {errorResponse.Data.Message}");
+        }
+        
+        throw new DiscordRpcClientException("Discord response was not of the specified type.", new InvalidCastException());
     }
 
     private void HandlePendingRequest(DiscordResponse message)
     {
-        if (_pendingRequests.TryGetValue(message.Nonce, out TaskCompletionSource<DiscordResponse>? tcs))
+        if (_pendingRequests.TryGetValue(message.Nonce, out var tcs))
         {
             if (!tcs.TrySetResult(message))
                 Error?.Invoke(this, new DiscordRpcClientException("Failed to set task result. Perhaps the task timed out?"));
@@ -387,7 +391,7 @@ public class DiscordRpcClient : IDiscordRpcClient
         }
     }
 
-    private DateTime GetDiscordStartTime()
+    private static DateTime GetDiscordStartTime()
     {
         var processNames = new[]
         {
