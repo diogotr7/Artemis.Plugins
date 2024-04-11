@@ -4,11 +4,12 @@
         <Platforms>x64</Platforms>
         <EnableDynamicLoading>true</EnableDynamicLoading>
         <Nullable>enable</Nullable>
+        <NoWarn>CA1416</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="ArtemisRGB.UI.Shared" IncludeAssets="compile;build;buildTransitive" Version="1.2024.302.1" />
-        <PackageReference Include="RazerSdkReader" Version="1.11.0" />
+        <PackageReference Include="RazerSdkReader" Version="2.2.0" />
     </ItemGroup>
 
     <ItemGroup>

@@ -6,14 +6,13 @@ using Serilog;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Artemis.Plugins.LayerBrushes.Chroma.Module;
 
 [PluginFeature(Name = "Chroma")]
 public class ChromaModule : Module<ChromaDataModel>
 {
-    public override List<IModuleActivationRequirement> ActivationRequirements { get; } = new();
+    public override List<IModuleActivationRequirement> ActivationRequirements { get; } = [];
 
     private readonly ILogger _logger;
     private readonly ChromaService _chroma;
@@ -29,20 +28,25 @@ public class ChromaModule : Module<ChromaDataModel>
 
     public override void Enable()
     {
+        DataModel.Service = _chroma;
+        
         CreateStructure();
 
         _chroma.MatrixUpdated += OnMatrixUpdated;
-        _chroma.AppListUpdated += OnAppListUpdated;
-        OnAppListUpdated(this, EventArgs.Empty);
 
         try
         {
             DataModel.PriorityList = _registry.GetRazerSdkInfo().PriorityList;
+            var artemis = DataModel.PriorityList.IndexOf("Artemis.UI.Windows.exe");
+            if (artemis != -1 && artemis != DataModel.PriorityList.Length - 1)
+            {
+                _logger.Error("Artemis is not the last item in the Razer Chroma SDK priority list, the Chroma grabber may not work correctly.");
+            }
         }
         catch (Exception e)
         {
             _logger.Error(e, "Error setting priority list.");
-            DataModel.PriorityList = Array.Empty<string>();
+            DataModel.PriorityList = [];
         }
 
         AddDefaultProfile(DefaultCategoryName.Games, Plugin.ResolveRelativePath("profile.zip"));
@@ -51,19 +55,10 @@ public class ChromaModule : Module<ChromaDataModel>
     public override void Disable()
     {
         _chroma.MatrixUpdated -= OnMatrixUpdated;
-        _chroma.AppListUpdated -= OnAppListUpdated;
     }
 
     public override void Update(double deltaTime)
     {
-    }
-
-    private void OnAppListUpdated(object? sender, EventArgs args)
-    {
-        DataModel.IsActive = _chroma.IsActive;
-        DataModel.CurrentApplication = _chroma.CurrentApp;
-        DataModel.ApplicationList = _chroma.AppNames.ToList();
-        DataModel.PidList = _chroma.AppIds.Select(p => (int)p).ToList();
     }
 
     private void OnMatrixUpdated(object? sender, MatrixUpdatedEventArgs e)
@@ -90,9 +85,8 @@ public class ChromaModule : Module<ChromaDataModel>
             var deviceDataModel = DataModel.AddDynamicChild(rzDeviceType.ToStringFast(), new ChromaDeviceDataModel());
 
             var map = DefaultChromaLedMap.GetDeviceMap(rzDeviceType);
-            for (var i = 0; i < map.Length; i++)
+            foreach (var ledId in map)
             {
-                var ledId = map[i];
                 if (ledId == LedId.Invalid)
                     continue;
 

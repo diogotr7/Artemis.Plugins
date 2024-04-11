@@ -2,19 +2,24 @@
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
+using Artemis.Plugins.LayerBrushes.Chroma.Services;
 
 namespace Artemis.Plugins.LayerBrushes.Chroma.Module;
 
 public class ChromaDataModel : DataModel
 {
-    public bool IsActive { get; set; }
-    public string? CurrentApplication { get; set; }
-    public List<string> ApplicationList { get; internal set; } = new();
-    public List<int> PidList { get; internal set; } = new();
-    public string[] PriorityList { get; internal set; } = Array.Empty<string>();
+    public bool IsActive => Service.IsActive;
+    public string? CurrentApplication => Service.CurrentApp;
+    public string[] ApplicationList => Service.AppNames;
+    public uint[] PidList => Service.AppIds;
+    public string[] PriorityList { get; internal set; } = [];
+    
+    internal ChromaService Service { get; set; } = null!;
 }
 
-public class ChromaDeviceDataModel : DataModel { }
+public class ChromaDeviceDataModel : DataModel
+{
+}
 
 public class ChromaLedDataModel : DataModel
 {
