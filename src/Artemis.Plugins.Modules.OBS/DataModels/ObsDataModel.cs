@@ -6,31 +6,20 @@ namespace Artemis.Plugins.Modules.OBS.DataModels;
 public class ObsDataModel : DataModel
 {
     public bool IsConnected { get; set; }
-    public string? CurrentProfile { get; set; }
-    public string? CurrentScene { get; set; }
-    public bool Streaming { get; set; }
-    public int TotalStreamTime { get; set; }
-    public ulong TotalStreamBytes { get; set; }
-    public ulong TotalStreamFrames { get; set; }
-    public bool Recording { get; set; }
-    public int TotalRecordTime { get; set; }
-    public int TotalTecordBytes { get; set; }
-    public int TotalRecordFrames { get; set; }
-    public OBSStats? Stats { get; set; }
-
-    internal void Reset()
+    public ObsStats? Stats { get; set; }
+    public OutputStatus? StreamingStatus { get; set; }
+    public RecordingStatus? RecordingStatus { get; set; }
+    public GetProfileListInfo? ProfileListInfo { get; set; }
+    public GetSceneListInfo? SceneListInfo { get; set; }
+    
+    
+    public void Reset()
     {
-        IsConnected = default;
-        CurrentProfile = string.Empty;
-        CurrentScene = string.Empty;
-        Streaming = default;
-        TotalStreamTime = default;
-        TotalStreamBytes = default;
-        TotalStreamFrames = default;
-        Recording = default;
-        TotalRecordTime = default;
-        TotalTecordBytes = default;
-        TotalRecordFrames = default;
-        Stats = new OBSStats();
+        IsConnected = false;
+        Stats = null;
+        StreamingStatus = null;
+        RecordingStatus = null;
+        ProfileListInfo = null;
+        SceneListInfo = null;
     }
 }

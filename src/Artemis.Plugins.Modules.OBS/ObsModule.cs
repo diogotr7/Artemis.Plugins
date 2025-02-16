@@ -2,22 +2,30 @@
 using Artemis.Core.Modules;
 using Artemis.Plugins.Modules.OBS.DataModels;
 using OBSWebsocketDotNet;
-using OBSWebsocketDotNet.Types;
 using System;
 using System.Collections.Generic;
+using Serilog;
 
 namespace Artemis.Plugins.Modules.OBS;
 
 [PluginFeature(AlwaysEnabled = true, Name = "OBS")]
 public class ObsModule : Module<ObsDataModel>
 {
-    public override List<IModuleActivationRequirement> ActivationRequirements { get; } = new() { new ProcessActivationRequirement(PROCESS_NAME) };
+    private readonly ILogger _logger;
 
-    private const string OBS_URI = "ws://127.0.0.1:4444";
+    public override List<IModuleActivationRequirement> ActivationRequirements { get; } =
+        [new ProcessActivationRequirement(PROCESS_NAME)];
+
+    private const string OBS_URI = "ws://127.0.0.1:4455";
     private const string OBS_PASSWORD = "";
     private const string PROCESS_NAME = "obs64";
 
     private OBSWebsocket? _obs;
+
+    public ObsModule(ILogger logger)
+    {
+        _logger = logger;
+    }
 
     public override void ModuleActivated(bool isOverride)
     {
@@ -30,11 +38,17 @@ public class ObsModule : Module<ObsDataModel>
         DataModel.Reset();
     }
 
-    public override void Enable() { }
+    public override void Enable()
+    {
+    }
 
-    public override void Disable() { }
+    public override void Disable()
+    {
+    }
 
-    public override void Update(double deltaTime) { }
+    public override void Update(double deltaTime)
+    {
+    }
 
     private void Connect()
     {
@@ -44,12 +58,12 @@ public class ObsModule : Module<ObsDataModel>
 
         try
         {
-            _obs.Connect(OBS_URI, OBS_PASSWORD);
+            _obs.ConnectAsync(OBS_URI, OBS_PASSWORD);
         }
-        catch
+        catch (Exception e)
         {
+            _logger.Error(e, "Failed to connect to OBS");
             DataModel.IsConnected = false;
-            //logger
         }
     }
 
@@ -57,7 +71,8 @@ public class ObsModule : Module<ObsDataModel>
     {
         if (_obs != null)
         {
-            _obs.Heartbeat -= UpdateHeartbeat;
+            Unsubscribe();
+            _obs.Connected -= OnObsConnected;
             _obs.Disconnect();
         }
     }
@@ -66,25 +81,46 @@ public class ObsModule : Module<ObsDataModel>
     {
         if (_obs is null)
             return;
-        
-        _obs.SetHeartbeat(true);
-        _obs.Heartbeat += UpdateHeartbeat;
 
+        Subscribe();
         DataModel.IsConnected = true;
+
+        AddTimedUpdate(TimeSpan.FromSeconds(1), GetInitialData);
     }
 
-    private void UpdateHeartbeat(OBSWebsocket sender, Heartbeat heartbeat)
+    private void GetInitialData(double deltaTime)
     {
-        DataModel.CurrentProfile = heartbeat.CurrentProfile;
-        DataModel.CurrentScene = heartbeat.CurrentScene;
-        DataModel.Streaming = heartbeat.Streaming;
-        DataModel.TotalStreamTime = heartbeat.totalStreamTime;
-        DataModel.TotalStreamBytes = heartbeat.TotalStreamBytes;
-        DataModel.TotalStreamFrames = heartbeat.TotalStreamFrames;
-        DataModel.Recording = heartbeat.Recording;
-        DataModel.TotalRecordTime = heartbeat.TotalRecordTime;
-        DataModel.TotalTecordBytes = heartbeat.TotalTecordBytes;
-        DataModel.TotalRecordFrames = heartbeat.TotalRecordFrames;
-        DataModel.Stats = heartbeat.Stats;
+        if (_obs is null)
+            return;
+
+        try
+        {
+            DataModel.Stats = _obs.GetStats();
+            DataModel.StreamingStatus = _obs.GetStreamStatus();
+            DataModel.RecordingStatus = _obs.GetRecordStatus();
+            DataModel.ProfileListInfo = _obs.GetProfileList();
+            DataModel.SceneListInfo = _obs.GetSceneList();
+        }
+        catch (Exception e)
+        {
+            _logger.Error(e, "Failed to get initial data from OBS");
+            DataModel.Reset();
+        }
+    }
+
+    private void Subscribe()
+    {
+        if (_obs is null)
+            return;
+        
+        //TODO
+    }
+
+    private void Unsubscribe()
+    {
+        if (_obs is null)
+            return;
+
+        //TODO
     }
 }

@@ -5,6 +5,6 @@
   "Author": "diogotr7",
   "Icon": "obs.png",
   "Description": "Provides OBS information like streaming and recording status, current scene, skipped frames, etc.",
-  "Version": "1.0.0.0",
+  "Version": "2.0.0.0",
   "Main": "Artemis.Plugins.Modules.OBS.dll"
 }
