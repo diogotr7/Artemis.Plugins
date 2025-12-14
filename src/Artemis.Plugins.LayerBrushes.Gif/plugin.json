@@ -5,6 +5,6 @@
   "Author": "diogotr7",
   "Icon": "AnimationPlay",
   "Description": "Provides a layer that allows Artemis to display GIFs on your devices",
-  "Version": "1.0.0.0",
+  "Version": "1.0.0.1",
   "Main": "Artemis.Plugins.LayerBrushes.Gif.dll"
 }

@@ -5,6 +5,6 @@
   "Author": "diogotr7",
   "Icon": "discord.png",
   "Description": "Plugin to get useful data from a local discord client",
-  "Version": "1.1.0.2",
+  "Version": "1.1.0.3",
   "Main": "Artemis.Plugins.Modules.Discord.dll"
 }

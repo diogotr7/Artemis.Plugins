@@ -5,7 +5,7 @@
   "Author": "diogotr7",
   "Icon": "Snake",
   "Description": "Provides a layer that displays lighting from Razer Chroma supported games on all devices Artemis supports.",
-  "Version": "1.3.0.2",
+  "Version": "1.3.0.3",
   "Main": "Artemis.Plugins.LayerBrushes.Chroma.dll",
   "Platforms": "Windows"
 }

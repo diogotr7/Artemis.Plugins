@@ -6,7 +6,7 @@
     "Website": "https://github.com/diogotr7/Artemis.Plugins",
     "Repository": "https://github.com/diogotr7/Artemis.Plugins",
     "Icon": "QuestionMark",
-    "Version": "1.0.0.1",
+    "Version": "1.0.0.4",
     "Main": "Artemis.Plugins.Modules.KeyboardLayout.dll",
     "AutoEnableProperties": true,
     "RequiresAdmin": false,

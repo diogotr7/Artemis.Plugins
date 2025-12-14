@@ -5,6 +5,6 @@
   "Author": "diogotr7",
   "Icon": "Spotify",
   "Description": "Provides track and player data about your current Spotify listening session.",
-  "Version": "1.0.0.3",
+  "Version": "1.0.0.4",
   "Main": "Artemis.Plugins.Modules.Spotify.dll"
 }
