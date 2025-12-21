@@ -20,8 +20,10 @@ public class VoiceMeeterModule : Module<VoiceMeeterDataModel>
 
     public override List<IModuleActivationRequirement> ActivationRequirements { get; } = new()
     {
-        new ProcessActivationRequirement("voicemeeter"),    //voicemeeter
-        new ProcessActivationRequirement("voicemeeterpro"), //voicemeeter banana
+        new ProcessActivationRequirement("voicemeeter"),    //voicemeeter 32 bit
+        new ProcessActivationRequirement("voicemeeter_x64"),    //voicemeeter 64 bit
+        new ProcessActivationRequirement("voicemeeterpro"), //voicemeeter banana 32 bit
+        new ProcessActivationRequirement("voicemeeterpro_x64"), //voicemeeter banana 64 bit
         new ProcessActivationRequirement("voicemeeter8"),   //voicemeeter potato 32 bit
         new ProcessActivationRequirement("voicemeeter8x64"),//voicemeeter potato 64 bit
     };
