@@ -1,10 +1,10 @@
 {
   "Guid": "76d139ad-32da-4929-9694-a9759248a53f",
-  "Api": "1.0",
+  "MinimumVersion": "1.2025.1222.3",
   "Name": "Spotify",
   "Author": "diogotr7",
   "Icon": "Spotify",
   "Description": "Provides track and player data about your current Spotify listening session.",
-  "Version": "1.0.0.4",
+  "Version": "2.0.0.0",
   "Main": "Artemis.Plugins.Modules.Spotify.dll"
 }

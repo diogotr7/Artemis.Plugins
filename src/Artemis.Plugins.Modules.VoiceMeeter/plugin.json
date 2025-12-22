@@ -1,11 +1,11 @@
 {
   "Guid": "93e77647-43f5-4e24-8843-9ea8c51dafce",
-  "Api": "1.0",
+  "MinimumVersion": "1.2025.1222.3",
   "Name": "VoiceMeeter",
   "Icon": "TuneVerticalVariant",
   "Author": "diogotr7",
   "Description": "VoiceMeeter integration",
-  "Version": "1.0.0.2",
+  "Version": "2.0.0.0",
   "Main": "Artemis.Plugins.Modules.VoiceMeeter.dll",
   "Platforms": "Windows"
 }
