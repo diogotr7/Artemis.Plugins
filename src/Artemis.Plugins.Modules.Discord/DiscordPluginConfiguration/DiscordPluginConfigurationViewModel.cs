@@ -4,6 +4,7 @@ using Artemis.Core;
 using Artemis.UI.Shared;
 using ReactiveUI;
 using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
 
 namespace Artemis.Plugins.Modules.Discord.DiscordPluginConfiguration;

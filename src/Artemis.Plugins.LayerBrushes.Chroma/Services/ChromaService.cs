@@ -78,7 +78,7 @@ public sealed class ChromaService : IPluginService, IDisposable
             var matrix = _matrices[(int)deviceType];
             //SKColor and ChromaColor are the same size and layout,
             //so we can just write to it directly.
-            var colors = MemoryMarshal.Cast<SKColor, ChromaColor>(matrix);
+            var colors = MemoryMarshal.Cast<SKColor, ChromaColor>(matrix.AsSpan());
             data.GetColors(colors);
 
             MatrixUpdated?.Invoke(this, _matrixUpdatedEventArgs[(int)deviceType]);

@@ -1,6 +1,6 @@
 using Artemis.Plugins.LayerBrushes.Gif.ViewModels;
 using Avalonia.Markup.Xaml;
-using Avalonia.ReactiveUI;
+using ReactiveUI.Avalonia;
 
 namespace Artemis.Plugins.LayerBrushes.Gif.Views;
 
