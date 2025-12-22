@@ -1,10 +1,10 @@
 {
   "Guid": "56b422de-c9d5-4488-b1f3-97064decaab5",
-  "Api": "1.0",
+  "MinimumVersion": "1.2025.1222.3",
   "Name": "Open Broadcaster Software",
   "Author": "diogotr7",
   "Icon": "obs.png",
   "Description": "Provides OBS information like streaming and recording status, current scene, skipped frames, etc.",
-  "Version": "2.0.0.1",
+  "Version": "3.0.0.0",
   "Main": "Artemis.Plugins.Modules.OBS.dll"
 }

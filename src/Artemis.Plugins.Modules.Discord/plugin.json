@@ -1,10 +1,10 @@
 {
   "Guid": "c95778ca-cc41-4633-98f7-012a500ba77f",
-  "Api": "1.0",
+  "MinimumVersion": "1.2025.1222.3",
   "Name": "Discord",
   "Author": "diogotr7",
   "Icon": "discord.png",
   "Description": "Plugin to get useful data from a local discord client",
-  "Version": "1.1.0.3",
+  "Version": "2.0.0.0",
   "Main": "Artemis.Plugins.Modules.Discord.dll"
 }
