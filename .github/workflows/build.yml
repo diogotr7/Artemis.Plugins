@@ -24,5 +24,5 @@ jobs:
         run: dotnet tool install ArtemisRGB.Tools.PluginUploader --global
 
       - name: Upload to Workshop
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/master'
         run: artemis-plugin-uploader upload-all --pat ${{ secrets.WORKSHOP_PAT }} --folder src
