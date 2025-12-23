@@ -13,12 +13,12 @@ jobs:
       - name: Build Plugins
         run: dotnet publish -c Release src
 
-      - name: Upload Plugin Artifacts
+      - name: Upload All Plugin Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: plugins
           path: |
-            src/**/bin/Release/net10.0/publish/
+            src/**/bin/x64/Release/net10.0/publish/
 
       - name: Install Plugin Uploader
         run: dotnet tool install ArtemisRGB.Tools.PluginUploader --global
