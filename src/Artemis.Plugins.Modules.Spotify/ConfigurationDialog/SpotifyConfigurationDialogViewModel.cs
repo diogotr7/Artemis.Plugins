@@ -20,7 +20,7 @@ public class SpotifyConfigurationDialogViewModel : PluginConfigurationViewModel
     private readonly SpotifyModule _dataModelExpansion;
 
     private static EmbedIOAuthServer? _server;
-    private static EmbedIOAuthServer Server => _server ??= new EmbedIOAuthServer(new Uri("http://localhost:5000/callback"), 5000);
+    private static EmbedIOAuthServer Server => _server ??= new EmbedIOAuthServer(new Uri("http://127.0.0.1:5000/callback"), 5000);
 
     private Bitmap? _profilePicture;
 
