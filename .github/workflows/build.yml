@@ -1,21 +1,28 @@
 name: Build Plugins
 
-on: [push, pull_request]
+on: [push, pull_request, workflow_dispatch]
 
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
-      - name: Clone Plugins
+      - name: Checkout
         uses: actions/checkout@v3
 
       - name: Build Plugins
         run: dotnet publish -c Release src
 
+      - name: Upload All Plugin Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugins
+          path: |
+            src/**/bin/x64/Release/net10.0/publish/
+
       - name: Install Plugin Uploader
         run: dotnet tool install ArtemisRGB.Tools.PluginUploader --global
 
-      - name: Upload
+      - name: Upload to Workshop
         if: github.ref == 'refs/heads/master'
         run: artemis-plugin-uploader upload-all --pat ${{ secrets.WORKSHOP_PAT }} --folder src
