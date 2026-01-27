@@ -5,7 +5,7 @@
     "Author": "diogotr7",
     "Website": "https://github.com/diogotr7/Artemis.Plugins",
     "Repository": "https://github.com/diogotr7/Artemis.Plugins",
-    "Icon": "QuestionMark",
+    "Icon": "Lan",
     "Version": "1.0.0.1",
     "Main": "Artemis.Plugins.Nodes.Ping.dll",
     "AutoEnableProperties": true,
