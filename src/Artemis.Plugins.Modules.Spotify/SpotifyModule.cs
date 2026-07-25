@@ -41,6 +41,7 @@ public class SpotifyModule : Module<SpotifyDataModel>
     private string? _contextId;
     private string? _albumArtUrl;
     private TrackAudioAnalysis? _analysis;
+    private string? _lastGoodRefreshToken;
 
     public override void Enable()
     {
@@ -279,9 +280,21 @@ public class SpotifyModule : Module<SpotifyDataModel>
 
     internal void Login()
     {
+        // Remember the refresh token we start with. Spotify's PKCE refresh response does
+        // not always include a new refresh_token, and SpotifyAPI-NET's PKCEAuthenticator
+        // overwrites it unconditionally (InitialToken.RefreshToken = refreshedToken.RefreshToken).
+        // That nulls our stored token and makes the NEXT refresh throw
+        // "String is empty or null (Parameter 'refreshToken')". Preserve the last good one.
+        _lastGoodRefreshToken = _token.Value?.RefreshToken;
+
         PKCEAuthenticator authenticator = new PKCEAuthenticator(Constants.SPOTIFY_CLIENT_ID, _token.Value);
         authenticator.TokenRefreshed += (_, t) =>
         {
+            if (string.IsNullOrEmpty(t.RefreshToken))
+                t.RefreshToken = _lastGoodRefreshToken!; // reuse the one we already have
+            else
+                _lastGoodRefreshToken = t.RefreshToken;  // Spotify rotated it, keep the new one
+
             _token.Value = t;
             _token.Save();
             _logger.Information("Refreshed spotify token!");
