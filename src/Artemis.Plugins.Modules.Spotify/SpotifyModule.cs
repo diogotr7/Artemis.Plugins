@@ -1,15 +1,11 @@
 using Artemis.Core;
-using Artemis.Core.ColorScience;
 using Artemis.Core.Modules;
 using Artemis.Plugins.Modules.Spotify.DataModels;
 using Serilog;
-using SkiaSharp;
 using SpotifyAPI.Web;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Artemis.Core.Services;
 
@@ -20,53 +16,30 @@ public class SpotifyModule : Module<SpotifyDataModel>
 {
     public override List<IModuleActivationRequirement> ActivationRequirements { get; } = new();
 
+    private readonly SpotifyAccount _account;
+    private readonly AlbumArtColors _albumArtColors;
     private readonly ILogger _logger;
-    private readonly PluginSetting<PKCETokenResponse> _token;
-    private readonly PluginSetting<Dictionary<string, ColorSwatch>> _cache;
-    private readonly HttpClient _httpClient;
 
-    public SpotifyModule(PluginSettings settings, ILogger logger)
-    {
-        _logger = logger;
-        _token = settings.GetSetting<PKCETokenResponse>(Constants.SPOTIFY_AUTH_SETTING);
-        _cache = settings.GetSetting<Dictionary<string, ColorSwatch>>("AlbumArtCache", new());
-        _httpClient = new HttpClient
-        {
-            Timeout = TimeSpan.FromSeconds(2)
-        };
-    }
-
-    private SpotifyClient? _spotify;
     private string? _trackId;
     private string? _contextId;
     private string? _albumArtUrl;
     private TrackAudioAnalysis? _analysis;
 
+    public SpotifyModule(SpotifyAccount account, AlbumArtColors albumArtColors, ILogger logger)
+    {
+        _account = account;
+        _albumArtColors = albumArtColors;
+        _logger = logger;
+    }
+
     public override void Enable()
     {
-        try
-        {
-            try
-            {
-                Login();
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e, "Failed spotify authentication, login in the settings dialog");
-            }
-
-            AddTimedUpdate(TimeSpan.FromSeconds(2), UpdatePlayback, nameof(UpdatePlayback));
-            AddDefaultProfile(DefaultCategoryName.Applications, Plugin.ResolveRelativePath("Spotify.zip"));
-        }
-        catch (Exception e)
-        {
-            _logger.Error(e, "Failed spotify authentication, login in the settings dialog");
-        }
+        AddTimedUpdate(TimeSpan.FromSeconds(2), UpdatePlayback, nameof(UpdatePlayback));
+        AddDefaultProfile(DefaultCategoryName.Applications, Plugin.ResolveRelativePath("Spotify.zip"));
     }
 
     public override void Disable()
     {
-        _spotify = null;
         _trackId = null;
         _contextId = null;
         _albumArtUrl = null;
@@ -101,13 +74,20 @@ public class SpotifyModule : Module<SpotifyDataModel>
     private async Task UpdatePlayback(double deltaTime)
     {
         //this will be null before authentication
-        if (_spotify is null)
+        SpotifyClient? spotify = _account.Client;
+        if (spotify is null)
             return;
 
         CurrentlyPlayingContext? playing;
         try
         {
-            playing = await _spotify.Player.GetCurrentPlayback();
+            playing = await spotify.Player.GetCurrentPlayback();
+        }
+        catch (Exception e) when (SpotifyAccount.IsInvalidGrant(e))
+        {
+            _account.Expire(e);
+            DataModel.Player.IsPlaying = false;
+            return;
         }
         catch (Exception e)
         {
@@ -120,7 +100,7 @@ public class SpotifyModule : Module<SpotifyDataModel>
 
         try
         {
-            await UpdatePlayerInfo(playing);
+            await UpdatePlayerInfo(spotify, playing);
         }
         catch (Exception e)
         {
@@ -131,15 +111,12 @@ public class SpotifyModule : Module<SpotifyDataModel>
         //but it does not seem to work correctly.
         if (playing.Item is FullTrack track)
         {
-            await UpdateTrackInfo(track);
+            await UpdateTrackInfo(spotify, track);
         }
     }
 
-    private async Task UpdateTrackInfo(FullTrack track)
+    private async Task UpdateTrackInfo(SpotifyClient spotify, FullTrack track)
     {
-        if (_spotify is null)
-            return;
-
         if (track.Id == _trackId)
             return;
 
@@ -147,7 +124,7 @@ public class SpotifyModule : Module<SpotifyDataModel>
 
         try
         {
-            TrackAudioFeatures features = await _spotify.Tracks.GetAudioFeatures(track.Id);
+            TrackAudioFeatures features = await spotify.Tracks.GetAudioFeatures(track.Id);
             UpdateTrackFeatures(features);
         }
         catch (Exception e)
@@ -157,7 +134,7 @@ public class SpotifyModule : Module<SpotifyDataModel>
 
         try
         {
-            _analysis = await _spotify.Tracks.GetAudioAnalysis(track.Id);
+            _analysis = await spotify.Tracks.GetAudioAnalysis(track.Id);
         }
         catch (Exception e)
         {
@@ -174,11 +151,8 @@ public class SpotifyModule : Module<SpotifyDataModel>
         _trackId = track.Id;
     }
 
-    private async Task UpdatePlayerInfo(CurrentlyPlayingContext playing)
+    private async Task UpdatePlayerInfo(SpotifyClient spotify, CurrentlyPlayingContext playing)
     {
-        if (_spotify is null)
-            return;
-
         DataModel.Device.Name = playing.Device.Name;
         DataModel.Device.Type = playing.Device.Type;
         DataModel.Player.Shuffle = playing.ShuffleState;
@@ -195,9 +169,9 @@ public class SpotifyModule : Module<SpotifyDataModel>
             {
                 DataModel.Player.ContextName = contextType switch
                 {
-                    ContextType.Artist => (await _spotify.Artists.Get(contextId)).Name,
-                    ContextType.Album => (await _spotify.Albums.Get(contextId)).Name,
-                    ContextType.Playlist => (await _spotify.Playlists.Get(contextId)).Name,
+                    ContextType.Artist => (await spotify.Artists.Get(contextId)).Name,
+                    ContextType.Album => (await spotify.Albums.Get(contextId)).Name,
+                    ContextType.Playlist => (await spotify.Playlists.Get(contextId)).Name,
                     _ => string.Empty
                 };
 
@@ -214,40 +188,16 @@ public class SpotifyModule : Module<SpotifyDataModel>
 
     private async Task UpdateAlbumArtColors(string albumArtUrl)
     {
-        var uri = albumArtUrl.Split('/').Last();
         DataModel.Track.AlbumArtUrl = albumArtUrl;
-
-        lock (_cache)
-        {
-            if (_cache.Value.TryGetValue(uri, out var swatch))
-            {
-                DataModel.Track.Colors = swatch;
-                return;
-            }
-        }
 
         try
         {
-            var newSwatch = await GetAlbumColorsFromUri(albumArtUrl);
-            lock (_cache)
-            {
-                _cache.Value[uri] = newSwatch;
-                DataModel.Track.Colors = newSwatch;
-                _cache.Save();
-            }
+            DataModel.Track.Colors = await _albumArtColors.Get(albumArtUrl);
         }
         catch (Exception e)
         {
             _logger.Error(e, "Failed to get album art colors");
         }
-    }
-
-    private async Task<ColorSwatch> GetAlbumColorsFromUri(string uri)
-    {
-        using Stream stream = await _httpClient.GetStreamAsync(uri);
-        using SKBitmap skbm = SKBitmap.Decode(stream);
-        SKColor[] skClrs = ColorQuantizer.Quantize(skbm.Pixels, 256);
-        return ColorQuantizer.FindAllColorVariations(skClrs, true);
     }
 
     private void UpdateBasicTrackInfo(FullTrack track)
@@ -273,43 +223,5 @@ public class SpotifyModule : Module<SpotifyDataModel>
         DataModel.Track.Features.Key = (Key)features.Key;
         DataModel.Track.Features.Mode = (Mode)features.Mode;
         DataModel.Track.Features.TimeSignature = features.TimeSignature;
-    }
-
-    internal bool LoggedIn => _spotify != null;
-
-    internal void Login()
-    {
-        PKCEAuthenticator authenticator = new PKCEAuthenticator(Constants.SPOTIFY_CLIENT_ID, _token.Value);
-        authenticator.TokenRefreshed += (_, t) =>
-        {
-            _token.Value = t;
-            _token.Save();
-            _logger.Information("Refreshed spotify token!");
-        };
-
-        SpotifyClientConfig config = SpotifyClientConfig.CreateDefault()
-            .WithAuthenticator(authenticator);
-
-        _spotify = new SpotifyClient(config);
-    }
-
-    internal void Logout()
-    {
-        _spotify = null;
-    }
-
-    internal async Task<PrivateUser?> GetUserInfo()
-    {
-        if (_spotify is null)
-            return null;
-
-        try
-        {
-            return await _spotify.UserProfile.Current();
-        }
-        catch
-        {
-            return null;
-        }
     }
 }

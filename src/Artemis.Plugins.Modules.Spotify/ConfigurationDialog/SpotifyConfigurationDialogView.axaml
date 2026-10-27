@@ -2,48 +2,80 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-              xmlns:local="clr-namespace:Artemis.Plugins.Modules.Spotify"
-             mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="450"
+             xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:local="clr-namespace:Artemis.Plugins.Modules.Spotify"
+             mc:Ignorable="d" d:DesignWidth="770" d:DesignHeight="500"
              x:DataType="local:SpotifyConfigurationDialogViewModel"
              x:Class="Artemis.Plugins.Modules.Spotify.SpotifyConfigurationDialogView">
-  <Border Classes="card" Margin="8" >
-      <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="0 10 0 0">
+            <controls:InfoBar Title="Your Spotify login expired"
+                              Message="Spotify no longer accepts the saved login, so Artemis stopped reading what's playing. Log in again to pick up where it left off."
+                              Severity="Warning"
+                              IsClosable="False"
+                              IsOpen="{CompiledBinding IsLoginExpired}" />
+            <controls:InfoBar Title="Login failed"
+                              Message="{CompiledBinding LoginError}"
+                              Severity="Error"
+                              IsClosable="False"
+                              IsOpen="{CompiledBinding LoginError, Converter={x:Static ObjectConverters.IsNotNull}}" />
 
-        <Ellipse Margin="20"
-                 Height="300"
-                 Width="300" >
-          <Ellipse.Fill>
-            <ImageBrush Source="{CompiledBinding ProfilePicture}" />
-          </Ellipse.Fill>
-        </Ellipse>
+            <TextBlock Classes="card-title">Account</TextBlock>
+            <Border Classes="card">
+                <StackPanel>
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <Border Grid.Column="0"
+                                Width="72"
+                                Height="72"
+                                CornerRadius="36"
+                                ClipToBounds="True"
+                                Margin="0 0 15 0"
+                                Background="{DynamicResource ControlFillColorDefaultBrush}">
+                            <Panel>
+                                <avalonia:MaterialIcon Kind="Spotify"
+                                                       Width="40"
+                                                       Height="40"
+                                                       IsVisible="{CompiledBinding ProfilePicture, Converter={x:Static ObjectConverters.IsNull}}" />
+                                <Image Source="{CompiledBinding ProfilePicture}" Stretch="UniformToFill" />
+                            </Panel>
+                        </Border>
 
-        <TextBlock HorizontalAlignment="Center"
-               Margin="5"
-               FontSize="20"
-               Text="{CompiledBinding Username}"/>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock Classes="h5 no-margin" Text="{CompiledBinding Username}" />
+                            <TextBlock Classes="subtitle" TextWrapping="Wrap" Text="{CompiledBinding Status}" />
+                        </StackPanel>
 
-        <StackPanel Orientation="Horizontal">
-          <Button Margin="10"
-                  Height="35"
-                  Width="150"
-                  HorizontalAlignment="Center"
-                  Classes="AppBarButton icon-button"
-                  Command="{Binding Login}"
-                  IsEnabled="{CompiledBinding LogInVisibility}">
-            LOGIN
-          </Button>
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+                            <Button Classes="accent" Command="{CompiledBinding Login}" Content="Log in with Spotify">
+                                <Button.IsVisible>
+                                    <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                        <CompiledBinding Path="!IsLoggedIn" />
+                                        <CompiledBinding Path="!IsWaitingForUser" />
+                                    </MultiBinding>
+                                </Button.IsVisible>
+                            </Button>
+                            <Button Command="{CompiledBinding CancelLogin}" Content="Cancel" IsVisible="{CompiledBinding IsWaitingForUser}" />
+                            <Button Command="{CompiledBinding Logout}" Content="Log out" IsVisible="{CompiledBinding IsLoggedIn}" />
+                        </StackPanel>
+                    </Grid>
 
-          <Button Margin="10"
-                  Height="35"
-                  Width="150"
-                  HorizontalAlignment="Center"
-                  Classes="AppBarButton icon-button"
-                  Command="{Binding Logout}"
-                  IsEnabled="{CompiledBinding LogOutVisibility}">
-            LOGOUT
-          </Button>
+                    <StackPanel IsVisible="{CompiledBinding IsWaitingForUser}" Margin="0 15 0 0" Spacing="5">
+                        <ProgressBar IsIndeterminate="True" />
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Classes="subtitle" VerticalAlignment="Center">Browser didn't open?</TextBlock>
+                            <HyperlinkButton Command="{CompiledBinding OpenLoginPage}" Content="Open the login page again" />
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Classes="card-title">What Artemis can see</TextBlock>
+            <Border Classes="card">
+                <TextBlock TextWrapping="Wrap">
+                    The track that's playing and the state of your player: play/pause, device, volume, shuffle and repeat. Artemis can't control playback or change anything on your account.
+                </TextBlock>
+            </Border>
         </StackPanel>
-
-      </StackPanel>
-  </Border>
+    </ScrollViewer>
 </UserControl>

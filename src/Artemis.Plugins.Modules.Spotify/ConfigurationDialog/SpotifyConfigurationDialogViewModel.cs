@@ -2,13 +2,16 @@
 using Artemis.UI.Shared;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
+using ReactiveUI;
+using Serilog;
 using SpotifyAPI.Web;
-using SpotifyAPI.Web.Auth;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Reactive;
+using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
 
 namespace Artemis.Plugins.Modules.Spotify;
@@ -16,13 +19,46 @@ namespace Artemis.Plugins.Modules.Spotify;
 public class SpotifyConfigurationDialogViewModel : PluginConfigurationViewModel
 {
     private readonly HttpClient _client = new();
-    private readonly PluginSetting<PKCETokenResponse> _token;
-    private readonly SpotifyModule _dataModelExpansion;
-
-    private static EmbedIOAuthServer? _server;
-    private static EmbedIOAuthServer Server => _server ??= new EmbedIOAuthServer(new Uri("http://127.0.0.1:5000/callback"), 5000);
+    private readonly SpotifyAccount _account;
+    private readonly ILogger _logger;
 
     private Bitmap? _profilePicture;
+    private string? _username;
+    private string _status = string.Empty;
+    private string? _loginError;
+    private bool _isLoggedIn;
+    private bool _isLoginExpired;
+    private bool _isWaitingForUser;
+
+    public SpotifyConfigurationDialogViewModel(Plugin plugin, SpotifyAccount account, ILogger logger) : base(plugin)
+    {
+        _account = account;
+        _logger = logger;
+
+        Login = ReactiveCommand.CreateFromTask(ExecuteLogin);
+        OpenLoginPage = ReactiveCommand.Create(_account.OpenLoginPage);
+        CancelLogin = ReactiveCommand.Create(_account.CancelLogin);
+        Logout = ReactiveCommand.Create(_account.Logout);
+
+        UpdateState();
+
+        this.WhenActivated(d =>
+        {
+            _account.StateChanged += AccountOnStateChanged;
+            _account.LoginFailed += AccountOnLoginFailed;
+            Disposable.Create(() =>
+            {
+                _account.StateChanged -= AccountOnStateChanged;
+                _account.LoginFailed -= AccountOnLoginFailed;
+                _account.CancelLogin();
+            }).DisposeWith(d);
+        });
+    }
+
+    public ReactiveCommand<Unit, Unit> Login { get; }
+    public ReactiveCommand<Unit, Unit> OpenLoginPage { get; }
+    public ReactiveCommand<Unit, Unit> CancelLogin { get; }
+    public ReactiveCommand<Unit, Unit> Logout { get; }
 
     public Bitmap? ProfilePicture
     {
@@ -30,137 +66,116 @@ public class SpotifyConfigurationDialogViewModel : PluginConfigurationViewModel
         set => RaiseAndSetIfChanged(ref _profilePicture, value);
     }
 
-    private string? _username;
-
     public string? Username
     {
         get => _username;
         set => RaiseAndSetIfChanged(ref _username, value);
     }
 
-    private bool _logInVisibility;
-
-    public bool LogInVisibility
+    public string Status
     {
-        get => _logInVisibility;
-        set => RaiseAndSetIfChanged(ref _logInVisibility, value);
+        get => _status;
+        set => RaiseAndSetIfChanged(ref _status, value);
     }
 
-    private bool _logOutVisibility;
-
-    public bool LogOutVisibility
+    public string? LoginError
     {
-        get => _logOutVisibility;
-        set => RaiseAndSetIfChanged(ref _logOutVisibility, value);
+        get => _loginError;
+        set => RaiseAndSetIfChanged(ref _loginError, value);
     }
 
-    private string? _verifier;
-    private string? _challenge;
-    private string? _loginUrl;
-    private bool _waitingForUser;
-
-    public SpotifyConfigurationDialogViewModel(Plugin plugin, PluginSettings settings) : base(plugin)
+    public bool IsLoggedIn
     {
-        _token = settings.GetSetting<PKCETokenResponse>(Constants.SPOTIFY_AUTH_SETTING);
-        _dataModelExpansion = Plugin.GetFeature<SpotifyModule>()!;
-        UpdateProfilePicture();
-        UpdateButtonVisibility();
+        get => _isLoggedIn;
+        set => RaiseAndSetIfChanged(ref _isLoggedIn, value);
     }
 
-    public async Task Login()
+    public bool IsLoginExpired
     {
-        if (_waitingForUser)
-            return;
-        
-        _waitingForUser = true;
-        (_verifier, _challenge) = PKCEUtil.GenerateCodes();
+        get => _isLoginExpired;
+        set => RaiseAndSetIfChanged(ref _isLoginExpired, value);
+    }
 
-        await Server.Start();
-        Server.AuthorizationCodeReceived += OnAuthorizationCodeReceived;
+    public bool IsWaitingForUser
+    {
+        get => _isWaitingForUser;
+        set => RaiseAndSetIfChanged(ref _isWaitingForUser, value);
+    }
 
-        var request = new LoginRequest(Server.BaseUri, Constants.SPOTIFY_CLIENT_ID, LoginRequest.ResponseType.Code)
+    private async Task ExecuteLogin()
+    {
+        LoginError = null;
+        try
         {
-            CodeChallenge = _challenge,
-            CodeChallengeMethod = "S256",
-            Scope = new List<string> { Scopes.UserReadCurrentlyPlaying, Scopes.UserReadPlaybackState }
-        };
-        _loginUrl = request.ToUri().ToString();
-
-        if (_loginUrl is not null)
-            Utilities.OpenUrl(_loginUrl);
+            await _account.StartLogin();
+        }
+        catch (Exception e)
+        {
+            _logger.Error(e, "Failed to start the Spotify login");
+            _account.CancelLogin();
+            LoginError = $"Couldn't start the login: {e.Message}";
+        }
     }
 
-    public void Logout()
+    private void AccountOnStateChanged(object? sender, EventArgs e)
     {
-        _token.Value = null;
-        _token.Save();
-        _dataModelExpansion.Logout();
-        UpdateProfilePicture();
-        UpdateButtonVisibility();
+        Dispatcher.UIThread.Post(UpdateState);
     }
 
-    private async Task OnAuthorizationCodeReceived(object sender, AuthorizationCodeResponse response)
+    private void AccountOnLoginFailed(object? sender, Exception e)
     {
-        Server.AuthorizationCodeReceived -= OnAuthorizationCodeReceived;
-        await Server.Stop();
-
-        var tokenRequest = new PKCETokenRequest(Constants.SPOTIFY_CLIENT_ID, response.Code, Server.BaseUri, _verifier!);
-
-        _token.Value = await new OAuthClient().RequestToken(tokenRequest);
-        _token.Save();
-
-        _dataModelExpansion.Login();
-        UpdateProfilePicture();
-        UpdateButtonVisibility();
-        _waitingForUser = false;
-        _loginUrl = null;
+        Dispatcher.UIThread.Post(() => LoginError = $"Spotify didn't accept the login: {e.Message}");
     }
 
-    private void UpdateButtonVisibility()
+    private void UpdateState()
     {
-        LogInVisibility = !_dataModelExpansion.LoggedIn;
-        LogOutVisibility = _dataModelExpansion.LoggedIn;
+        bool wasLoggedIn = IsLoggedIn;
+        IsLoggedIn = _account.IsLoggedIn;
+        IsWaitingForUser = _account.IsWaitingForLogin;
+        IsLoginExpired = _account.IsLoginExpired && !IsWaitingForUser;
+
+        if (IsWaitingForUser)
+            Status = "Waiting for you to finish logging in, check your browser";
+        else if (IsLoggedIn)
+            Status = "Connected to Spotify";
+        else if (_account.IsLoginExpired)
+            Status = "Login expired";
+        else
+            Status = "Not connected";
+
+        if (!IsLoggedIn)
+        {
+            Username = "Spotify";
+            ProfilePicture = null;
+        }
+        else if (!wasLoggedIn)
+        {
+            UpdateProfile();
+        }
     }
 
-    private void UpdateProfilePicture()
+    private void UpdateProfile()
     {
         Dispatcher.UIThread.Post(async () =>
         {
             try
             {
-                if (_dataModelExpansion.LoggedIn)
-                {
-                    var user = await _dataModelExpansion.GetUserInfo();
-                    if (user is null)
-                        return;
-                    Username = user.DisplayName;
-
-                    //skiaSharp crashes on linux, fix later TODO
-                    if (OperatingSystem.IsLinux())
-                        return;
-
-                    if (user.Images.Count < 1)
-                        return;
-                    
-                    try
-                    {
-                        var response = await _client.GetAsync(user.Images.Last().Url, HttpCompletionOption.ResponseContentRead);
-                        var imageStream = await response.Content.ReadAsStreamAsync();
-                        ProfilePicture = new Bitmap(imageStream);
-                    }
-                    catch (Exception e)
-                    {
-                        ProfilePicture = new Bitmap(new FileStream(Plugin.ResolveRelativePath("no-user.png"), FileMode.Open, FileAccess.Read));
-                    }
-
+                PrivateUser? user = await _account.GetUserInfo();
+                if (user is null)
                     return;
-                }
+                Username = user.DisplayName;
 
-                Username = "Not logged in";
+                //skiaSharp crashes on linux, fix later TODO
+                if (OperatingSystem.IsLinux() || user.Images.Count < 1)
+                    return;
+
+                HttpResponseMessage response = await _client.GetAsync(user.Images.Last().Url, HttpCompletionOption.ResponseContentRead);
+                Stream imageStream = await response.Content.ReadAsStreamAsync();
+                ProfilePicture = new Bitmap(imageStream);
             }
             catch (Exception e)
             {
-                //failed to get user info, ignore
+                _logger.Debug(e, "Failed to get the Spotify profile");
             }
         });
     }
