@@ -1,0 +1,22 @@
+<windowing:AppWindow xmlns="https://github.com/avaloniaui"
+                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                     xmlns:windowing="clr-namespace:FluentAvalonia.UI.Windowing;assembly=FluentAvalonia"
+                     xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+                     xmlns:local="clr-namespace:Artemis.Plugins.Modules.Spotify"
+                     mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+                     x:Class="Artemis.Plugins.Modules.Spotify.SpotifySettingsWindowView"
+                     x:DataType="local:SpotifySettingsWindowViewModel"
+                     Title="Spotify | Settings"
+                     Width="800"
+                     Height="800"
+                     MaxWidth="800"
+                     WindowStartupLocation="CenterScreen">
+    <Grid RowDefinitions="Auto,*" ColumnDefinitions="Auto,*" Margin="15">
+        <avalonia:MaterialIcon Grid.Row="0" Grid.Column="0" Kind="Spotify" Width="48" Height="48" Margin="0 0 15 0" />
+        <TextBlock Grid.Row="0" Grid.Column="1" FontSize="28" VerticalAlignment="Center" Text="Spotify" />
+
+        <ContentControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Content="{CompiledBinding ConfigurationViewModel}" />
+    </Grid>
+</windowing:AppWindow>

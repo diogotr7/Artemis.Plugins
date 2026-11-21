@@ -9,4 +9,15 @@ public class SpotifyPluginBootstrapper : PluginBootstrapper
     {
         plugin.ConfigurationDialog = new PluginConfigurationDialog<SpotifyConfigurationDialogViewModel>(true);
     }
+
+    public override void OnPluginEnabled(Plugin plugin)
+    {
+        // Runs before the module is created, which depends on these
+        plugin.Register<SpotifyAccount>();
+        plugin.Register<AlbumArtColors>();
+        plugin.Register<SpotifyLoginNotifier>();
+
+        // Nothing depends on the notifier, resolve it so it starts listening
+        plugin.Resolve<SpotifyLoginNotifier>();
+    }
 }
