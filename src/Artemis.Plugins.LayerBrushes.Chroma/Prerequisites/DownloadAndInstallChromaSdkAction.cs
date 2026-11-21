@@ -1,81 +1,69 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
-using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
 using Artemis.Core;
 
 namespace Artemis.Plugins.LayerBrushes.Chroma.Prerequisites;
 
 public class DownloadAndInstallChromaSdkAction : PluginPrerequisiteAction
 {
-    public DownloadAndInstallChromaSdkAction() : base("Install Chroma SDK")
-    {
-    }
+	public DownloadAndInstallChromaSdkAction() : base("Install Chroma SDK")
+	{
+	}
 
-    public override async Task Execute(CancellationToken cancellationToken)
-    {
-        using var httpClient = new HttpClient();
-        var downloadLink = await GetDownloadUrlAsync(httpClient);
-        var tempFolder = Path.GetTempPath();
-        var tempPath = Path.Combine(tempFolder, "RazerChromaSdkInstaller.exe");
-        
-        using (var response = await httpClient.GetStreamAsync(downloadLink, cancellationToken))
-        {
-            await using (var fileStream = new FileStream(tempPath, FileMode.Create))
-            {
-                await response.CopyToAsync(fileStream, cancellationToken);
-            }
-        }
+	public override async Task Execute(CancellationToken cancellationToken)
+	{
+		using var httpClient = new HttpClient();
+		var downloadLink = await GetDownloadUrlAsync(httpClient, cancellationToken);
+		var tempFolder = Path.GetTempPath();
+		var tempPath = Path.Combine(tempFolder, "RazerChromaSdkInstaller.exe");
 
-        var childAction = new ExecuteFileAction("Install Chroma SDK", tempPath, elevate: true, arguments: "/S", waitForExit: true);
-        await childAction.Execute(cancellationToken);
+		using (var response = await httpClient.GetStreamAsync(downloadLink, cancellationToken))
+		{
+			await using (var fileStream = new FileStream(tempPath, FileMode.Create))
+			{
+				await response.CopyToAsync(fileStream, cancellationToken);
+			}
+		}
 
-        File.Delete(tempPath);
-    }
+		var childAction = new ExecuteFileAction("Install Chroma SDK", tempPath, elevate: true, arguments: "/S", waitForExit: true);
+		await childAction.Execute(cancellationToken);
 
-    private async Task<string> GetDownloadUrlAsync(HttpClient httpClient)
-    {
-        //a bunch of nullable overrides here but i don't care
-        const string ENDPOINT = "prod";
-        var endpointsJson = await httpClient.GetStringAsync("https://discovery.razerapi.com/user/endpoints");
-        var endpoints = JsonSerializer.Deserialize<RazerRoot>(endpointsJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        var prodEndpoint = endpoints!.endpoints.Find(ep => ep.name == ENDPOINT);
+		File.Delete(tempPath);
+	}
 
-        const string PLATFORM_DATA = """
-                                     <PlatformRoot xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-                                       <Platform>
-                                         <Arch>64</Arch>
-                                         <Locale>en</Locale>
-                                         <Mfr>Generic-MFR</Mfr>
-                                         <Model>Generic-MDL</Model>
-                                         <OS>Windows</OS>
-                                         <OSVer>10</OSVer>
-                                         <SKU>Generic-SKU</SKU>
-                                       </Platform>
-                                     </PlatformRoot>
-                                     """;
-        using var response2 = await httpClient.PostAsync(
-            $"https://manifest.razerapi.com/api/legacy/{prodEndpoint!.hash}/{ENDPOINT}/productlist/get",
-            new StringContent(PLATFORM_DATA, Encoding.UTF8, "application/xml"));
-        var a = await response2.Content.ReadAsStringAsync();
+	private async Task<string> GetDownloadUrlAsync(HttpClient httpClient, CancellationToken cancellationToken)
+	{
+		var jsonSerializerOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
-        var xml = new XmlDocument();
-        xml.LoadXml(a);
+		var installerManifestJson = await httpClient.GetStringAsync("https://apps.razer.com/chroma-app/dashboard/installer-manifest.json", cancellationToken);
+		var installerManifest = JsonSerializer.Deserialize<InstallerManifest>(installerManifestJson, jsonSerializerOptions);
 
-        foreach (XmlNode node in xml!.DocumentElement!.SelectNodes("//Module")!)
-        {
-            if (node["Name"]!.InnerText == "CHROMABROADCASTER")
-                return node["DownloadURL"]!.InnerText;
-        }
+		if (string.IsNullOrWhiteSpace(installerManifest?.baseURL) || string.IsNullOrWhiteSpace(installerManifest.latest?.url))
+			throw new ArtemisPluginException("Failed to retrieve Razer installer manifest");
 
-        throw new ArtemisPluginException("Failed to retrieve Razer API download URL");
-    }
+		var latestManifestPath = $"{installerManifest.baseURL.TrimStart('/')}/{installerManifest.latest.url.TrimStart('/')}";
+		var latestManifestUrl = new Uri(new Uri("https://apps.razer.com/"), latestManifestPath);
 
-    private record RazerEndpoint(string name, string hash);
+		var latestManifestJson = await httpClient.GetStringAsync(latestManifestUrl, cancellationToken);
+		var latestManifest = JsonSerializer.Deserialize<ChromaManifest>(latestManifestJson, jsonSerializerOptions);
 
-    private record RazerRoot(List<RazerEndpoint> endpoints);
+		var installerResource = latestManifest?.resources?.Find(resource => resource.resourceName == "ExtraInstaller_Razer Chroma SDK Core");
+		if (string.IsNullOrWhiteSpace(installerResource?.url))
+			throw new ArtemisPluginException("Failed to retrieve Razer Chroma SDK Core download URL");
+
+		return installerResource.url;
+	}
+
+	private record InstallerManifest(string baseURL, InstallerManifestRelease latest);
+
+	private record InstallerManifestRelease(string url);
+
+	private record ChromaManifest(List<ChromaResource> resources);
+
+	private record ChromaResource(string resourceName, string url);
 }
